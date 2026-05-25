@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Customer My Order Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf2e4;
+        --line: #e5d9c7;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --warm: #c9833b;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", "Yu Gothic UI", sans-serif; color: var(--text); background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%); }
+      .page { min-height: 100vh; display: grid; justify-items: center; gap: 16px; padding: 20px 12px 28px; }
+      .toolbar { width: min(100%, 420px); display: grid; gap: 10px; }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p { margin: 0; color: var(--text-subtle); font-size: 13px; line-height: 1.5; }
+      .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+      .state-btn { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 700; color: var(--text-subtle); cursor: pointer; }
+      .state-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+      .phone { width: min(100%, 390px); min-height: 844px; border-radius: 38px; background: #fffdf9; border: 1px solid rgba(184,166,140,0.32); box-shadow: var(--shadow); overflow: hidden; position: relative; }
+      .screen { display: none; padding: 18px 16px 24px; min-height: 844px; }
+      .screen.active { display: block; }
+      .hero { background: var(--surface-soft); border: 1px solid #f1e3cd; border-radius: 24px; padding: 18px 16px 16px; margin-bottom: 16px; }
+      .eyebrow { margin: 0 0 6px; color: #8b6e3a; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+      .hero h2 { margin: 0; font-size: 28px; line-height: 1.12; letter-spacing: -0.04em; }
+      .hero p { margin: 10px 0 0; color: var(--text-subtle); font-size: 13px; }
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 18px 16px 16px; display: grid; gap: 16px; }
+      .ticket-box { background: #f8f4ed; border: 1px solid #eadfce; border-radius: 20px; padding: 16px 14px; }
+      .ticket-label { font-size: 12px; font-weight: 700; color: #8b6e3a; letter-spacing: 0.08em; text-transform: uppercase; }
+      .ticket-no { margin-top: 6px; font-size: 28px; font-weight: 700; letter-spacing: -0.04em; }
+      .ticket-time { margin-top: 6px; font-size: 13px; color: var(--text-subtle); }
+      .order-list { display: grid; gap: 10px; }
+      .order-item { display: flex; justify-content: space-between; align-items: start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #efe6da; }
+      .order-item:last-child { border-bottom: none; padding-bottom: 0; }
+      .order-name { font-size: 16px; font-weight: 700; }
+      .order-meta { margin-top: 4px; font-size: 13px; color: var(--text-subtle); }
+      .order-price { font-size: 16px; font-weight: 700; white-space: nowrap; }
+      .subtotal { background: #f8f4ed; border: 1px solid #eadfce; border-radius: 18px; padding: 14px 14px 12px; }
+      .subtotal-row { display: flex; justify-content: space-between; gap: 12px; align-items: start; }
+      .subtotal-label { font-size: 14px; font-weight: 700; }
+      .subtotal-price { font-size: 18px; font-weight: 700; }
+      .subtotal-note { margin-top: 8px; font-size: 13px; line-height: 1.55; color: var(--text-subtle); }
+      .error-box { background: #fffaf8; border: 1px solid #e8b6aa; border-radius: 22px; padding: 20px 16px; display: grid; gap: 12px; }
+      .primary { width: 100%; border: none; border-radius: 16px; background: var(--warm); color: white; padding: 14px 16px; font-weight: 700; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Customer My Order Preview</h1>
+        <p>`Done` の続きとして、伝票番号・注文一覧・小計を静かに見返す画面です。まず通常状態を見て、安心して見返せるかを確認してください。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="default">通常</button>
+          <button class="state-btn" data-target="with-status">状態あり</button>
+          <button class="state-btn" data-target="error">エラー</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="default">
+          <div class="hero"><p class="eyebrow">My Order</p><h2>注文内容</h2><p>Demo Cafe Ebisu / 卓 T1</p></div>
+          <div class="panel">
+            <div class="ticket-box">
+              <div class="ticket-label">伝票番号</div>
+              <div class="ticket-no">A1002</div>
+              <div class="ticket-time">注文時刻 19:24</div>
+            </div>
+            <div class="order-list">
+              <div class="order-item">
+                <div><div class="order-name">名物ポテトサラダ</div><div class="order-meta">2点 / 単価 ¥480</div></div>
+                <div class="order-price">¥960</div>
+              </div>
+              <div class="order-item">
+                <div><div class="order-name">若鶏の唐揚げ</div><div class="order-meta">1点 / 単価 ¥680</div></div>
+                <div class="order-price">¥680</div>
+              </div>
+            </div>
+            <div class="subtotal">
+              <div class="subtotal-row"><div class="subtotal-label">小計</div><div class="subtotal-price">¥1,640</div></div>
+              <div class="subtotal-note">変更が必要な場合はスタッフへお声がけください。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="with-status">
+          <div class="hero"><p class="eyebrow">My Order</p><h2>注文内容</h2><p>Demo Cafe Ebisu / 卓 T1</p></div>
+          <div class="panel">
+            <div class="ticket-box">
+              <div class="ticket-label">伝票番号</div>
+              <div class="ticket-no">A1002</div>
+              <div class="ticket-time">注文時刻 19:24 / 状態 ご用意中</div>
+            </div>
+            <div class="order-list">
+              <div class="order-item">
+                <div><div class="order-name">名物ポテトサラダ</div><div class="order-meta">2点 / 単価 ¥480</div></div>
+                <div class="order-price">¥960</div>
+              </div>
+              <div class="order-item">
+                <div><div class="order-name">若鶏の唐揚げ</div><div class="order-meta">1点 / 単価 ¥680</div></div>
+                <div class="order-price">¥680</div>
+              </div>
+            </div>
+            <div class="subtotal">
+              <div class="subtotal-row"><div class="subtotal-label">小計</div><div class="subtotal-price">¥1,640</div></div>
+              <div class="subtotal-note">状態は目安です。変更が必要な場合はスタッフへお声がけください。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="error">
+          <div class="hero"><p class="eyebrow">My Order</p><h2>注文内容</h2><p>Demo Cafe Ebisu / 卓 T1</p></div>
+          <div class="panel">
+            <div class="ticket-box">
+              <div class="ticket-label">伝票番号</div>
+              <div class="ticket-no">A1002</div>
+              <div class="ticket-time">注文時刻 19:24</div>
+            </div>
+            <div class="error-box">
+              <div class="order-name">注文内容を読み込めませんでした</div>
+              <div class="order-meta">少し時間を置いて再読み込みしてください。改善しない場合はスタッフへお声がけください。</div>
+            </div>
+            <button class="primary">再読み込み</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll('.state-btn');
+      const screens = document.querySelectorAll('.screen');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle('active', b === button));
+          screens.forEach((screen) => screen.classList.toggle('active', screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

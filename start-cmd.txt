@@ -1,0 +1,34 @@
+
+---
+
+// バックエンドサーバー（Cloudflare D1 の API）を起動
+// --ip 0.0.0.0 でLAN内のスマホ・タブレットからも接続できるようになります
+
+cd customer-api-prototype
+npm run dev
+
+
+
+本番環境（URL）: npx wrangler deploy が完了した瞬間から、本番のWebサイトは、先ほどインポートしたD1データベースを参照するようになります。
+ローカル環境: 自分のPCで npx wrangler dev を実行したときは、これまで通りPC内のローカルDBを見に行きます。
+※もしローカル開発時も本番のDBを見たい場合は # 一度 Ctrl+C で停止してから、以下で再起動
+npx wrangler dev --remote --ip 0.0.0.0
+ と打ちます。
+---
+
+// フロントエンドサーバーを起動
+// PC から    → http://localhost:5173/?view=staff
+// スマホ等  → http://192.168.45.3:5173/?view=staff
+
+cd lite-app-v4
+npm.cmd run dev
+
+---
+
+// ※ .env.local の設定（スマホ対応済み）
+// VITE_CUSTOMER_API_ORIGIN=http://192.168.45.3:8787
+// VITE_PUBLIC_APP_ORIGIN=http://192.168.45.3:5173
+
+
+
+// db → customer-api-prototype\.wrangler-clean\v3\d1

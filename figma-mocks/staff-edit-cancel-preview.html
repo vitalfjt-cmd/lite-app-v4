@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Staff Edit / Cancel Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf6ee;
+        --line: #e3d8c8;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --accent-soft: #f7fbf1;
+        --warm: #c9833b;
+        --warm-soft: #fff1e3;
+        --danger: #a64632;
+        --danger-soft: #fce9e4;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%);
+      }
+      .page {
+        min-height: 100vh;
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding: 20px 12px 28px;
+      }
+      .toolbar {
+        width: min(100%, 460px);
+        display: grid;
+        gap: 10px;
+      }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .state-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+        cursor: pointer;
+      }
+      .state-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .phone {
+        width: min(100%, 390px);
+        min-height: 844px;
+        border-radius: 38px;
+        background: #fffdf9;
+        border: 1px solid rgba(184, 166, 140, 0.32);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+      }
+      .screen {
+        display: none;
+        padding: 16px 16px 108px;
+        min-height: 844px;
+      }
+      .screen.active { display: block; }
+      .hero {
+        background: var(--surface-soft);
+        border: 1px solid #f1e3cd;
+        border-radius: 24px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .hero h2 {
+        margin: 0;
+        font-size: 24px;
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+      }
+      .hero p {
+        margin: 10px 0 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+      }
+      .stack { display: grid; gap: 12px; }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 16px;
+        display: grid;
+        gap: 12px;
+      }
+      .item-head,
+      .item-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .item-name {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .item-meta {
+        font-size: 13px;
+        color: var(--text-subtle);
+      }
+      .amount {
+        font-size: 16px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .list-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 16px;
+        padding: 14px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font: inherit;
+        cursor: pointer;
+      }
+      .stepper-box {
+        background: var(--surface-soft);
+        border: 1px solid #ebdfcf;
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .stepper {
+        width: 168px;
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .stepper button,
+      .stepper div {
+        height: 44px;
+        display: grid;
+        place-items: center;
+      }
+      .stepper button {
+        border: none;
+        background: transparent;
+        font: inherit;
+        font-size: 18px;
+      }
+      .stepper div {
+        font-size: 16px;
+        font-weight: 700;
+        border-inline: 1px solid var(--line);
+      }
+      .danger-box {
+        background: #fffaf8;
+        border: 1px solid #e8b6aa;
+        border-radius: 22px;
+        padding: 16px;
+        display: grid;
+        gap: 10px;
+      }
+      .toast {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--accent-soft);
+        color: #59752d;
+        font-size: 13px;
+      }
+      .bottom-actions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 14px 16px 24px;
+        background: linear-gradient(180deg, rgba(255, 253, 248, 0.3) 0%, rgba(255, 253, 248, 0.92) 18%, rgba(255, 253, 248, 0.98) 100%);
+      }
+      .action-box {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 12px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        flex: 1;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 10px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .btn.subtle {
+        background: #edf0ee;
+        color: #4c5351;
+      }
+      .btn.primary {
+        background: var(--warm);
+        color: white;
+      }
+      .btn.danger {
+        background: var(--danger);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Staff Edit & Cancel Preview</h1>
+        <p>修正は軽く、取消は 1 段だけ確認を挟みます。まずは数量修正と取消だけに絞ります。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="entry">入口</button>
+          <button class="state-btn" data-target="quantity">数量修正</button>
+          <button class="state-btn" data-target="cancel">取消確認</button>
+          <button class="state-btn" data-target="saved">反映後</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="entry">
+          <div class="hero">
+            <p class="eyebrow">Edit</p>
+            <h2>修正する明細を選択</h2>
+            <p>対象を 1 件選んでから、数量変更または取消に進みます。</p>
+          </div>
+          <div class="stack">
+            <button class="list-btn"><span>生ビール</span><span class="item-meta">1点 / ¥590</span></button>
+            <button class="list-btn"><span>枝豆</span><span class="item-meta">1点 / ¥420</span></button>
+            <button class="list-btn"><span>鉄板焼きそば</span><span class="item-meta">2点 / ¥2,530</span></button>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">詳細へ戻る</button>
+              <button class="btn primary">数量を変更</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="quantity">
+          <div class="hero">
+            <p class="eyebrow">Edit</p>
+            <h2>数量を変更</h2>
+            <p>現在数量を確認して、新しい数量を選びます。</p>
+          </div>
+          <div class="stack">
+            <div class="card">
+              <div class="item-head">
+                <div class="item-name">鉄板焼きそば</div>
+                <div class="amount">¥2,530</div>
+              </div>
+              <div class="item-foot">
+                <div class="item-meta">現在 2点 / 単価 ¥1,265</div>
+              </div>
+            </div>
+            <div class="stepper-box">
+              <div class="item-meta">新しい数量</div>
+              <div class="stepper">
+                <button>-</button>
+                <div>1</div>
+                <button>+</button>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">戻る</button>
+              <button class="btn primary">変更を保存</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="cancel">
+          <div class="hero">
+            <p class="eyebrow">Cancel</p>
+            <h2>取消確認</h2>
+            <p>取消は一度だけ確認を挟みます。</p>
+          </div>
+          <div class="stack">
+            <div class="card">
+              <div class="item-head">
+                <div class="item-name">枝豆</div>
+                <div class="amount">¥420</div>
+              </div>
+              <div class="item-foot">
+                <div class="item-meta">1点 / 単価 ¥420</div>
+              </div>
+            </div>
+            <div class="danger-box">
+              <div class="item-name">この明細を取消しますか？</div>
+              <div class="item-meta">取消後に必要な場合は、改めて入力してください。</div>
+            </div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">戻る</button>
+              <button class="btn danger">取消する</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="saved">
+          <div class="hero">
+            <p class="eyebrow">Edit</p>
+            <h2>変更を反映</h2>
+            <p>保存後は詳細画面へ戻し、短い通知だけを出します。</p>
+          </div>
+          <div class="stack">
+            <div class="card">
+              <div class="item-head">
+                <div class="item-name">鉄板焼きそば</div>
+                <div class="amount">¥1,265</div>
+              </div>
+              <div class="item-foot">
+                <div class="item-meta">1点 / 単価 ¥1,265</div>
+              </div>
+            </div>
+            <div class="toast">変更を保存しました</div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">詳細へ戻る</button>
+              <button class="btn primary">会計補助へ進む</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll(".state-btn");
+      const screens = document.querySelectorAll(".screen");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle("active", b === button));
+          screens.forEach((screen) => screen.classList.toggle("active", screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

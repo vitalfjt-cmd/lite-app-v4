@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Staff List Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf6ee;
+        --line: #e3d8c8;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --accent-soft: #f7fbf1;
+        --accent-strong: #dbeac4;
+        --warm: #c9833b;
+        --warm-soft: #fff1e3;
+        --success: #537c4d;
+        --success-soft: #edf5ea;
+        --neutral-soft: #eef1ee;
+        --danger: #a64632;
+        --danger-soft: #fce9e4;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", "Yu Gothic UI", sans-serif; color: var(--text); background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%); }
+      .page { min-height: 100vh; display: grid; justify-items: center; gap: 16px; padding: 20px 12px 28px; }
+      .toolbar { width: min(100%, 460px); display: grid; gap: 10px; }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p { margin: 0; color: var(--text-subtle); font-size: 13px; line-height: 1.5; }
+      .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+      .state-btn { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 8px 12px; font: inherit; font-size: 12px; font-weight: 700; color: var(--text-subtle); cursor: pointer; }
+      .state-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+      .phone { width: min(100%, 390px); min-height: 844px; border-radius: 38px; background: #fffdf9; border: 1px solid rgba(184,166,140,0.32); box-shadow: var(--shadow); overflow: hidden; position: relative; }
+      .screen { display: none; padding: 16px 16px 104px; min-height: 844px; }
+      .screen.active { display: block; }
+      .hero { background: var(--surface-soft); border: 1px solid #f1e3cd; border-radius: 24px; padding: 16px 16px 14px; margin-bottom: 12px; }
+      .eyebrow { margin: 0 0 6px; color: #8b6e3a; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+      .hero h2 { margin: 0; font-size: 28px; line-height: 1.15; letter-spacing: -0.04em; }
+      .hero p { margin: 10px 0 0; color: var(--text-subtle); font-size: 13px; }
+      .search-row { display: grid; gap: 10px; margin-bottom: 12px; }
+      .search-box { border: 1px solid var(--line); background: #fff; border-radius: 18px; padding: 13px 14px; font-size: 14px; color: var(--text-subtle); }
+      .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+      .filter-tab { flex: 0 0 auto; padding: 9px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fffdfa; color: #5f655f; font-size: 13px; font-weight: 600; }
+      .filter-tab.active { background: #f5faed; color: #6d8f39; border-color: #b8cf96; }
+      .notice { background: var(--warm-soft); border: 1px solid #ebc79f; border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; display: flex; justify-content: space-between; gap: 12px; align-items: center; }
+      .notice strong { font-size: 14px; }
+      .notice span { font-size: 12px; color: #7b6238; }
+      .list { display: grid; gap: 12px; }
+      .ticket-card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 14px; display: grid; gap: 10px; }
+      .ticket-card.highlight { border-color: #d9bf93; box-shadow: 0 0 0 3px rgba(201,131,59,0.10); }
+      .ticket-head, .ticket-meta, .ticket-foot { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .table-name { font-size: 18px; font-weight: 700; }
+      .ticket-no { font-size: 13px; color: var(--text-subtle); }
+      .meta-left { display: grid; gap: 4px; }
+      .status-chip, .mini-badge { padding: 6px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+      .status-chip.new { background: var(--warm-soft); color: #9b5e1f; }
+      .status-chip.progress { background: var(--accent-soft); color: #5f7f2e; }
+      .status-chip.done { background: var(--success-soft); color: var(--success); }
+      .mini-badge.customer { background: #f1f3f0; color: #66706c; }
+      .mini-badge.handy { background: #eef2fb; color: #51648d; }
+      .unserved { font-size: 13px; font-weight: 700; color: #6b5a36; }
+      .subtotal { font-size: 15px; font-weight: 700; }
+      .time { font-size: 13px; color: var(--text-subtle); }
+      .fab { position: absolute; right: 16px; bottom: 22px; background: var(--warm); color: white; border: none; border-radius: 999px; padding: 14px 18px; font-weight: 700; box-shadow: 0 12px 22px rgba(201,131,59,0.26); }
+      .empty-box, .error-box { border-radius: 22px; padding: 18px 16px; display: grid; gap: 10px; }
+      .empty-box { background: #faf6ef; border: 1px solid #eadfce; }
+      .error-box { background: #fffaf8; border: 1px solid #e8b6aa; }
+      .primary { width: 100%; border: none; border-radius: 16px; background: var(--warm); color: white; padding: 14px 16px; font-weight: 700; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Staff Ticket List Preview</h1>
+        <p>一覧は「次にどの卓を見るか」を決める画面として整理しています。まず通常状態を見て、次に触る伝票がすぐ決まるかを確認してください。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="new">新規あり</button>
+          <button class="state-btn" data-target="progress">進行中</button>
+          <button class="state-btn" data-target="search">検索</button>
+          <button class="state-btn" data-target="error">エラー</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="new">
+          <div class="hero"><p class="eyebrow">Floor Staff</p><h2>伝票一覧</h2><p>Demo Cafe Ebisu / 19:24 / 最終更新 19:23</p></div>
+          <div class="search-row">
+            <div class="search-box">卓名・伝票番号で検索</div>
+            <div class="filter-tabs">
+              <div class="filter-tab active">新規あり</div>
+              <div class="filter-tab">進行中</div>
+              <div class="filter-tab">提供済み</div>
+              <div class="filter-tab">すべて</div>
+            </div>
+          </div>
+          <div class="notice"><div><strong>新規注文 2件</strong><br><span>T-1042 / A-12 を先頭表示中</span></div><span>更新する</span></div>
+          <div class="list">
+            <div class="ticket-card highlight">
+              <div class="ticket-head"><div><div class="table-name">Table 12</div><div class="ticket-no">伝票 A-12</div></div><div class="status-chip new">新規注文あり</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:24</div><div class="unserved">未提供 4点</div></div><div class="subtotal">¥3,540</div></div>
+              <div class="ticket-foot"><div class="mini-badge customer">customer</div><div class="time">タップで詳細</div></div>
+            </div>
+            <div class="ticket-card">
+              <div class="ticket-head"><div><div class="table-name">Table 08</div><div class="ticket-no">伝票 A-08</div></div><div class="status-chip progress">進行中</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:18</div><div class="unserved">未提供 2点</div></div><div class="subtotal">¥4,720</div></div>
+              <div class="ticket-foot"><div class="mini-badge handy">handy</div><div class="time">更新 19:22</div></div>
+            </div>
+            <div class="ticket-card">
+              <div class="ticket-head"><div><div class="table-name">Table 03</div><div class="ticket-no">伝票 B-03</div></div><div class="status-chip done">提供済み</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:05</div><div class="unserved">未提供 0点</div></div><div class="subtotal">¥2,610</div></div>
+              <div class="ticket-foot"><div class="mini-badge customer">customer</div><div class="time">更新 19:19</div></div>
+            </div>
+          </div>
+          <button class="fab">代理注文</button>
+        </div>
+
+        <div class="screen" data-screen="progress">
+          <div class="hero"><p class="eyebrow">Floor Staff</p><h2>伝票一覧</h2><p>Demo Cafe Ebisu / 19:24 / 最終更新 19:23</p></div>
+          <div class="search-row">
+            <div class="search-box">卓名・伝票番号で検索</div>
+            <div class="filter-tabs">
+              <div class="filter-tab">新規あり</div>
+              <div class="filter-tab active">進行中</div>
+              <div class="filter-tab">提供済み</div>
+              <div class="filter-tab">すべて</div>
+            </div>
+          </div>
+          <div class="list">
+            <div class="ticket-card">
+              <div class="ticket-head"><div><div class="table-name">Table 08</div><div class="ticket-no">伝票 A-08</div></div><div class="status-chip progress">進行中</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:18</div><div class="unserved">未提供 2点</div></div><div class="subtotal">¥4,720</div></div>
+              <div class="ticket-foot"><div class="mini-badge handy">handy</div><div class="time">更新 19:22</div></div>
+            </div>
+            <div class="ticket-card">
+              <div class="ticket-head"><div><div class="table-name">Table 10</div><div class="ticket-no">伝票 A-10</div></div><div class="status-chip progress">進行中</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:12</div><div class="unserved">未提供 1点</div></div><div class="subtotal">¥1,980</div></div>
+              <div class="ticket-foot"><div class="mini-badge customer">customer</div><div class="time">更新 19:20</div></div>
+            </div>
+            <div class="ticket-card">
+              <div class="ticket-head"><div><div class="table-name">Table 12</div><div class="ticket-no">伝票 A-12</div></div><div class="status-chip new">新規注文あり</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:24</div><div class="unserved">未提供 4点</div></div><div class="subtotal">¥3,540</div></div>
+              <div class="ticket-foot"><div class="mini-badge customer">customer</div><div class="time">更新 19:24</div></div>
+            </div>
+          </div>
+          <button class="fab">代理注文</button>
+        </div>
+
+        <div class="screen" data-screen="search">
+          <div class="hero"><p class="eyebrow">Floor Staff</p><h2>伝票一覧</h2><p>Demo Cafe Ebisu / 19:24 / 最終更新 19:23</p></div>
+          <div class="search-row">
+            <div class="search-box">A-12</div>
+            <div class="filter-tabs">
+              <div class="filter-tab">新規あり</div>
+              <div class="filter-tab">進行中</div>
+              <div class="filter-tab">提供済み</div>
+              <div class="filter-tab active">すべて</div>
+            </div>
+          </div>
+          <div class="list">
+            <div class="ticket-card highlight">
+              <div class="ticket-head"><div><div class="table-name">Table 12</div><div class="ticket-no">伝票 A-12</div></div><div class="status-chip new">新規注文あり</div></div>
+              <div class="ticket-meta"><div class="meta-left"><div class="time">注文 19:24</div><div class="unserved">未提供 4点</div></div><div class="subtotal">¥3,540</div></div>
+              <div class="ticket-foot"><div class="mini-badge customer">customer</div><div class="time">1件ヒット</div></div>
+            </div>
+          </div>
+          <button class="fab">代理注文</button>
+        </div>
+
+        <div class="screen" data-screen="error">
+          <div class="hero"><p class="eyebrow">Floor Staff</p><h2>伝票一覧</h2><p>Demo Cafe Ebisu / 19:24 / 最終更新 19:20</p></div>
+          <div class="search-row">
+            <div class="search-box">卓名・伝票番号で検索</div>
+            <div class="filter-tabs">
+              <div class="filter-tab active">新規あり</div>
+              <div class="filter-tab">進行中</div>
+              <div class="filter-tab">提供済み</div>
+              <div class="filter-tab">すべて</div>
+            </div>
+          </div>
+          <div class="error-box">
+            <div style="font-size:18px; font-weight:700;">伝票一覧を更新できませんでした</div>
+            <div style="font-size:14px; line-height:1.55; color:var(--text-subtle);">通信状況を確認して、もう一度お試しください。営業は続けられる前提なので、必要なら口頭注文も併用してください。</div>
+            <button class="primary">再読み込み</button>
+          </div>
+          <button class="fab">代理注文</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll('.state-btn');
+      const screens = document.querySelectorAll('.screen');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle('active', b === button));
+          screens.forEach((screen) => screen.classList.toggle('active', screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

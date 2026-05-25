@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Staff List Tablet Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf6ee;
+        --line: #e3d8c8;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --accent-soft: #f7fbf1;
+        --warm: #c9833b;
+        --warm-soft: #fff1e3;
+        --success: #537c4d;
+        --success-soft: #edf5ea;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Segoe UI", "Yu Gothic UI", sans-serif; color: var(--text); background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%); }
+      .page { min-height: 100vh; display: grid; justify-items: center; gap: 16px; padding: 20px 12px 28px; }
+      .toolbar { width: min(100%, 900px); display: grid; gap: 10px; }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p { margin: 0; color: var(--text-subtle); font-size: 13px; line-height: 1.5; }
+      .tablet { width: min(100%, 1024px); min-height: 720px; border-radius: 30px; background: #fffdf9; border: 1px solid rgba(184,166,140,0.32); box-shadow: var(--shadow); overflow: hidden; }
+      .screen { padding: 18px; min-height: 720px; }
+      .hero { background: var(--surface-soft); border: 1px solid #f1e3cd; border-radius: 24px; padding: 16px 18px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 16px; align-items: end; }
+      .eyebrow { margin: 0 0 6px; color: #8b6e3a; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
+      .hero h2 { margin: 0; font-size: 30px; line-height: 1.15; letter-spacing: -0.04em; }
+      .hero p { margin: 10px 0 0; color: var(--text-subtle); font-size: 13px; }
+      .hero-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+      .pill { padding: 8px 12px; border-radius: 999px; background: #f3ebdd; color: #6c582d; font-size: 12px; font-weight: 600; }
+      .layout { display: grid; grid-template-columns: 420px 1fr; gap: 16px; }
+      .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 24px; padding: 16px; }
+      .search-box { border: 1px solid var(--line); background: #fff; border-radius: 18px; padding: 13px 14px; font-size: 14px; color: var(--text-subtle); margin-bottom: 10px; }
+      .filter-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 12px; }
+      .filter-tab { flex: 0 0 auto; padding: 9px 13px; border-radius: 999px; border: 1px solid var(--line); background: #fffdfa; color: #5f655f; font-size: 13px; font-weight: 600; }
+      .filter-tab.active { background: #f5faed; color: #6d8f39; border-color: #b8cf96; }
+      .notice { background: var(--warm-soft); border: 1px solid #ebc79f; border-radius: 18px; padding: 12px 14px; margin-bottom: 12px; }
+      .notice strong { font-size: 14px; }
+      .notice span { font-size: 12px; color: #7b6238; display: block; margin-top: 4px; }
+      .list { display: grid; gap: 12px; }
+      .ticket-card { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 20px; padding: 14px; display: grid; gap: 8px; }
+      .ticket-card.active { border-color: #d9bf93; box-shadow: 0 0 0 3px rgba(201,131,59,0.10); background: #fffdfa; }
+      .ticket-head, .ticket-meta, .ticket-foot, .row { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .table-name { font-size: 18px; font-weight: 700; }
+      .ticket-no, .time, .muted { font-size: 13px; color: var(--text-subtle); }
+      .status-chip { padding: 6px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+      .status-chip.new { background: var(--warm-soft); color: #9b5e1f; }
+      .status-chip.progress { background: var(--accent-soft); color: #5f7f2e; }
+      .mini-badge { padding: 6px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; background: #f1f3f0; color: #66706c; }
+      .unserved { font-size: 13px; font-weight: 700; color: #6b5a36; }
+      .subtotal { font-size: 15px; font-weight: 700; }
+      .detail-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 12px; }
+      .detail-head h3 { margin: 0; font-size: 26px; letter-spacing: -0.04em; }
+      .detail-card { background: #f8f4ed; border: 1px solid #eadfce; border-radius: 18px; padding: 14px; margin-bottom: 12px; }
+      .detail-list { display: grid; gap: 10px; }
+      .line-item { background: var(--surface-soft); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+      .line-name { font-size: 15px; font-weight: 700; }
+      .action-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+      .btn { padding: 10px 12px; border-radius: 14px; font-size: 13px; font-weight: 700; border: none; }
+      .btn.primary { background: var(--warm); color: white; }
+      .btn.subtle { background: #edf0ee; color: #4c5351; }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Staff Ticket List Tablet Preview</h1>
+        <p>タブレットでは左に一覧、右に簡易詳細を置く 2 カラム案です。一覧と詳細の往復を減らしつつ、破壊操作は詳細画面へ寄せる前提です。</p>
+      </div>
+      <div class="tablet">
+        <div class="screen">
+          <div class="hero">
+            <div>
+              <p class="eyebrow">Floor Staff</p>
+              <h2>伝票一覧</h2>
+              <p>Demo Cafe Ebisu / 19:24 / 最終更新 19:23</p>
+            </div>
+            <div class="hero-meta">
+              <span class="pill">新規 2件</span>
+              <span class="pill">未提供 6点</span>
+              <span class="pill">代理注文あり</span>
+            </div>
+          </div>
+          <div class="layout">
+            <div class="panel">
+              <div class="search-box">卓名・伝票番号で検索</div>
+              <div class="filter-tabs">
+                <div class="filter-tab active">新規あり</div>
+                <div class="filter-tab">進行中</div>
+                <div class="filter-tab">提供済み</div>
+                <div class="filter-tab">すべて</div>
+              </div>
+              <div class="notice"><strong>新規注文 2件</strong><span>T-1042 / A-12 を先頭表示中</span></div>
+              <div class="list">
+                <div class="ticket-card active">
+                  <div class="ticket-head"><div><div class="table-name">Table 12</div><div class="ticket-no">伝票 A-12</div></div><div class="status-chip new">新規注文あり</div></div>
+                  <div class="ticket-meta"><div><div class="time">注文 19:24</div><div class="unserved">未提供 4点</div></div><div class="subtotal">¥3,540</div></div>
+                  <div class="ticket-foot"><div class="mini-badge">customer</div><div class="time">更新 19:24</div></div>
+                </div>
+                <div class="ticket-card">
+                  <div class="ticket-head"><div><div class="table-name">Table 08</div><div class="ticket-no">伝票 A-08</div></div><div class="status-chip progress">進行中</div></div>
+                  <div class="ticket-meta"><div><div class="time">注文 19:18</div><div class="unserved">未提供 2点</div></div><div class="subtotal">¥4,720</div></div>
+                  <div class="ticket-foot"><div class="mini-badge">handy</div><div class="time">更新 19:22</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="detail-head">
+                <div>
+                  <h3>Table 12</h3>
+                  <div class="muted">伝票 A-12 / 新規注文あり / 注文 19:24</div>
+                </div>
+                <div class="status-chip new">先に対応</div>
+              </div>
+              <div class="detail-card">
+                <div class="row"><span class="muted">未提供</span><strong>4点</strong></div>
+                <div class="row" style="margin-top:8px;"><span class="muted">小計</span><strong>¥3,540</strong></div>
+              </div>
+              <div class="detail-list">
+                <div class="line-item"><div><div class="line-name">生ビール</div><div class="muted">1点 / すぐ出せる</div></div><strong>¥590</strong></div>
+                <div class="line-item"><div><div class="line-name">枝豆</div><div class="muted">1点 / 最初に出したい一品</div></div><strong>¥420</strong></div>
+                <div class="line-item"><div><div class="line-name">若鶏の唐揚げ</div><div class="muted">2点 / 調理あり</div></div><strong>¥2,530</strong></div>
+              </div>
+              <div class="action-row">
+                <button class="btn primary">詳細を見る</button>
+                <button class="btn subtle">代理注文</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

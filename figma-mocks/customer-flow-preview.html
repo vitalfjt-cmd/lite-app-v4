@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Customer Flow Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #faf5eb;
+        --line: #eadfcd;
+        --line-soft: #f0e8da;
+        --text: #1f2a24;
+        --text-subtle: #6c756f;
+        --accent: #2f4f68;
+        --accent-soft: #eef3f7;
+        --warm: #b8673c;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: #f5f5f2;
+      }
+      .page {
+        min-height: 100vh;
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding: 20px 12px 32px;
+      }
+      .toolbar {
+        width: min(100%, 420px);
+        display: grid;
+        gap: 10px;
+      }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .state-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+        cursor: pointer;
+      }
+      .state-btn.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .phone {
+        width: min(100%, 390px);
+        min-height: 844px;
+        border-radius: 28px;
+        background: #fffdf9;
+        border: 1px solid rgba(192, 178, 154, 0.18);
+        box-shadow: 0 10px 22px rgba(45, 35, 18, 0.05);
+        overflow: hidden;
+        position: relative;
+      }
+      .screen {
+        display: none;
+        padding: 14px 14px 118px;
+        min-height: 844px;
+      }
+      .screen.active { display: block; }
+      .hero {
+        padding: 6px 2px 10px;
+        margin-bottom: 8px;
+      }
+      .eyebrow {
+        margin: 0 0 4px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .hero h2 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+      .hero p {
+        margin: 6px 0 0;
+        color: var(--text-subtle);
+        font-size: 12px;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line-soft);
+        border-radius: 22px;
+        padding: 16px;
+      }
+      .panel + .panel {
+        margin-top: 12px;
+      }
+      .panel-head {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      .panel-title {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.3;
+        font-weight: 700;
+      }
+      .panel-kicker {
+        margin: 0 0 4px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .outline-btn {
+        flex: 0 0 auto;
+        border: 1px solid var(--line);
+        background: #fffdfa;
+        color: var(--accent);
+        border-radius: 16px;
+        padding: 12px 14px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .line-list {
+        display: grid;
+        gap: 14px;
+      }
+      .line-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .line-main {
+        min-width: 0;
+      }
+      .line-name {
+        font-size: 16px;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+      .line-meta {
+        margin-top: 2px;
+        font-size: 13px;
+        color: var(--text-subtle);
+      }
+      .stepper {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        background: var(--accent-soft);
+        border-radius: 999px;
+        padding: 2px;
+        box-shadow: inset 0 0 0 1px #bfd0de;
+      }
+      .stepper button {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 999px;
+        background: #fff;
+        color: var(--accent);
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .stepper span {
+        min-width: 26px;
+        text-align: center;
+        font-weight: 700;
+        color: #43525f;
+      }
+      .subtotal {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line-soft);
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+      }
+      .subtotal-label {
+        font-size: 13px;
+        color: var(--text-subtle);
+      }
+      .subtotal-value {
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .helper {
+        margin-top: 8px;
+        font-size: 13px;
+        line-height: 1.55;
+        color: var(--text-subtle);
+      }
+      .ticket-box {
+        margin-top: 10px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: var(--surface-soft);
+        border: 1px solid #f0e4d1;
+      }
+      .ticket-label {
+        font-size: 11px;
+        color: #8b6e3a;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .ticket-no {
+        margin-top: 4px;
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .primary {
+        width: 100%;
+        margin-top: 14px;
+        border: none;
+        border-radius: 16px;
+        background: var(--warm);
+        color: #fff;
+        padding: 14px 16px;
+        font-weight: 700;
+        text-align: center;
+      }
+      .myorder-list {
+        display: grid;
+        gap: 12px;
+      }
+      .myorder-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        gap: 12px;
+      }
+      .muted {
+        color: var(--text-subtle);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Customer Flow Preview</h1>
+        <p>`Confirm / Done / My Order` を、現在の Customer Menu と同じトーンに揃えた確認用モックです。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="confirm">Confirm</button>
+          <button class="state-btn" data-target="done">Done</button>
+          <button class="state-btn" data-target="myorder">My Order</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="confirm">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>注文内容の確認</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="panel-kicker">Confirm</p>
+                <h3 class="panel-title">注文内容を確認して確定してください</h3>
+              </div>
+              <button class="outline-btn">メニューに戻る</button>
+            </div>
+
+            <div class="line-list">
+              <div class="line-item">
+                <div class="line-main">
+                  <div class="line-name">名物ポテトサラダ</div>
+                  <div class="line-meta">2点 / ¥960</div>
+                </div>
+                <div class="stepper"><button>-</button><span>2</span><button>+</button></div>
+              </div>
+
+              <div class="line-item">
+                <div class="line-main">
+                  <div class="line-name">若鶏の唐揚げ</div>
+                  <div class="line-meta">1点 / ¥680</div>
+                </div>
+                <div class="stepper"><button>-</button><span>1</span><button>+</button></div>
+              </div>
+            </div>
+
+            <div class="subtotal">
+              <div>
+                <div class="subtotal-label">小計</div>
+                <div class="helper">変更が必要な場合はスタッフへお声がけください。</div>
+              </div>
+              <div class="subtotal-value">¥1,640</div>
+            </div>
+
+            <div class="primary">注文を確定する</div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="done">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>ご注文を受け付けました</h2>
+            <p>ありがとうございました</p>
+          </div>
+
+          <div class="panel">
+            <p class="panel-kicker">Done</p>
+            <h3 class="panel-title">注文が完了しました</h3>
+
+            <div class="ticket-box">
+              <div class="ticket-label">Ticket No.</div>
+              <div class="ticket-no">A1002</div>
+            </div>
+
+            <div class="helper">内容を見返したい場合は、次の画面から確認できます。</div>
+            <div class="primary">注文内容を見る</div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="myorder">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>注文内容</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+
+          <div class="panel">
+            <div class="ticket-box" style="margin-top:0;">
+              <div class="ticket-label">Ticket No.</div>
+              <div class="ticket-no">A1002</div>
+            </div>
+
+            <div class="myorder-list" style="margin-top:16px;">
+              <div class="myorder-item">
+                <div>
+                  <div class="line-name">名物ポテトサラダ</div>
+                  <div class="muted">2点</div>
+                </div>
+                <div class="line-name">¥960</div>
+              </div>
+
+              <div class="myorder-item">
+                <div>
+                  <div class="line-name">若鶏の唐揚げ</div>
+                  <div class="muted">1点</div>
+                </div>
+                <div class="line-name">¥680</div>
+              </div>
+            </div>
+
+            <div class="subtotal">
+              <div class="subtotal-label">小計</div>
+              <div class="subtotal-value">¥1,640</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll('.state-btn');
+      const screens = document.querySelectorAll('.screen');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle('active', b === button));
+          screens.forEach((screen) => screen.classList.toggle('active', screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

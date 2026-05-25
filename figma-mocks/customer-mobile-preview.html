@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Customer Mobile Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #faf5eb;
+        --line: #eadfcd;
+        --line-soft: #f0e8da;
+        --text: #1f2a24;
+        --text-subtle: #6c756f;
+        --accent: #2f4f68;
+        --accent-soft: #eef3f7;
+        --accent-strong: #d6e2eb;
+        --warm: #b8673c;
+        --danger: #a64632;
+        --danger-soft: #fce9e4;
+        --soldout: #988f81;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: #f5f5f2;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding: 20px 12px 32px;
+      }
+
+      .toolbar {
+        width: min(100%, 420px);
+        display: grid;
+        gap: 10px;
+      }
+
+      .toolbar h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .toolbar p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .state-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+        cursor: pointer;
+      }
+
+      .state-btn.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .phone {
+        width: min(100%, 390px);
+        min-height: 844px;
+        border-radius: 28px;
+        background: #fffdf9;
+        border: 1px solid rgba(192, 178, 154, 0.18);
+        box-shadow: 0 10px 22px rgba(45, 35, 18, 0.05);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .screen {
+        display: none;
+        padding: 14px 14px 118px;
+        min-height: 844px;
+      }
+
+      .screen.active { display: block; }
+
+      .hero {
+        background: transparent;
+        border: none;
+        padding: 6px 2px 10px;
+        margin-bottom: 8px;
+      }
+
+      .eyebrow {
+        margin: 0 0 4px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .hero h2 {
+        margin: 0;
+        font-size: 25px;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        margin: 6px 0 0;
+        color: var(--text-subtle);
+        font-size: 12px;
+      }
+
+      .cat-tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding: 2px 0 4px;
+        margin-bottom: 12px;
+      }
+
+      .cat-tab {
+        flex: 0 0 auto;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: #fffdfa;
+        color: #727870;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .cat-tab.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .menu-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .menu-card {
+        background: #fffdfa;
+        border: 1px solid var(--line-soft);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      .menu-card.focused {
+        border-color: #90aabd;
+        box-shadow: 0 0 0 2px rgba(47, 79, 104, 0.12);
+      }
+
+      .menu-card.soldout {
+        background: #f6f3ee;
+        color: var(--soldout);
+      }
+
+      .card-info {
+        padding: 12px;
+        display: grid;
+        grid-template-columns: 96px 1fr;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .thumb {
+        width: 96px;
+        height: 96px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #ece6da;
+        border: 1px solid rgba(191, 176, 154, 0.25);
+      }
+
+      .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .thumb.placeholder {
+        display: grid;
+        place-items: center;
+        color: #8c836f;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .menu-content {
+        min-width: 0;
+        display: grid;
+        gap: 4px;
+        align-content: start;
+      }
+
+      .menu-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .name {
+        font-size: 17px;
+        line-height: 1.28;
+        font-weight: 700;
+      }
+
+      .price {
+        font-size: 16px;
+        font-weight: 700;
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+
+      .desc {
+        font-size: 11px;
+        color: var(--text-subtle);
+        line-height: 1.4;
+      }
+
+      .badge-row {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .badge.new {
+        background: #f8ebe3;
+        color: var(--warm);
+      }
+
+      .badge.soldout {
+        background: #ebe5dc;
+        color: #7f7669;
+      }
+
+      .card-actions {
+        border-top: 1px solid var(--line-soft);
+        padding: 10px 12px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.76);
+      }
+
+      .menu-card.focused .card-actions {
+        background: var(--accent-soft);
+      }
+
+      .stepper {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        background: #f4f0e8;
+        border-radius: 999px;
+        padding: 2px;
+      }
+
+      .stepper.active {
+        background: var(--accent-soft);
+        box-shadow: inset 0 0 0 1px #bfd0de;
+      }
+
+      .stepper.focused {
+        background: var(--accent-strong);
+        box-shadow: inset 0 0 0 1px #a8bdcd;
+      }
+
+      .stepper button {
+        width: 34px;
+        height: 34px;
+        border: none;
+        border-radius: 999px;
+        background: #fff;
+        color: var(--accent);
+        font-size: 15px;
+        font-weight: 700;
+      }
+
+      .stepper span {
+        min-width: 26px;
+        text-align: center;
+        font-weight: 700;
+        color: #43525f;
+      }
+
+      .stepper.disabled button {
+        background: #ece8e0;
+        color: #b0aa9e;
+      }
+
+      .sticky {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 12px 14px 22px;
+        background: linear-gradient(180deg, rgba(255,253,249,0.18) 0%, rgba(255,253,249,0.9) 22%, rgba(255,253,249,0.98) 100%);
+      }
+
+      .sticky-box {
+        background: #fffdfa;
+        border: 1px solid var(--line-soft);
+        border-radius: 20px;
+        padding: 12px;
+      }
+
+      .sticky-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 10px;
+      }
+
+      .sticky-count {
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .sticky-note {
+        font-size: 11px;
+        color: var(--text-subtle);
+        margin-top: 2px;
+      }
+
+      .primary {
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        border-radius: 16px;
+        background: var(--warm);
+        color: #fff;
+        padding: 14px 16px;
+        font-weight: 700;
+        text-align: center;
+      }
+
+      .primary.disabled {
+        background: #d8d0c5;
+        color: #7f786f;
+      }
+
+      .error-box {
+        background: #fffaf8;
+        border: 1px solid #e8b6aa;
+        border-radius: 24px;
+        padding: 24px 20px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .outline {
+        width: 100%;
+        margin-top: 4px;
+        border-radius: 16px;
+        border: 1px solid var(--line);
+        padding: 13px 16px;
+        text-align: center;
+        font-weight: 700;
+        color: var(--accent);
+        background: #fffdfa;
+      }
+
+      .info-note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        background: #f7f4ef;
+        border-radius: 16px;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Customer Mobile Preview</h1>
+        <p>Navy + Terracotta を画面全体に当てた版です。まずは `選択済み` を見て、今の緑系より落ち着いて見えるかを確認してください。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="default">選択前</button>
+          <button class="state-btn" data-target="selected">選択済み</button>
+          <button class="state-btn" data-target="soldout">品切れ</button>
+          <button class="state-btn" data-target="error">再読み込み</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="default">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>Demo Cafe Ebisu</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+          <div class="cat-tabs">
+            <div class="cat-tab active">おすすめ</div>
+            <div class="cat-tab">フード</div>
+            <div class="cat-tab">ドリンク</div>
+            <div class="cat-tab">デザート</div>
+          </div>
+          <div class="menu-list">
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80" alt="ポテトサラダ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">名物ポテトサラダ</div>
+                    <div class="price">¥480</div>
+                  </div>
+                  <div class="desc">提供が早い定番メニュー。</div>
+                  <div class="badge-row"><span class="badge new">おすすめ</span></div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=400&q=80" alt="唐揚げ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">若鶏の唐揚げ</div>
+                    <div class="price">¥680</div>
+                  </div>
+                  <div class="desc">人気定番。ボリュームあり。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80" alt="ハイボール" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">ハイボール</div>
+                    <div class="price">¥450</div>
+                  </div>
+                  <div class="desc">すぐ出るドリンク。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sticky">
+            <div class="sticky-box">
+              <div class="sticky-meta">
+                <div>
+                  <div class="sticky-count">0点選択中</div>
+                  <div class="sticky-note">小計 ¥0</div>
+                </div>
+              </div>
+              <div class="primary disabled">注文確認へ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="selected">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>Demo Cafe Ebisu</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+          <div class="cat-tabs">
+            <div class="cat-tab active">おすすめ</div>
+            <div class="cat-tab">フード</div>
+            <div class="cat-tab">ドリンク</div>
+            <div class="cat-tab">デザート</div>
+          </div>
+          <div class="menu-list">
+            <div class="menu-card focused">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=400&q=80" alt="ポテトサラダ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">名物ポテトサラダ</div>
+                    <div class="price">¥480</div>
+                  </div>
+                  <div class="desc">提供が早い定番メニュー。</div>
+                  <div class="badge-row"><span class="badge new">おすすめ</span></div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper focused">
+                  <button>-</button><span>2</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=400&q=80" alt="唐揚げ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">若鶏の唐揚げ</div>
+                    <div class="price">¥680</div>
+                  </div>
+                  <div class="desc">人気定番。ボリュームあり。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper active">
+                  <button>-</button><span>1</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=400&q=80" alt="ハイボール" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">ハイボール</div>
+                    <div class="price">¥450</div>
+                  </div>
+                  <div class="desc">すぐ出るドリンク。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sticky">
+            <div class="sticky-box">
+              <div class="sticky-meta">
+                <div>
+                  <div class="sticky-count">3点選択中</div>
+                  <div class="sticky-note">小計 ¥1,640</div>
+                </div>
+              </div>
+              <div class="primary">注文確認へ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="soldout">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>Demo Cafe Ebisu</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+          <div class="cat-tabs">
+            <div class="cat-tab active">おすすめ</div>
+            <div class="cat-tab">フード</div>
+            <div class="cat-tab">ドリンク</div>
+            <div class="cat-tab">デザート</div>
+          </div>
+          <div class="menu-list">
+            <div class="menu-card soldout">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=400&q=80" alt="カルパッチョ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">本日の鮮魚カルパッチョ</div>
+                    <div class="price">¥780</div>
+                  </div>
+                  <div class="desc">本日は注文できません。</div>
+                  <div class="badge-row"><span class="badge soldout">売切れ</span></div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper disabled">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card focused">
+              <div class="card-info">
+                <div class="thumb"><img src="https://images.unsplash.com/photo-1512152272829-e3139592d56f?auto=format&fit=crop&w=400&q=80" alt="唐揚げ" /></div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">若鶏の唐揚げ</div>
+                    <div class="price">¥680</div>
+                  </div>
+                  <div class="desc">人気定番。ボリュームあり。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper focused">
+                  <button>-</button><span>1</span><button>+</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="menu-card">
+              <div class="card-info">
+                <div class="thumb placeholder">No Image</div>
+                <div class="menu-content">
+                  <div class="menu-head">
+                    <div class="name">ジンジャーエール</div>
+                    <div class="price">¥390</div>
+                  </div>
+                  <div class="desc">写真未設定の例。</div>
+                </div>
+              </div>
+              <div class="card-actions">
+                <div class="stepper">
+                  <button>-</button><span>0</span><button>+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="sticky">
+            <div class="sticky-box">
+              <div class="sticky-meta">
+                <div>
+                  <div class="sticky-count">1点選択中</div>
+                  <div class="sticky-note">小計 ¥680</div>
+                </div>
+              </div>
+              <div class="primary">注文確認へ</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="error">
+          <div class="hero">
+            <p class="eyebrow">Customer</p>
+            <h2>Demo Cafe Ebisu</h2>
+            <p>卓 T1 / 伝票 A1002</p>
+          </div>
+          <div class="error-box">
+            <div class="name">メニューを読み込めませんでした</div>
+            <div style="font-size:14px; line-height:1.55; color:var(--text-subtle)">通信状態をご確認のうえ、もう一度お試しください。改善しない場合はスタッフへお声がけください。</div>
+            <div class="primary">再読み込み</div>
+            <div class="outline">スタッフへ伝える</div>
+          </div>
+          <div class="info-note">強い警告よりも、次に何をすればよいかを短く示します。</div>
+          <div class="sticky">
+            <div class="sticky-box">
+              <div class="sticky-meta">
+                <div>
+                  <div class="sticky-count">0点選択中</div>
+                  <div class="sticky-note">小計 ¥0</div>
+                </div>
+              </div>
+              <div class="primary disabled">注文確認へ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll('.state-btn');
+      const screens = document.querySelectorAll('.screen');
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle('active', b === button));
+          screens.forEach((screen) => screen.classList.toggle('active', screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

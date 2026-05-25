@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://192.168.45.3:5173",
+      "localStorage": [
+        {
+          "name": "sb-jdfvnljerwdkphwpzxrx-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJFUzI1NiIsImtpZCI6IjUyZjMzM2E1LTc4NTItNDViZi04MDYzLTU3NjQ2NzgyNzY3OSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2pkZnZubGplcndka3Bod3B6eHJ4LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJhODBhMjM0My02ZWU2LTQyNGYtOWNlNy1jODQ5NDY2ZDIzMTAiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc1MjE2Mjc1LCJpYXQiOjE3NzUyMTI2NzUsImVtYWlsIjoia2RzQGV4YW1wbGUuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJkaXNwbGF5X25hbWUiOiJLRFMiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicm9sZV90eXBlIjoiS0RTIiwic3RvcmVfaWQiOiIyMDAwMDAwMC0wMDAwLTAwMDAtMDAwMC0wMDAwMDAwMDAwMDEifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc3NTIxMjY3NX1dLCJzZXNzaW9uX2lkIjoiMzkzN2M5N2MtZjIyOS00M2E5LWI3Y2ItOGYwNDA2N2ExODIzIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.vBYZgSQCxr0I5mm4vJD9RvpScGGTYzCn8ADkgrxjzfNLAYZSzfKYGfwY-c12rvvFeqDwCXRuHupd8px1X88Fug\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1775216275,\"refresh_token\":\"m65a2vmn5end\",\"user\":{\"id\":\"a80a2343-6ee6-424f-9ce7-c849466d2310\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"kds@example.com\",\"email_confirmed_at\":\"2026-03-30T08:11:14.098993Z\",\"phone\":\"\",\"confirmed_at\":\"2026-03-30T08:11:14.098993Z\",\"last_sign_in_at\":\"2026-04-03T10:37:55.512474049Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"display_name\":\"KDS\",\"email_verified\":true,\"role_type\":\"KDS\",\"store_id\":\"20000000-0000-0000-0000-000000000001\"},\"identities\":[{\"identity_id\":\"e94a696f-d4c6-4a34-82f2-1656ebf531bd\",\"id\":\"a80a2343-6ee6-424f-9ce7-c849466d2310\",\"user_id\":\"a80a2343-6ee6-424f-9ce7-c849466d2310\",\"identity_data\":{\"email\":\"kds@example.com\",\"email_verified\":true,\"phone_verified\":false,\"sub\":\"a80a2343-6ee6-424f-9ce7-c849466d2310\"},\"provider\":\"email\",\"last_sign_in_at\":\"2026-03-12T07:35:04.55526Z\",\"created_at\":\"2026-03-12T07:35:04.55565Z\",\"updated_at\":\"2026-03-12T07:35:04.55565Z\",\"email\":\"kds@example.com\"}],\"created_at\":\"2026-03-12T07:35:04.54997Z\",\"updated_at\":\"2026-04-03T10:37:55.548067Z\",\"is_anonymous\":false},\"weak_password\":null}"
+        }
+      ]
+    }
+  ]
+}

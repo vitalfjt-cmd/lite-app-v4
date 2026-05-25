@@ -1,0 +1,411 @@
+﻿<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Staff Mock Frames</title>
+    <style>
+      :root {
+        --bg: #f6f1e8;
+        --surface: #fffdfa;
+        --surface-soft: #f6f2ea;
+        --line: #dfd3c0;
+        --text: #1f2629;
+        --subtle: #626c69;
+        --accent: #89b356;
+        --accent-soft: #eef5e4;
+        --warn: #c9833b;
+        --warn-soft: #fff1e4;
+        --danger: #a54635;
+        --danger-soft: #fbe8e3;
+        --success: #2f6f60;
+        --success-soft: #e4f2ec;
+        --new: #b56e2f;
+        --shadow: 0 10px 24px rgba(37, 34, 25, 0.05);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: #f6f1e9;
+      }
+      .page {
+        width: 1600px;
+        margin: 0 auto;
+        padding: 36px 40px 52px;
+      }
+      .titlebar { margin-bottom: 20px; }
+      .titlebar h1 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
+      .titlebar p { margin: 6px 0 0; color: var(--subtle); font-size: 14px; }
+      .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+      .frame-wrap { display: grid; gap: 10px; }
+      .frame-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--subtle); }
+      .tablet {
+        width: 768px;
+        min-height: 1024px;
+        background: #fffdf9;
+        border: 1px solid rgba(179, 165, 144, 0.36);
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .screen { padding: 22px; min-height: 1024px; }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 18px;
+        border: 1px solid #efe4d4;
+        background: #faf4ea;
+        border-radius: 24px;
+        margin-bottom: 16px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #8a6c39;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .topbar h2, .panel h3 { margin: 0; letter-spacing: -0.03em; }
+      .topbar h2 { font-size: 28px; }
+      .cluster { display: flex; gap: 8px; flex-wrap: wrap; }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f3ebdd;
+        color: #6c582d;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        gap: 16px;
+      }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 16px;
+      }
+      .panel + .panel { margin-top: 16px; }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .panel-head p, .note { margin: 0; color: var(--subtle); font-size: 13px; }
+      .ticket-list, .detail-list, .muted-stack { display: grid; gap: 10px; }
+      .ticket-card {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+      }
+      .ticket-card.active { border-color: #b8d8d3; background: #f7f8f6; }
+      .ticket-top, .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .ticket-no, .line-name { font-size: 16px; font-weight: 700; }
+      .muted { color: var(--subtle); font-size: 13px; }
+      .metric { font-size: 14px; font-weight: 700; }
+      .badge {
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge.new { background: var(--warn-soft); color: var(--new); }
+      .badge.cooking { background: #eef1f4; color: #596674; }
+      .badge.served { background: var(--success-soft); color: var(--success); }
+      .summary-strip {
+        margin: 12px 0;
+        padding: 12px 14px;
+        background: #f8f5ef;
+        border-radius: 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .line-card {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .btn {
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 13px;
+        font-weight: 700;
+        border: none;
+      }
+      .btn.primary { background: #739a45; color: white; }
+      .btn.subtle { background: #edf0ee; color: #4c5351; }
+      .btn.warn { background: var(--warn-soft); color: var(--new); }
+      .btn.danger { background: var(--danger-soft); color: var(--danger); }
+      .note-box {
+        padding: 14px;
+        border-radius: 18px;
+        background: #f7f4ef;
+        color: var(--subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .payment-box {
+        padding: 16px;
+        border-radius: 20px;
+        border: 1px solid #eadfce;
+        background: #fff8ee;
+        display: grid;
+        gap: 12px;
+      }
+      .field {
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 14px;
+        padding: 11px 12px;
+        color: var(--subtle);
+        font-size: 13px;
+      }
+      .toast {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 13px;
+      }
+      .danger-state {
+        background: #fff9f7;
+        border-color: #f2c6bc;
+      }
+    </style>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  </head>
+  <body>
+    <div class="page">
+      <div class="titlebar">
+        <h1>Lite / Staff Mock Frames</h1>
+        <p>伝票一覧、伝票詳細、修正・取消、参考小計 / 会計結果入力を静的モックで確認する。</p>
+      </div>
+      <div class="frames">
+        <div class="frame-wrap">
+          <div class="frame-label"><span>ST_List_New_01</span><span>/ staff / ticket list / new first</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Floor Staff</p>
+                  <h2>伝票一覧</h2>
+                </div>
+                <div class="cluster">
+                  <span class="pill">新規 2件</span>
+                  <span class="pill">未提供 6件</span>
+                  <span class="pill">参考小計あり</span>
+                </div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head">
+                    <h3>アクティブ伝票</h3>
+                    <p>新規注文を上に表示</p>
+                  </div>
+                  <div class="ticket-list">
+                    <div class="ticket-card active">
+                      <div class="ticket-top"><span class="ticket-no">T-1042</span><span class="badge new">新規</span></div>
+                      <div class="muted">A-12 / 14:28</div>
+                      <div class="row"><span class="muted">未提供 4点</span><span class="metric">¥3,540</span></div>
+                    </div>
+                    <div class="ticket-card">
+                      <div class="ticket-top"><span class="ticket-no">T-1041</span><span class="badge cooking">対応中</span></div>
+                      <div class="muted">A-08 / 14:25</div>
+                      <div class="row"><span class="muted">未提供 2点</span><span class="metric">¥4,720</span></div>
+                    </div>
+                    <div class="ticket-card">
+                      <div class="ticket-top"><span class="ticket-no">T-1040</span><span class="badge served">提供済み</span></div>
+                      <div class="muted">B-03 / 14:18</div>
+                      <div class="row"><span class="muted">会計待ち</span><span class="metric">¥2,610</span></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="panel">
+                    <div class="panel-head">
+                      <h3>T-1042 / A-12</h3>
+                      <p>新規注文を先に確認</p>
+                    </div>
+                    <div class="summary-strip"><span class="muted">注文 4点 / 14:28</span><strong>参考小計 ¥3,540</strong></div>
+                    <div class="detail-list">
+                      <div class="line-card">
+                        <div class="row"><span class="line-name">生ビール</span><span class="badge new">新規</span></div>
+                        <div class="muted">1点 / すぐ出せる商品</div>
+                        <div class="actions"><button class="btn primary">詳細を見る</button><button class="btn subtle">ハンディ追加</button></div>
+                      </div>
+                      <div class="line-card">
+                        <div class="row"><span class="line-name">枝豆</span><span class="badge new">新規</span></div>
+                        <div class="muted">1点 / 最初に出したい一品</div>
+                        <div class="actions"><button class="btn primary">詳細を見る</button><button class="btn subtle">数量修正</button></div>
+                      </div>
+                      <div class="note-box">居酒屋系の業態では、まず何か一品を出すことが重要。新規伝票は並び順だけでなく、一覧上でも気づける表現が必要。</div>
+                    </div>
+                  </div>
+                  <div class="toast">新規注文 2件を上位表示中</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>ST_Detail_Default_02</span><span>/ staff / ticket detail / default</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Floor Staff</p>
+                  <h2>伝票詳細</h2>
+                </div>
+                <div class="cluster">
+                  <span class="pill">T-1042</span>
+                  <span class="pill">A-12</span>
+                  <span class="pill">14:28</span>
+                </div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>明細</h3><p>修正は詳細で行う</p></div>
+                  <div class="detail-list">
+                    <div class="line-card">
+                      <div class="row"><span class="line-name">生ビール</span><span class="badge cooking">調理不要</span></div>
+                      <div class="muted">1点 / ¥590</div>
+                      <div class="actions"><button class="btn subtle">-</button><button class="btn subtle">1</button><button class="btn subtle">+</button><button class="btn warn">修正</button><button class="btn danger">取消</button></div>
+                    </div>
+                    <div class="line-card">
+                      <div class="row"><span class="line-name">若鶏の唐揚げ</span><span class="badge cooking">調理中</span></div>
+                      <div class="muted">2点 / ¥1,360</div>
+                      <div class="actions"><button class="btn subtle">-</button><button class="btn subtle">2</button><button class="btn subtle">+</button><button class="btn warn">修正</button><button class="btn danger">取消</button></div>
+                    </div>
+                    <div class="line-card">
+                      <div class="row"><span class="line-name">枝豆</span><span class="badge served">提供済み</span></div>
+                      <div class="muted">1点 / ¥420</div>
+                      <div class="actions"><button class="btn subtle">明細のみ表示</button></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="panel">
+                    <div class="panel-head"><h3>参考小計</h3><p>正式会計ではない</p></div>
+                    <div class="payment-box">
+                      <div class="row"><span class="muted">商品計</span><strong>¥3,540</strong></div>
+                      <div class="row"><span class="muted">値引き・クーポン未反映</span><span class="muted">会計時に調整</span></div>
+                    </div>
+                    <div class="note-box" style="margin-top: 12px;">Lite では正式会計を確定しない。レジスター運用と並走し、会計結果をあとから記録する。</div>
+                  </div>
+                  <div class="panel">
+                    <div class="panel-head"><h3>会計結果入力</h3><p>Lite 標準機能</p></div>
+                    <div class="payment-box">
+                      <div class="field">支払い種別: 現金</div>
+                      <div class="field">値引き: 0</div>
+                      <div class="field">クーポン / 金券: なし</div>
+                      <button class="btn primary">会計結果を保存</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>ST_EditCancel_03</span><span>/ staff / edit cancel / safe flow</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Floor Staff</p>
+                  <h2>修正 / 取消</h2>
+                </div>
+                <div class="cluster"><span class="pill">誤操作防止</span><span class="pill">確認ダイアログ</span></div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>変更前</h3><p>T-1042 / A-12</p></div>
+                  <div class="line-card">
+                    <div class="row"><span class="line-name">若鶏の唐揚げ</span><span class="badge cooking">調理中</span></div>
+                    <div class="muted">数量 2 / 小計 ¥1,360</div>
+                    <div class="actions"><button class="btn warn">数量を1に変更</button><button class="btn danger">この行を取消</button></div>
+                  </div>
+                </div>
+                <div class="panel danger-state">
+                  <div class="panel-head"><h3>確認ダイアログ</h3><p>実行前に必ず確認</p></div>
+                  <div class="payment-box" style="background: white;">
+                    <strong>「若鶏の唐揚げ」を取消しますか？</strong>
+                    <div class="muted">提供前の明細のみ取消可能。提供済みは記録として残します。</div>
+                    <div class="actions"><button class="btn subtle">戻る</button><button class="btn danger">取消する</button></div>
+                  </div>
+                  <div class="note-box" style="margin-top: 12px;">Customer は修正不可。Staff 側だけで安全に扱えるよう、破壊操作は一覧ではなく確認付きの詳細画面で行う。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>ST_SubtotalPayment_04</span><span>/ staff / subtotal payment / register parallel</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Floor Staff</p>
+                  <h2>参考小計 / 会計結果</h2>
+                </div>
+                <div class="cluster"><span class="pill">レジスター併用</span><span class="pill">正式会計なし</span></div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>会計時の流れ</h3><p>レジ横端末で同時入力</p></div>
+                  <div class="muted-stack">
+                    <div class="line-card"><div class="line-name">1. 伝票を選ぶ</div><div class="muted">T-1042 / A-12</div></div>
+                    <div class="line-card"><div class="line-name">2. 参考小計を確認</div><div class="muted">注文起点で金額を見返す</div></div>
+                    <div class="line-card"><div class="line-name">3. レジで会計</div><div class="muted">現金 / クレカなどは既存運用</div></div>
+                    <div class="line-card"><div class="line-name">4. Lite に結果を残す</div><div class="muted">売上管理補助としてクラウドへ保存</div></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="panel">
+                    <div class="panel-head"><h3>入力フォーム</h3><p>注文会計突合型</p></div>
+                    <div class="payment-box">
+                      <div class="field">支払い種別: 現金</div>
+                      <div class="field">値引き: ¥200</div>
+                      <div class="field">クーポン / 金券: ランチ券 1枚</div>
+                      <div class="field">備考: レジスター側で精算済み</div>
+                      <button class="btn primary">保存して売上へ反映</button>
+                    </div>
+                  </div>
+                  <div class="note-box">Lite ではキャッシュドロア連携、会計レシート印字、正式会計確定責任は持たない。紙伝票 + レジスター運用の補助を主対象にする。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+

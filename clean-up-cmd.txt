@@ -1,0 +1,6 @@
+npm run test:e2e:cleanup
+
+
+Disk IO を上げたくない間は必要なときだけ
+
+node tests/e2e/support/cleanup-load-fixtures.mjs --store demo-bbq

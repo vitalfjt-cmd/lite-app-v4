@@ -1,0 +1,31 @@
+{
+  "name": "lite-app",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "preview:lan": "vite preview --host 0.0.0.0 --port 5173",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:foundation": "playwright test tests/e2e/multi-context-foundation.spec.ts",
+    "test:e2e:metrics": "node tests/e2e/support/summarize-load-metrics.mjs",
+    "test:e2e:samples": "node tests/e2e/support/run-load-samples.mjs",
+    "test:e2e:cleanup": "node tests/e2e/support/cleanup-load-fixtures.mjs"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "@types/node": "^25.6.2",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.3"
+  }
+}

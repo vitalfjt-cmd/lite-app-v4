@@ -1,0 +1,312 @@
+﻿<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Admin Mock Frames</title>
+    <style>
+      :root {
+        --bg: #f6f1e8;
+        --surface: #fffdfa;
+        --surface-soft: #f7f3eb;
+        --line: #dfd4c3;
+        --text: #202529;
+        --subtle: #64706d;
+        --accent: #89b356;
+        --accent-soft: #eef5e4;
+        --warm: #d36a17;
+        --warm-soft: #fbf0e3;
+        --danger: #a64632;
+        --danger-soft: #fbe8e3;
+        --success: #2c6b5b;
+        --success-soft: #e1f1ea;
+        --shadow: 0 10px 24px rgba(37, 31, 20, 0.05);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: #f6f1e9;
+      }
+      .page { width: 1600px; margin: 0 auto; padding: 36px 40px 52px; }
+      .titlebar h1 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
+      .titlebar p { margin: 6px 0 20px; color: var(--subtle); font-size: 14px; }
+      .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+      .frame-wrap { display: grid; gap: 10px; }
+      .frame-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--subtle); }
+      .desktop {
+        width: 768px;
+        min-height: 1024px;
+        border-radius: 28px;
+        background: #fffdf9;
+        border: 1px solid rgba(181, 168, 148, 0.36);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .screen { padding: 22px; min-height: 1024px; }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 18px;
+        border: 1px solid #efe5d7;
+        background: #faf4ea;
+        border-radius: 24px;
+        margin-bottom: 16px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #896b3b;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .topbar h2, .panel h3 { margin: 0; letter-spacing: -0.03em; }
+      .topbar h2 { font-size: 28px; }
+      .cluster { display: flex; gap: 8px; flex-wrap: wrap; }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f3ebdd;
+        color: #6c582d;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .layout { display: grid; grid-template-columns: 240px 1fr; gap: 16px; }
+      .sidebar, .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 16px;
+      }
+      .menu-list, .stack { display: grid; gap: 10px; }
+      .nav-item {
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--surface-soft);
+        color: #4f5757;
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .nav-item.active { background: #7fa84f; color: white; }
+      .card-grid { display: grid; gap: 12px; }
+      .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+      .info-card, .menu-card, .qr-card, .metric-card {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 8px;
+      }
+      .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .name { font-size: 16px; font-weight: 700; }
+      .muted { color: var(--subtle); font-size: 13px; }
+      .metric { font-size: 26px; font-weight: 800; letter-spacing: -0.04em; }
+      .badge {
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge.live { background: var(--success-soft); color: var(--success); }
+      .badge.warn { background: var(--warm-soft); color: var(--warm); }
+      .badge.off { background: #ece8df; color: #81786b; }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .field {
+        border: 1px solid var(--line);
+        background: white;
+        border-radius: 14px;
+        padding: 11px 12px;
+        color: var(--subtle);
+        font-size: 13px;
+      }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .btn {
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: none;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .btn.primary { background: #739a45; color: white; }
+      .btn.subtle { background: #edf0ee; color: #4b5251; }
+      .btn.warn { background: var(--warm-soft); color: var(--warm); }
+      .btn.danger { background: var(--danger-soft); color: var(--danger); }
+      .note-box {
+        padding: 14px;
+        border-radius: 18px;
+        background: #f7f4ef;
+        color: var(--subtle);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .table {
+        display: grid;
+        gap: 8px;
+      }
+      .table-row {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr auto;
+        gap: 10px;
+        align-items: center;
+        padding: 12px 14px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+      }
+      .qr-box {
+        height: 120px;
+        border-radius: 18px;
+        border: 1px dashed #ccbca3;
+        background: linear-gradient(135deg, #fff7ea 0%, #f7edd8 100%);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: #816638;
+      }
+    </style>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  </head>
+  <body>
+    <div class="page">
+      <div class="titlebar">
+        <h1>Lite / Admin Mock Frames</h1>
+        <p>Home、Menu、Tables & QR、Analytics、Payments を静的モックで確認する。</p>
+      </div>
+      <div class="frames">
+        <div class="frame-wrap">
+          <div class="frame-label"><span>AD_Home_Default_01</span><span>/ admin / home / default</span></div>
+          <div class="desktop">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Admin</p>
+                  <h2>管理ホーム</h2>
+                </div>
+                <div class="cluster"><span class="pill">Demo Cafe Ebisu</span><span class="pill">営業中</span></div>
+              </div>
+              <div class="layout">
+                <div class="sidebar">
+                  <div class="menu-list">
+                    <div class="nav-item active">Home</div>
+                    <div class="nav-item">Menu</div>
+                    <div class="nav-item">Tables & QR</div>
+                    <div class="nav-item">Analytics</div>
+                    <div class="nav-item">Payments</div>
+                  </div>
+                </div>
+                <div class="stack">
+                  <div class="card-grid cols-2">
+                    <div class="metric-card" style="background:#f6f7f4;border-color:#ddd7cb;"><div class="muted">本日の注文数</div><div class="metric">46</div><div class="badge live">更新中</div></div>
+                    <div class="metric-card" style="background:#fbf6ee;border-color:#ddd7cb;"><div class="muted">会計結果入力済み</div><div class="metric">18</div><div class="badge warn">未入力 5件</div></div>
+                  </div>
+                  <div class="info-card">
+                    <div class="section-head"><h3>今日の状況</h3><span class="muted">Lite は補助運用</span></div>
+                    <div class="row"><span class="muted">新規注文</span><strong>2件 / 直近10分</strong></div>
+                    <div class="row"><span class="muted">売切れ中商品</span><strong>3品</strong></div>
+                    <div class="row"><span class="muted">会計未記録</span><strong>5伝票</strong></div>
+                  </div>
+                  <div class="note-box">Admin では「今どこに手を入れるべきか」がすぐ分かることが重要。深い設定画面へ行く前に、未対応の項目をホームで俯瞰できるようにする。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>AD_Menu_Default_02</span><span>/ admin / menu / list edit</span></div>
+          <div class="desktop">
+            <div class="screen">
+              <div class="topbar"><div><p class="eyebrow">Admin</p><h2>メニュー管理</h2></div><div class="cluster"><span class="pill">売切れ切替あり</span></div></div>
+              <div class="layout">
+                <div class="sidebar"><div class="menu-list"><div class="nav-item">Home</div><div class="nav-item active">Menu</div><div class="nav-item">Tables & QR</div><div class="nav-item">Analytics</div><div class="nav-item">Payments</div></div></div>
+                <div class="stack">
+                  <div class="panel">
+                    <div class="section-head"><h3>新規商品追加</h3><span class="muted">カテゴリ別</span></div>
+                    <div class="stack"><div class="field">カテゴリ: フード</div><div class="field">商品名: 名物ポテトサラダ</div><div class="field">価格: 480</div><div class="actions"><button class="btn primary">追加する</button><button class="btn subtle">下書き保存</button></div></div>
+                  </div>
+                  <div class="panel">
+                    <div class="section-head"><h3>商品一覧</h3><span class="muted">日常運用で使う画面</span></div>
+                    <div class="card-grid">
+                      <div class="menu-card"><div class="row"><span class="name">名物ポテトサラダ</span><span class="badge live">販売中</span></div><div class="muted">フード / ¥480</div><div class="actions"><button class="btn subtle">編集</button><button class="btn.warn">売切れにする</button></div></div>
+                      <div class="menu-card"><div class="row"><span class="name">本日の鮮魚カルパッチョ</span><span class="badge off">売切れ</span></div><div class="muted">フード / ¥780</div><div class="actions"><button class="btn subtle">編集</button><button class="btn.primary">売切れ解除</button></div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>AD_Tables_Default_03</span><span>/ admin / tables qr / default</span></div>
+          <div class="desktop">
+            <div class="screen">
+              <div class="topbar"><div><p class="eyebrow">Admin</p><h2>卓と QR</h2></div><div class="cluster"><span class="pill">客席 12卓</span></div></div>
+              <div class="layout">
+                <div class="sidebar"><div class="menu-list"><div class="nav-item">Home</div><div class="nav-item">Menu</div><div class="nav-item active">Tables & QR</div><div class="nav-item">Analytics</div><div class="nav-item">Payments</div></div></div>
+                <div class="stack">
+                  <div class="panel">
+                    <div class="section-head"><h3>卓一覧</h3><span class="muted">印刷前確認</span></div>
+                    <div class="table">
+                      <div class="table-row"><strong>A-12</strong><span class="muted">qr-demo-cafe-a12</span><button class="btn subtle">QR確認</button></div>
+                      <div class="table-row"><strong>A-08</strong><span class="muted">qr-demo-cafe-a08</span><button class="btn subtle">QR確認</button></div>
+                      <div class="table-row"><strong>B-03</strong><span class="muted">qr-demo-cafe-b03</span><button class="btn subtle">QR確認</button></div>
+                    </div>
+                  </div>
+                  <div class="card-grid cols-2">
+                    <div class="qr-card"><div class="section-head"><h3>A-12 QR</h3><span class="muted">客席掲示用</span></div><div class="qr-box">QR Preview</div><div class="actions"><button class="btn primary">PNG 出力</button><button class="btn subtle">差し替え</button></div></div>
+                    <div class="note-box">Lite では Customer 導線の入口品質が重要。卓ラベルと QR の対応が崩れないこと、印刷前に確認できることを優先する。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>AD_Analytics_Payments_04</span><span>/ admin / analytics payments / combined</span></div>
+          <div class="desktop">
+            <div class="screen">
+              <div class="topbar"><div><p class="eyebrow">Admin</p><h2>集計と会計結果</h2></div><div class="cluster"><span class="pill">Lite 標準</span><span class="pill">売上管理補助</span></div></div>
+              <div class="layout">
+                <div class="sidebar"><div class="menu-list"><div class="nav-item">Home</div><div class="nav-item">Menu</div><div class="nav-item">Tables & QR</div><div class="nav-item active">Analytics</div><div class="nav-item">Payments</div></div></div>
+                <div class="stack">
+                  <div class="card-grid cols-2">
+                    <div class="metric-card" style="background:#f6f7f4;border-color:#ddd7cb;"><div class="muted">時間帯別注文</div><div class="metric">14時台 18件</div><div class="muted">ピーク把握用</div></div>
+                    <div class="metric-card" style="background:#fbf6ee;border-color:#ddd7cb;"><div class="muted">商品別出数</div><div class="metric">ポテサラ 12</div><div class="muted">人気メニュー</div></div>
+                  </div>
+                  <div class="panel">
+                    <div class="section-head"><h3>会計結果一覧</h3><span class="muted">レジスターと並走</span></div>
+                    <div class="table">
+                      <div class="table-row"><strong>T-1042</strong><span class="muted">現金 / 値引き 0 / 14:42</span><button class="btn subtle">詳細</button></div>
+                      <div class="table-row"><strong>T-1041</strong><span class="muted">クレジット / 値引き 200 / 14:38</span><button class="btn subtle">詳細</button></div>
+                      <div class="table-row"><strong>T-1040</strong><span class="muted">現金 / 金券 1枚 / 14:34</span><button class="btn subtle">詳細</button></div>
+                    </div>
+                  </div>
+                  <div class="note-box">Lite の Analytics / Payments は、POS 代替ではなく「注文履歴と会計結果をつなぐ補助機能」。正式会計の責任やドロア / レシート連携は含めない。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+
+
+
+
+
+
+

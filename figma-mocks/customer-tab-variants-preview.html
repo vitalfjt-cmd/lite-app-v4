@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Tab Variants Preview</title>
+    <style>
+      :root {
+        --bg: #f5f5f2;
+        --surface: #fffdfa;
+        --line: #eadfcd;
+        --text: #1f2a24;
+        --text-subtle: #6c756f;
+        --accent: #89b356;
+        --accent-weak: #edf5e1;
+        --accent-mid: #d8e8c0;
+        --accent-strong: #89b356;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+      }
+      .page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+      p {
+        margin: 0 0 20px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--text-subtle);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px;
+      }
+      .label {
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #8b6e3a;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+      }
+      .tab {
+        flex: 0 0 auto;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #fffdfa;
+        color: #727870;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .weak .tab.active {
+        background: var(--accent-weak);
+        border-color: #cfe0b6;
+        color: #6f9642;
+      }
+      .mid .tab.active {
+        background: var(--accent-mid);
+        border-color: #bdd29b;
+        color: #55752f;
+      }
+      .strong .tab.active {
+        background: var(--accent-strong);
+        border-color: var(--accent-strong);
+        color: #fff;
+      }
+      .note {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--text-subtle);
+        line-height: 1.55;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Customer Category Tab Variants</h1>
+      <p>カテゴリタブの選択状態だけを比較するためのモックです。未選択はすべて同じで、`選択中` だけ強さを変えています。</p>
+
+      <div class="grid">
+        <section class="card weak">
+          <div class="label">Weak</div>
+          <div class="tabs">
+            <div class="tab active">おすすめ</div>
+            <div class="tab">フード</div>
+            <div class="tab">ドリンク</div>
+            <div class="tab">デザート</div>
+          </div>
+          <div class="note">今に近い案。全体の軽さはあるが、選択中の気づきは少し弱い。</div>
+        </section>
+
+        <section class="card mid">
+          <div class="label">Mid</div>
+          <div class="tabs">
+            <div class="tab active">おすすめ</div>
+            <div class="tab">フード</div>
+            <div class="tab">ドリンク</div>
+            <div class="tab">デザート</div>
+          </div>
+          <div class="note">淡さは残しつつ、選択中だけ一段はっきり見せる案。全体とのバランスが取りやすい。</div>
+        </section>
+
+        <section class="card strong">
+          <div class="label">Strong</div>
+          <div class="tabs">
+            <div class="tab active">おすすめ</div>
+            <div class="tab">フード</div>
+            <div class="tab">ドリンク</div>
+            <div class="tab">デザート</div>
+          </div>
+          <div class="note">選択中が最も明確。見やすいが、画面全体の軽さはやや減る。</div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

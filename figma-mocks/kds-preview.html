@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite KDS Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf6ee;
+        --line: #e3d8c8;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --accent-soft: #f7fbf1;
+        --warm: #c9833b;
+        --warm-soft: #fff1e3;
+        --success: #537c4d;
+        --success-soft: #edf5ea;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%);
+      }
+      .page {
+        min-height: 100vh;
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding: 20px 12px 28px;
+      }
+      .toolbar {
+        width: min(100%, 520px);
+        display: grid;
+        gap: 10px;
+      }
+      .toolbar h1 { margin: 0; font-size: 18px; }
+      .toolbar p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .state-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+        cursor: pointer;
+      }
+      .state-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .device {
+        width: min(100%, 980px);
+        min-height: 720px;
+        border-radius: 32px;
+        background: #fffdf9;
+        border: 1px solid rgba(184, 166, 140, 0.32);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .screen {
+        display: none;
+        padding: 20px;
+        min-height: 720px;
+      }
+      .screen.active { display: block; }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 16px;
+      }
+      .title-box {
+        background: var(--surface-soft);
+        border: 1px solid #f1e3cd;
+        border-radius: 24px;
+        padding: 16px 18px;
+        min-width: 280px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .title-box h2 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.1;
+        letter-spacing: -0.04em;
+      }
+      .title-box p {
+        margin: 8px 0 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+      }
+      .counter-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .counter {
+        min-width: 140px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 14px 16px;
+        display: grid;
+        gap: 6px;
+      }
+      .counter strong { font-size: 24px; }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .card.new {
+        border-color: #ddb172;
+        background: #fff8f0;
+      }
+      .card.progress {
+        border-color: #cfe0b0;
+        background: #fbfdf7;
+      }
+      .row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .table {
+        font-size: 17px;
+        font-weight: 700;
+      }
+      .ticket {
+        font-size: 12px;
+        color: var(--text-subtle);
+      }
+      .item {
+        font-size: 20px;
+        font-weight: 700;
+        line-height: 1.15;
+      }
+      .meta {
+        font-size: 13px;
+        color: var(--text-subtle);
+      }
+      .chip {
+        border-radius: 999px;
+        padding: 6px 9px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .chip.new {
+        background: var(--warm-soft);
+        color: #9b5e1f;
+      }
+      .chip.progress {
+        background: var(--accent-soft);
+        color: #5f7f2e;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        border: none;
+        border-radius: 14px;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .btn.subtle {
+        background: #edf0ee;
+        color: #4c5351;
+      }
+      .btn.primary {
+        background: var(--warm);
+        color: white;
+      }
+      .detail {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        gap: 14px;
+      }
+      .empty {
+        min-height: 420px;
+        display: grid;
+        place-items: center;
+        border: 1px dashed #dbcdb8;
+        border-radius: 24px;
+        color: var(--text-subtle);
+        background: rgba(255, 255, 255, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / KDS Preview</h1>
+        <p>新規・調理中・提供済みの 3 状態だけに絞り、厨房で一瞬で判断できる見え方を優先します。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="default">通常</button>
+          <button class="state-btn" data-target="busy">忙しい</button>
+          <button class="state-btn" data-target="detail">詳細</button>
+          <button class="state-btn" data-target="empty">空状態</button>
+        </div>
+      </div>
+
+      <div class="device">
+        <div class="screen active" data-screen="default">
+          <div class="header">
+            <div class="title-box">
+              <p class="eyebrow">Kitchen Display</p>
+              <h2>新規と調理中</h2>
+              <p>提供済みは一覧から外し、必要なものだけを見せます。</p>
+            </div>
+            <div class="counter-row">
+              <div class="counter"><span class="meta">新規</span><strong>3</strong></div>
+              <div class="counter"><span class="meta">調理中</span><strong>4</strong></div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card new">
+              <div class="row"><div class="table">T1</div><div class="chip new">新規</div></div>
+              <div class="item">鉄板焼きそば</div>
+              <div class="row"><div class="meta">2点 / 19:24</div><div class="ticket">A-1002</div></div>
+              <div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div>
+            </div>
+            <div class="card new">
+              <div class="row"><div class="table">T4</div><div class="chip new">新規</div></div>
+              <div class="item">枝豆</div>
+              <div class="row"><div class="meta">1点 / 19:25</div><div class="ticket">A-1005</div></div>
+              <div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div>
+            </div>
+            <div class="card progress">
+              <div class="row"><div class="table">T2</div><div class="chip progress">調理中</div></div>
+              <div class="item">生ビール</div>
+              <div class="row"><div class="meta">3点 / 19:20</div><div class="ticket">A-1001</div></div>
+              <div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div>
+            </div>
+            <div class="card progress">
+              <div class="row"><div class="table">T7</div><div class="chip progress">調理中</div></div>
+              <div class="item">唐揚げ</div>
+              <div class="row"><div class="meta">1点 / 19:18</div><div class="ticket">A-0998</div></div>
+              <div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div>
+            </div>
+            <div class="card progress">
+              <div class="row"><div class="table">T8</div><div class="chip progress">調理中</div></div>
+              <div class="item">ポテト</div>
+              <div class="row"><div class="meta">2点 / 19:16</div><div class="ticket">A-0997</div></div>
+              <div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div>
+            </div>
+            <div class="card new">
+              <div class="row"><div class="table">T5</div><div class="chip new">新規</div></div>
+              <div class="item">焼き鳥盛り</div>
+              <div class="row"><div class="meta">1点 / 19:26</div><div class="ticket">A-1006</div></div>
+              <div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="busy">
+          <div class="header">
+            <div class="title-box">
+              <p class="eyebrow">Kitchen Display</p>
+              <h2>忙しい状態</h2>
+              <p>新規が上にたまり、調理中は下で追える形にします。</p>
+            </div>
+            <div class="counter-row">
+              <div class="counter"><span class="meta">新規</span><strong>6</strong></div>
+              <div class="counter"><span class="meta">調理中</span><strong>8</strong></div>
+            </div>
+          </div>
+
+          <div class="grid">
+            <div class="card new"><div class="row"><div class="table">T3</div><div class="chip new">新規</div></div><div class="item">餃子</div><div class="row"><div class="meta">2点 / 19:28</div><div class="ticket">A-1008</div></div><div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div></div>
+            <div class="card new"><div class="row"><div class="table">T9</div><div class="chip new">新規</div></div><div class="item">ウーロン茶</div><div class="row"><div class="meta">4点 / 19:28</div><div class="ticket">A-1009</div></div><div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div></div>
+            <div class="card new"><div class="row"><div class="table">T1</div><div class="chip new">新規</div></div><div class="item">キムチ盛り</div><div class="row"><div class="meta">1点 / 19:27</div><div class="ticket">A-1002</div></div><div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div></div>
+            <div class="card progress"><div class="row"><div class="table">T6</div><div class="chip progress">調理中</div></div><div class="item">ハイボール</div><div class="row"><div class="meta">2点 / 19:15</div><div class="ticket">A-0995</div></div><div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div></div>
+            <div class="card progress"><div class="row"><div class="table">T2</div><div class="chip progress">調理中</div></div><div class="item">豚キムチ</div><div class="row"><div class="meta">1点 / 19:17</div><div class="ticket">A-0999</div></div><div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div></div>
+            <div class="card progress"><div class="row"><div class="table">T4</div><div class="chip progress">調理中</div></div><div class="item">フライドポテト</div><div class="row"><div class="meta">2点 / 19:19</div><div class="ticket">A-1000</div></div><div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div></div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="detail">
+          <div class="header">
+            <div class="title-box">
+              <p class="eyebrow">Kitchen Display</p>
+              <h2>明細詳細</h2>
+              <p>カード一覧から選んだ明細を右側で確認します。</p>
+            </div>
+            <div class="counter-row">
+              <div class="counter"><span class="meta">新規</span><strong>2</strong></div>
+              <div class="counter"><span class="meta">調理中</span><strong>5</strong></div>
+            </div>
+          </div>
+
+          <div class="detail">
+            <div class="grid" style="grid-template-columns: 1fr;">
+              <div class="card new">
+                <div class="row"><div class="table">T1</div><div class="chip new">新規</div></div>
+                <div class="item">鉄板焼きそば</div>
+                <div class="row"><div class="meta">2点 / 19:24</div><div class="ticket">A-1002</div></div>
+                <div class="actions"><button class="btn subtle">調理中へ</button><button class="btn primary">提供済み</button></div>
+              </div>
+              <div class="card progress">
+                <div class="row"><div class="table">T2</div><div class="chip progress">調理中</div></div>
+                <div class="item">生ビール</div>
+                <div class="row"><div class="meta">3点 / 19:20</div><div class="ticket">A-1001</div></div>
+                <div class="actions"><button class="btn subtle">詳細</button><button class="btn primary">提供済み</button></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="section-title">選択中の明細</div>
+              <div class="row"><div class="table">T1</div><div class="chip new">新規</div></div>
+              <div class="item">鉄板焼きそば</div>
+              <div class="meta">2点 / 注文時刻 19:24 / 伝票 A-1002</div>
+              <div class="actions">
+                <button class="btn subtle">調理中へ</button>
+                <button class="btn primary">提供済み</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="empty">
+          <div class="header">
+            <div class="title-box">
+              <p class="eyebrow">Kitchen Display</p>
+              <h2>対応待ちなし</h2>
+              <p>新規も調理中もない状態です。</p>
+            </div>
+            <div class="counter-row">
+              <div class="counter"><span class="meta">新規</span><strong>0</strong></div>
+              <div class="counter"><span class="meta">調理中</span><strong>0</strong></div>
+            </div>
+          </div>
+
+          <div class="empty">いま対応が必要な注文はありません</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll(".state-btn");
+      const screens = document.querySelectorAll(".screen");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle("active", b === button));
+          screens.forEach((screen) => screen.classList.toggle("active", screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>

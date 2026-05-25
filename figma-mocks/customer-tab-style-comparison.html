@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Tab Style Comparison</title>
+    <style>
+      :root {
+        --bg: #f5f5f2;
+        --surface: #fffdfa;
+        --line: #eadfcd;
+        --text: #1f2a24;
+        --text-subtle: #6c756f;
+        --accent: #2f4f68;
+        --accent-soft: #eef3f7;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+      }
+      .page {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+      p {
+        margin: 0 0 20px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--text-subtle);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px;
+      }
+      .label {
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8b6e3a;
+      }
+      .row {
+        display: flex;
+        gap: 18px;
+      }
+      .tab-text {
+        font-size: 13px;
+        font-weight: 700;
+        color: #6a726d;
+      }
+      .tab-text.active {
+        color: var(--accent);
+      }
+      .underline-tabs {
+        display: flex;
+        gap: 18px;
+        align-items: end;
+        border-bottom: 1px solid #ebe2d4;
+        padding-bottom: 8px;
+      }
+      .underline-tabs .item {
+        position: relative;
+        padding-bottom: 8px;
+      }
+      .underline-tabs .item.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -9px;
+        height: 3px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+      .segment-wrap {
+        display: inline-flex;
+        padding: 3px;
+        border-radius: 999px;
+        background: #f3eee5;
+        border: 1px solid #e7ddcf;
+      }
+      .segment {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6a726d;
+      }
+      .segment.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .pill-tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid #e7ddcf;
+        background: #fffdfa;
+        color: #6a726d;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .pill.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .sub-note {
+        margin-top: 14px;
+        font-size: 12px;
+        color: var(--text-subtle);
+        line-height: 1.55;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Customer Tab Style Comparison</h1>
+      <p>上位カテゴリを「タブらしく」見せるための比較です。下位カテゴリは別に持つ前提で、まず上位だけを見ています。</p>
+
+      <div class="grid">
+        <section class="card">
+          <div class="label">Underline</div>
+          <div class="underline-tabs">
+            <div class="item active"><span class="tab-text active">フード</span></div>
+            <div class="item"><span class="tab-text">ドリンク</span></div>
+            <div class="item"><span class="tab-text">デザート</span></div>
+          </div>
+          <div class="sub-note">最もタブらしい。軽く、カテゴリ切替の帯として見えやすい。</div>
+        </section>
+
+        <section class="card">
+          <div class="label">Segmented</div>
+          <div class="segment-wrap">
+            <div class="segment active">フード</div>
+            <div class="segment">ドリンク</div>
+            <div class="segment">デザート</div>
+          </div>
+          <div class="sub-note">同じグループ感が強い。ややボタン感はあるが、切替UIとしては素直。</div>
+        </section>
+
+        <section class="card">
+          <div class="label">Pill</div>
+          <div class="pill-tabs">
+            <div class="pill active">フード</div>
+            <div class="pill">ドリンク</div>
+            <div class="pill">デザート</div>
+          </div>
+          <div class="sub-note">押しやすいが、カテゴリタブというよりボタン列に見えやすい。</div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

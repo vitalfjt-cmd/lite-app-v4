@@ -1,0 +1,336 @@
+﻿<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite KDS Mock Frames</title>
+    <style>
+      :root {
+        --bg: #f6f1e8;
+        --surface: #fffdf9;
+        --surface-soft: #f7f3eb;
+        --line: #dfd4c3;
+        --text: #202529;
+        --subtle: #64706d;
+        --accent: #89b356;
+        --accent-soft: #eef5e4;
+        --accent-strong: #6f9642;
+        --warm: #c9833b;
+        --warm-soft: #fbf0e3;
+        --danger: #a64632;
+        --danger-soft: #fbe8e3;
+        --success: #2c6b5b;
+        --success-soft: #e1f1ea;
+        --shadow: 0 10px 24px rgba(37, 31, 20, 0.05);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: #f6f1e9;
+      }
+      .page { width: 1600px; margin: 0 auto; padding: 36px 40px 52px; }
+      .titlebar h1 { margin: 0; font-size: 28px; letter-spacing: -0.04em; }
+      .titlebar p { margin: 6px 0 20px; color: var(--subtle); font-size: 14px; }
+      .frames { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+      .frame-wrap { display: grid; gap: 10px; }
+      .frame-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--subtle); }
+      .tablet {
+        width: 768px;
+        min-height: 1024px;
+        border-radius: 28px;
+        background: #fffdf9;
+        border: 1px solid rgba(181, 168, 148, 0.36);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .screen { padding: 22px; min-height: 1024px; }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 18px;
+        border: 1px solid #efe5d7;
+        background: #faf4ea;
+        border-radius: 24px;
+        margin-bottom: 16px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #896b3b;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .topbar h2, .panel h3 { margin: 0; letter-spacing: -0.03em; }
+      .topbar h2 { font-size: 28px; }
+      .cluster { display: flex; gap: 8px; flex-wrap: wrap; }
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: #f3ebdd;
+        color: #6c582d;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .layout { display: grid; grid-template-columns: 1fr 290px; gap: 16px; }
+      .panel {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 16px;
+      }
+      .panel + .panel { margin-top: 16px; }
+      .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .panel-head p, .muted { margin: 0; color: var(--subtle); font-size: 13px; }
+      .queue { display: grid; gap: 10px; }
+      .ticket-card {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .ticket-card.new { border-color: #d5e1c2; background: #f3f8ec; }
+      .ticket-card.cooking { background: #f7f7f3; }
+      .ticket-card.served { background: #f4faf6; border-color: #d7e7df; }
+      .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+      .name { font-size: 18px; font-weight: 700; }
+      .table-label { font-size: 15px; font-weight: 700; }
+      .badge {
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .badge.new { background: var(--warm-soft); color: var(--warm); }
+      .badge.cooking { background: var(--accent-soft); color: var(--accent-strong); }
+      .badge.served { background: var(--success-soft); color: var(--success); }
+      .badge.hold { background: #ece7de; color: #7f776a; }
+      .qty {
+        display: inline-grid;
+        place-items: center;
+        min-width: 34px;
+        height: 34px;
+        padding: 0 10px;
+        border-radius: 999px;
+        background: white;
+        border: 1px solid var(--line);
+        font-weight: 800;
+      }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .btn {
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: none;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .btn.primary { background: var(--accent-strong); color: white; }
+      .btn.subtle { background: #edf0ee; color: #4b5251; }
+      .btn.warn { background: var(--warm-soft); color: var(--warm); }
+      .btn.success { background: var(--success-soft); color: var(--success); }
+      .legend { display: grid; gap: 10px; }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 16px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+      }
+      .note-box {
+        padding: 14px;
+        border-radius: 18px;
+        background: #f7f4ef;
+        color: var(--subtle);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .summary-card {
+        padding: 14px;
+        border-radius: 20px;
+        background: #f3f8ec;
+        border: 1px solid #d5e1c2;
+        display: grid;
+        gap: 8px;
+      }
+    </style>
+    <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+  </head>
+  <body>
+    <div class="page">
+      <div class="titlebar">
+        <h1>Lite / KDS Mock Frames</h1>
+        <p>厨房向けに、一覧性と状態更新のしやすさを優先した静的モック。</p>
+      </div>
+      <div class="frames">
+        <div class="frame-wrap">
+          <div class="frame-label"><span>KD_Queue_Default_01</span><span>/ kds / queue / default</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Kitchen Display</p>
+                  <h2>調理待ち一覧</h2>
+                </div>
+                <div class="cluster"><span class="pill">新規 3件</span><span class="pill">調理中 4件</span></div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>優先順で表示</h3><p>新規を先頭、古い順で処理</p></div>
+                  <div class="queue">
+                    <div class="ticket-card new">
+                      <div class="row"><span class="table-label">A-12 / T-1042</span><span class="badge new">新規</span></div>
+                      <div class="row"><span class="name">枝豆</span><span class="qty">1</span></div>
+                      <div class="muted">すぐ出せる最初の一品</div>
+                      <div class="actions"><button class="btn primary">調理中にする</button><button class="btn subtle">詳細</button></div>
+                    </div>
+                    <div class="ticket-card new">
+                      <div class="row"><span class="table-label">A-12 / T-1042</span><span class="badge new">新規</span></div>
+                      <div class="row"><span class="name">生ビール</span><span class="qty">2</span></div>
+                      <div class="muted">提供が速いドリンク</div>
+                      <div class="actions"><button class="btn primary">調理中にする</button><button class="btn subtle">詳細</button></div>
+                    </div>
+                    <div class="ticket-card cooking">
+                      <div class="row"><span class="table-label">B-03 / T-1039</span><span class="badge cooking">調理中</span></div>
+                      <div class="row"><span class="name">若鶏の唐揚げ</span><span class="qty">2</span></div>
+                      <div class="muted">14:18 受付</div>
+                      <div class="actions"><button class="btn.success">提供済みにする</button><button class="btn.subtle">詳細</button></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="panel">
+                    <div class="panel-head"><h3>状態凡例</h3><p>KDS 用簡易表示</p></div>
+                    <div class="legend">
+                      <div class="legend-item"><span class="badge new">新規</span><span class="muted">まだ着手していない注文</span></div>
+                      <div class="legend-item"><span class="badge cooking">調理中</span><span class="muted">厨房で対応中</span></div>
+                      <div class="legend-item"><span class="badge served">提供済み</span><span class="muted">一覧から外れる直前の状態</span></div>
+                    </div>
+                  </div>
+                  <div class="note-box">KDS は入力画面ではなく処理画面。迷わせないことを優先し、主操作は「調理中」「提供済み」の2つだけに絞る。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>KD_Queue_Busy_02</span><span>/ kds / queue / busy</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Kitchen Display</p>
+                  <h2>混雑時表示</h2>
+                </div>
+                <div class="cluster"><span class="pill">新規 6件</span><span class="pill">遅延注意</span></div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>急ぎ対応</h3><p>先に出したいものを強調</p></div>
+                  <div class="queue">
+                    <div class="ticket-card new">
+                      <div class="row"><span class="table-label">C-02 / T-1051</span><span class="badge new">新規</span></div>
+                      <div class="row"><span class="name">ポテトサラダ</span><span class="qty">1</span></div>
+                      <div class="muted">最初の一品 / 14:31 受付</div>
+                      <div class="actions"><button class="btn primary">着手する</button><button class="btn warn">後回しメモ</button></div>
+                    </div>
+                    <div class="ticket-card cooking">
+                      <div class="row"><span class="table-label">A-08 / T-1048</span><span class="badge cooking">調理中</span></div>
+                      <div class="row"><span class="name">ハイボール</span><span class="qty">4</span></div>
+                      <div class="muted">同卓まとめ出し</div>
+                      <div class="actions"><button class="btn.success">提供済みにする</button></div>
+                    </div>
+                    <div class="ticket-card cooking">
+                      <div class="row"><span class="table-label">D-01 / T-1050</span><span class="badge hold">保留</span></div>
+                      <div class="row"><span class="name">アレルギー確認中</span><span class="qty">1</span></div>
+                      <div class="muted">Staff への確認待ち</div>
+                      <div class="actions"><button class="btn.subtle">メモ確認</button></div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div class="summary-card">
+                    <div class="muted">混雑時の見せ方</div>
+                    <strong>新規 + すぐ出せるものを上位に置く</strong>
+                    <div class="muted">居酒屋系では、まず一品出す体験を崩さないことが重要。</div>
+                  </div>
+                  <div class="note-box" style="margin-top: 16px;">KDS でも色は使いすぎない。重要なのは、何から手を付けるかが一目で分かること。状態色はラベル補助として使い、カード全面の色は最小限にする。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>KD_Detail_03</span><span>/ kds / detail / default</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Kitchen Display</p>
+                  <h2>注文詳細</h2>
+                </div>
+                <div class="cluster"><span class="pill">T-1042</span><span class="pill">A-12</span></div>
+              </div>
+              <div class="layout">
+                <div class="panel">
+                  <div class="panel-head"><h3>対象注文</h3><p>調理担当向け</p></div>
+                  <div class="ticket-card new">
+                    <div class="row"><span class="name">若鶏の唐揚げ</span><span class="qty">2</span></div>
+                    <div class="muted">14:28 受付 / 客席 A-12 / 伝票 T-1042</div>
+                    <div class="note-box">備考: 先に枝豆を出してから提供。辛味ソース別添え。</div>
+                    <div class="actions"><button class="btn.primary">調理中にする</button><button class="btn.success">提供済みにする</button></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="panel">
+                    <div class="panel-head"><h3>関連情報</h3><p>最小限だけ表示</p></div>
+                    <div class="legend">
+                      <div class="legend-item"><strong>同卓の未提供</strong><span class="muted">枝豆 / 生ビール</span></div>
+                      <div class="legend-item"><strong>Staff メモ</strong><span class="muted">提供順を優先</span></div>
+                    </div>
+                  </div>
+                  <div class="note-box">KDS 詳細では会計や価格は出さない。厨房に必要な情報だけを残し、認知負荷を上げない。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="frame-wrap">
+          <div class="frame-label"><span>KD_Empty_04</span><span>/ kds / empty / quiet</span></div>
+          <div class="tablet">
+            <div class="screen">
+              <div class="topbar">
+                <div>
+                  <p class="eyebrow">Kitchen Display</p>
+                  <h2>待機中</h2>
+                </div>
+                <div class="cluster"><span class="pill">未処理 0件</span></div>
+              </div>
+              <div class="panel" style="min-height: 720px; display:grid; place-items:center; text-align:center;">
+                <div>
+                  <h3 style="font-size: 28px; margin-bottom: 10px;">未処理の注文はありません</h3>
+                  <p class="muted" style="font-size: 15px; line-height:1.7; max-width: 420px; margin: 0 auto 20px;">新しい注文が入ると、この画面に自動で表示されます。混雑時でも視認しやすいよう、待機時は静かな画面にする。</p>
+                  <div class="actions" style="justify-content:center;"><button class="btn subtle">手動更新</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

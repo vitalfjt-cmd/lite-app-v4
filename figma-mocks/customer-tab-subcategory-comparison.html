@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Tab + Subcategory Comparison</title>
+    <style>
+      :root {
+        --bg: #f5f5f2;
+        --surface: #fffdfa;
+        --line: #eadfcd;
+        --text: #1f2a24;
+        --text-subtle: #6c756f;
+        --accent: #2f4f68;
+        --accent-soft: #eef3f7;
+        --accent-mid: #d6e2eb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+      }
+      .page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 24px 16px 40px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+      p {
+        margin: 0 0 20px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: var(--text-subtle);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 16px;
+      }
+      .label {
+        margin: 0 0 12px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #8b6e3a;
+      }
+      .section {
+        border-top: 1px dashed #eee4d5;
+        padding-top: 14px;
+        margin-top: 14px;
+      }
+      .section:first-of-type {
+        border-top: none;
+        padding-top: 0;
+        margin-top: 0;
+      }
+      .state-title {
+        margin: 0 0 10px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+      }
+      .underline-tabs {
+        display: flex;
+        gap: 18px;
+        align-items: end;
+        border-bottom: 1px solid #ebe2d4;
+        padding-bottom: 8px;
+      }
+      .underline-tabs .item {
+        position: relative;
+        padding-bottom: 8px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #6a726d;
+      }
+      .underline-tabs .item.active {
+        color: var(--accent);
+      }
+      .underline-tabs .item.active::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -9px;
+        height: 3px;
+        border-radius: 999px;
+        background: var(--accent);
+      }
+      .segment-wrap {
+        display: inline-flex;
+        padding: 3px;
+        border-radius: 999px;
+        background: #f3eee5;
+        border: 1px solid #e7ddcf;
+      }
+      .segment {
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6a726d;
+      }
+      .segment.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .sub-row {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-top: 10px;
+      }
+      .sub-tab {
+        flex: 0 0 auto;
+        padding: 6px 11px;
+        border-radius: 999px;
+        border: 1px solid #d8e3ed;
+        background: var(--accent-soft);
+        color: #476277;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .sub-tab.active {
+        background: var(--accent-mid);
+        border-color: #afc1d0;
+        color: var(--accent);
+      }
+      .collapsed-hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--text-subtle);
+      }
+      .note {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--text-subtle);
+        line-height: 1.55;
+      }
+      @media (max-width: 900px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1>Customer Tab + Subcategory Comparison</h1>
+      <p>上位カテゴリを `Underline` と `Segmented` にした場合に、下位カテゴリを必要時だけ出すとどう見えるかの比較です。</p>
+
+      <div class="grid">
+        <section class="card">
+          <div class="label">Underline + Subcategory</div>
+
+          <div class="section">
+            <div class="state-title">下位カテゴリを表示している状態</div>
+            <div class="underline-tabs">
+              <div class="item active">フード</div>
+              <div class="item">ドリンク</div>
+              <div class="item">デザート</div>
+            </div>
+            <div class="sub-row">
+              <div class="sub-tab active">揚げ物</div>
+              <div class="sub-tab">焼き物</div>
+              <div class="sub-tab">一品</div>
+              <div class="sub-tab">ご飯</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="state-title">下位カテゴリを隠している状態</div>
+            <div class="underline-tabs">
+              <div class="item active">ドリンク</div>
+              <div class="item">フード</div>
+              <div class="item">デザート</div>
+            </div>
+            <div class="collapsed-hint">下位カテゴリなし、または不要なときは1段だけで見せる</div>
+          </div>
+
+          <div class="note">最もタブらしい。上位と下位の役割差も出しやすい。</div>
+        </section>
+
+        <section class="card">
+          <div class="label">Segmented + Subcategory</div>
+
+          <div class="section">
+            <div class="state-title">下位カテゴリを表示している状態</div>
+            <div class="segment-wrap">
+              <div class="segment active">フード</div>
+              <div class="segment">ドリンク</div>
+              <div class="segment">デザート</div>
+            </div>
+            <div class="sub-row">
+              <div class="sub-tab active">揚げ物</div>
+              <div class="sub-tab">焼き物</div>
+              <div class="sub-tab">一品</div>
+              <div class="sub-tab">ご飯</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="state-title">下位カテゴリを隠している状態</div>
+            <div class="segment-wrap">
+              <div class="segment">フード</div>
+              <div class="segment active">ドリンク</div>
+              <div class="segment">デザート</div>
+            </div>
+            <div class="collapsed-hint">下位カテゴリなし、または不要なときは1段だけで見せる</div>
+          </div>
+
+          <div class="note">まとまりは強い。ややボタン感はあるが、切替UIとしては素直。</div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

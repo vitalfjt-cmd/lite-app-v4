@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lite Staff Detail Preview</title>
+    <style>
+      :root {
+        --surface: #fffdfa;
+        --surface-soft: #fbf6ee;
+        --line: #e3d8c8;
+        --text: #1f2a24;
+        --text-subtle: #66706c;
+        --accent: #89b356;
+        --accent-soft: #f7fbf1;
+        --warm: #c9833b;
+        --warm-soft: #fff1e3;
+        --success: #537c4d;
+        --success-soft: #edf5ea;
+        --danger: #a64632;
+        --danger-soft: #fce9e4;
+        --shadow: 0 14px 36px rgba(38, 31, 20, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", "Yu Gothic UI", sans-serif;
+        color: var(--text);
+        background: linear-gradient(180deg, #fdf9f2 0%, #f7f2ea 100%);
+      }
+      .page {
+        min-height: 100vh;
+        display: grid;
+        justify-items: center;
+        gap: 16px;
+        padding: 20px 12px 28px;
+      }
+      .toolbar {
+        width: min(100%, 460px);
+        display: grid;
+        gap: 10px;
+      }
+      .toolbar h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      .toolbar p {
+        margin: 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .tabs {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .state-btn {
+        border: 1px solid var(--line);
+        background: #fff;
+        border-radius: 999px;
+        padding: 8px 12px;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-subtle);
+        cursor: pointer;
+      }
+      .state-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
+      .phone {
+        width: min(100%, 390px);
+        min-height: 844px;
+        border-radius: 38px;
+        background: #fffdf9;
+        border: 1px solid rgba(184, 166, 140, 0.32);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+      }
+      .screen {
+        display: none;
+        padding: 16px 16px 108px;
+        min-height: 844px;
+      }
+      .screen.active { display: block; }
+      .hero {
+        background: var(--surface-soft);
+        border: 1px solid #f1e3cd;
+        border-radius: 24px;
+        padding: 16px;
+        margin-bottom: 12px;
+      }
+      .eyebrow {
+        margin: 0 0 6px;
+        color: #8b6e3a;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .hero h2 {
+        margin: 0;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.04em;
+      }
+      .hero p {
+        margin: 10px 0 0;
+        color: var(--text-subtle);
+        font-size: 13px;
+      }
+      .detail-list {
+        display: grid;
+        gap: 10px;
+      }
+      .line-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+      .line-head,
+      .line-foot {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: center;
+      }
+      .line-name {
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .line-meta {
+        font-size: 13px;
+        color: var(--text-subtle);
+      }
+      .amount {
+        font-size: 16px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .status-chip {
+        padding: 6px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      .status-chip.new {
+        background: var(--warm-soft);
+        color: #9b5e1f;
+      }
+      .status-chip.progress {
+        background: var(--accent-soft);
+        color: #5f7f2e;
+      }
+      .status-chip.done {
+        background: var(--success-soft);
+        color: var(--success);
+      }
+      .toast {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 16px;
+        background: var(--success-soft);
+        color: var(--success);
+        font-size: 13px;
+      }
+      .error-box {
+        margin-top: 12px;
+        background: #fffaf8;
+        border: 1px solid #e8b6aa;
+        border-radius: 22px;
+        padding: 18px 16px;
+        display: grid;
+        gap: 10px;
+      }
+      .bottom-actions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 14px 16px 24px;
+        background: linear-gradient(180deg, rgba(255, 253, 248, 0.3) 0%, rgba(255, 253, 248, 0.92) 18%, rgba(255, 253, 248, 0.98) 100%);
+      }
+      .action-box {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        padding: 12px;
+        display: flex;
+        gap: 8px;
+      }
+      .btn {
+        flex: 1;
+        border: none;
+        border-radius: 14px;
+        padding: 12px 10px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+      .btn.subtle {
+        background: #edf0ee;
+        color: #4c5351;
+      }
+      .btn.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+      }
+      .btn.primary {
+        background: var(--warm);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="toolbar">
+        <h1>Lite / Staff Ticket Detail Preview</h1>
+        <p>詳細画面は「どの伝票か」「何が入っているか」「次に何をするか」の 3 点だけに絞ります。</p>
+        <div class="tabs">
+          <button class="state-btn active" data-target="default">通常</button>
+          <button class="state-btn" data-target="status">状態あり</button>
+          <button class="state-btn" data-target="saved">保存後</button>
+          <button class="state-btn" data-target="error">エラー</button>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="screen active" data-screen="default">
+          <div class="hero">
+            <p class="eyebrow">Floor Staff</p>
+            <h2>Table 12 / A-12</h2>
+            <p>注文時刻 19:24</p>
+          </div>
+          <div class="detail-list">
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">生ビール</div>
+                <div class="status-chip new">新規</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥590</div>
+                <div class="amount">¥590</div>
+              </div>
+            </div>
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">枝豆</div>
+                <div class="status-chip new">新規</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥420</div>
+                <div class="amount">¥420</div>
+              </div>
+            </div>
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">鉄板焼きそば</div>
+                <div class="status-chip progress">調理中</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">2点 / 単価 ¥1,265</div>
+                <div class="amount">¥2,530</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">修正</button>
+              <button class="btn danger">取消</button>
+              <button class="btn primary">会計補助</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="status">
+          <div class="hero">
+            <p class="eyebrow">Floor Staff</p>
+            <h2>Table 12 / A-12</h2>
+            <p>注文時刻 19:24</p>
+          </div>
+          <div class="detail-list">
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">鉄板焼きそば</div>
+                <div class="status-chip progress">調理中</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">2点 / 単価 ¥1,265</div>
+                <div class="amount">¥2,530</div>
+              </div>
+            </div>
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">枝豆</div>
+                <div class="status-chip done">提供済み</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥420</div>
+                <div class="amount">¥420</div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">修正</button>
+              <button class="btn danger">取消</button>
+              <button class="btn primary">会計補助</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="saved">
+          <div class="hero">
+            <p class="eyebrow">Floor Staff</p>
+            <h2>Table 12 / A-12</h2>
+            <p>注文時刻 19:24</p>
+          </div>
+          <div class="detail-list">
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">生ビール</div>
+                <div class="status-chip done">提供済み</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥590</div>
+                <div class="amount">¥590</div>
+              </div>
+            </div>
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">鉄板焼きそば</div>
+                <div class="status-chip progress">調理中</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥1,265</div>
+                <div class="amount">¥1,265</div>
+              </div>
+            </div>
+          </div>
+          <div class="toast">変更を保存しました</div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">修正</button>
+              <button class="btn danger">取消</button>
+              <button class="btn primary">会計補助</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="screen" data-screen="error">
+          <div class="hero">
+            <p class="eyebrow">Floor Staff</p>
+            <h2>Table 12 / A-12</h2>
+            <p>注文時刻 19:24</p>
+          </div>
+          <div class="detail-list">
+            <div class="line-card">
+              <div class="line-head">
+                <div class="line-name">生ビール</div>
+                <div class="status-chip new">新規</div>
+              </div>
+              <div class="line-foot">
+                <div class="line-meta">1点 / 単価 ¥590</div>
+                <div class="amount">¥590</div>
+              </div>
+            </div>
+          </div>
+          <div class="error-box">
+            <div class="line-name">変更を保存できませんでした</div>
+            <div class="line-meta">通信状態を確認して、もう一度お試しください。入力内容は保持したままです。</div>
+          </div>
+          <div class="bottom-actions">
+            <div class="action-box">
+              <button class="btn subtle">修正</button>
+              <button class="btn danger">取消</button>
+              <button class="btn primary">会計補助</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const buttons = document.querySelectorAll(".state-btn");
+      const screens = document.querySelectorAll(".screen");
+      buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.target;
+          buttons.forEach((b) => b.classList.toggle("active", b === button));
+          screens.forEach((screen) => screen.classList.toggle("active", screen.dataset.screen === target));
+        });
+      });
+    </script>
+  </body>
+</html>
