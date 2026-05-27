@@ -82,7 +82,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   }
 
   return (
-    <div className="admin-tab-content" style={{ maxHeight: 'calc(100dvh - 220px)', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
+    <div className="admin-tab-content" style={{ maxHeight: '100%', height: '100%', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
       <div className="admin-tab-head">
         <div>
           <h2>売上管理・レジ締め</h2>
