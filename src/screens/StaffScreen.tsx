@@ -264,6 +264,10 @@ export function StaffScreen({
   const changeTotal = Math.max(0, paidTotal - finalBilledAmount)
   
   const updateCalculatingQty = (id: string, delta: number) => {
+    if (id === '__clear__') {
+      setCalculatingLineQtys({})
+      return
+    }
     setCalculatingLineQtys(prev => {
       const current = prev[id] || 0
       return { ...prev, [id]: Math.max(0, current + delta) }

@@ -630,62 +630,106 @@ export function StaffPaymentView({
                   支払う商品を選んでください:
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', padding: '12px 24px' }}>
-                  {selectedLines.map((l) => {
-                    const paidQty = paidLineQtys[l.id] || 0
-                    const remainingQty = Math.max(0, l.quantity - paidQty)
-                    const currentQty = calculatingLineQtys[l.id] || 0
-                    if (remainingQty === 0) return null
+                  {(() => {
+                    const groupedMap = new Map<string, LiveLine[]>()
+                    for (const line of selectedLines) {
+                      const name = line.item_name_snapshot
+                      if (!groupedMap.has(name)) {
+                        groupedMap.set(name, [])
+                      }
+                      groupedMap.get(name)!.push(line)
+                    }
 
-                    return (
-                      <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px dashed #ced4da' }}>
-                        <div style={{ flex: 1, minWidth: 0, paddingRight: '16px' }}>
-                          <div style={{ fontSize: '1.2rem', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '4px' }}>
-                            {l.item_name_snapshot}
+                    return Array.from(groupedMap.entries()).map(([name, lines]) => {
+                      let totalRemainingQty = 0
+                      let totalCalculatingQty = 0
+                      for (const l of lines) {
+                        const paidQty = paidLineQtys[l.id] || 0
+                        const remainingQty = Math.max(0, l.quantity - paidQty)
+                        const currentQty = calculatingLineQtys[l.id] || 0
+                        totalRemainingQty += remainingQty
+                        totalCalculatingQty += currentQty
+                      }
+
+                      if (totalRemainingQty === 0) return null
+
+                      const firstLine = lines[0]
+                      const unitPrice = getItemUnitPrice(firstLine.id)
+
+                      const handleGroupIncrement = () => {
+                        for (const l of lines) {
+                          const paidQty = paidLineQtys[l.id] || 0
+                          const remainingQty = Math.max(0, l.quantity - paidQty)
+                          const currentQty = calculatingLineQtys[l.id] || 0
+                          if (currentQty < remainingQty) {
+                            updateCalculatingQty(l.id, 1)
+                            break
+                          }
+                        }
+                      }
+
+                      const handleGroupDecrement = () => {
+                        for (let i = lines.length - 1; i >= 0; i--) {
+                          const l = lines[i]
+                          const currentQty = calculatingLineQtys[l.id] || 0
+                          if (currentQty > 0) {
+                            updateCalculatingQty(l.id, -1)
+                            break
+                          }
+                        }
+                      }
+
+                      return (
+                        <div key={name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px dashed #ced4da' }}>
+                          <div style={{ flex: 1, minWidth: 0, paddingRight: '16px' }}>
+                            <div style={{ fontSize: '1.2rem', color: '#333', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '4px' }}>
+                              {name}
+                            </div>
+                            <div style={{ fontSize: '1rem', color: '#868e96' }}>
+                              {yen(unitPrice)} <span style={{ fontSize: '0.9rem' }}>(残 {totalRemainingQty} 個)</span>
+                            </div>
                           </div>
-                          <div style={{ fontSize: '1rem', color: '#868e96' }}>
-                            {yen(getItemUnitPrice(l.id))} <span style={{ fontSize: '0.9rem' }}>(残 {remainingQty} 個)</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <button
+                              onClick={handleGroupDecrement}
+                              disabled={totalCalculatingQty === 0}
+                              style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '8px',
+                                background: totalCalculatingQty === 0 ? '#f1f3f5' : 'white',
+                                border: totalCalculatingQty === 0 ? '1px solid #e9ecef' : '1px solid #ced4da',
+                                boxShadow: totalCalculatingQty === 0 ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
+                                cursor: totalCalculatingQty === 0 ? 'default' : 'pointer',
+                                fontSize: '1.5rem',
+                                color: totalCalculatingQty === 0 ? '#adb5bd' : '#495057',
+                              }}
+                            >
+                              -
+                            </button>
+                            <span style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '32px', textAlign: 'center', color: totalCalculatingQty > 0 ? '#333' : '#adb5bd' }}>{totalCalculatingQty}</span>
+                            <button
+                              onClick={handleGroupIncrement}
+                              disabled={totalCalculatingQty >= totalRemainingQty}
+                              style={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '8px',
+                                background: totalCalculatingQty >= totalRemainingQty ? '#f1f3f5' : 'white',
+                                border: totalCalculatingQty >= totalRemainingQty ? '1px solid #e9ecef' : '1px solid #ced4da',
+                                boxShadow: totalCalculatingQty >= totalRemainingQty ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
+                                cursor: totalCalculatingQty >= totalRemainingQty ? 'default' : 'pointer',
+                                fontSize: '1.5rem',
+                                color: totalCalculatingQty >= totalRemainingQty ? '#adb5bd' : '#495057',
+                              }}
+                            >
+                              +
+                            </button>
                           </div>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <button
-                            onClick={() => updateCalculatingQty(l.id, -1)}
-                            disabled={currentQty === 0}
-                            style={{
-                              width: '44px',
-                              height: '44px',
-                              borderRadius: '8px',
-                              background: currentQty === 0 ? '#f1f3f5' : 'white',
-                              border: currentQty === 0 ? '1px solid #e9ecef' : '1px solid #ced4da',
-                              boxShadow: currentQty === 0 ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
-                              cursor: currentQty === 0 ? 'default' : 'pointer',
-                              fontSize: '1.5rem',
-                              color: currentQty === 0 ? '#adb5bd' : '#495057',
-                            }}
-                          >
-                            -
-                          </button>
-                          <span style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '32px', textAlign: 'center', color: currentQty > 0 ? '#333' : '#adb5bd' }}>{currentQty}</span>
-                          <button
-                            onClick={() => updateCalculatingQty(l.id, 1)}
-                            disabled={currentQty >= remainingQty}
-                            style={{
-                              width: '44px',
-                              height: '44px',
-                              borderRadius: '8px',
-                              background: currentQty >= remainingQty ? '#f1f3f5' : 'white',
-                              border: currentQty >= remainingQty ? '1px solid #e9ecef' : '1px solid #ced4da',
-                              boxShadow: currentQty >= remainingQty ? 'none' : '0 2px 4px rgba(0,0,0,0.05)',
-                              cursor: currentQty >= remainingQty ? 'default' : 'pointer',
-                              fontSize: '1.5rem',
-                              color: currentQty >= remainingQty ? '#adb5bd' : '#495057',
-                            }}
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })
+                  })()}
                 </div>
                 <div style={{ padding: '24px', borderTop: '1px solid #dee2e6', background: 'white', flexShrink: 0, borderRadius: '0 0 16px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
