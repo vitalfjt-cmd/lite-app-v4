@@ -393,11 +393,11 @@ export function StaffPaymentView({
                     <button
                       style={{
                         flex: 1,
-                        padding: '8px',
+                        padding: '14px 8px',
                         background: '#f8f9fa',
                         border: '1px solid #dee2e6',
-                        borderRadius: '6px',
-                        fontSize: '0.9rem',
+                        borderRadius: '8px',
+                        fontSize: '1rem',
                         fontWeight: 'bold',
                         cursor: 'pointer',
                         color: '#495057',
@@ -414,11 +414,11 @@ export function StaffPaymentView({
                         <button
                           style={{
                             flex: 1,
-                            padding: '8px',
+                            padding: '14px 8px',
                             background: '#fff0f6',
                             border: '1px solid #ffdeeb',
-                            borderRadius: '6px',
-                            fontSize: '0.9rem',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
                             fontWeight: 'bold',
                             cursor: 'pointer',
                             color: '#a61e4d',
@@ -430,11 +430,11 @@ export function StaffPaymentView({
                         <button
                           style={{
                             flex: 1,
-                            padding: '8px',
+                            padding: '14px 8px',
                             background: '#fff0f6',
                             border: '1px solid #ffdeeb',
-                            borderRadius: '6px',
-                            fontSize: '0.9rem',
+                            borderRadius: '8px',
+                            fontSize: '1rem',
                             fontWeight: 'bold',
                             cursor: 'pointer',
                             color: '#a61e4d',
@@ -450,11 +450,11 @@ export function StaffPaymentView({
                     <button
                       style={{
                         flex: 1,
-                        padding: '10px',
+                        padding: '16px 10px',
                         background: '#e7f5ff',
                         border: '1px solid #74c0fc',
-                        borderRadius: '6px',
-                        fontSize: '0.95rem',
+                        borderRadius: '8px',
+                        fontSize: '1.05rem',
                         fontWeight: 'bold',
                         cursor: 'pointer',
                         color: '#1864ab',
@@ -469,11 +469,11 @@ export function StaffPaymentView({
                     <button
                       style={{
                         flex: 1,
-                        padding: '10px',
+                        padding: '16px 10px',
                         background: '#e7f5ff',
                         border: '1px solid #74c0fc',
-                        borderRadius: '6px',
-                        fontSize: '0.95rem',
+                        borderRadius: '8px',
+                        fontSize: '1.05rem',
                         fontWeight: 'bold',
                         cursor: 'pointer',
                         color: '#1864ab',
