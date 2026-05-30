@@ -2039,8 +2039,23 @@ h1 {
 }
 
 .admin-main {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.admin-main > .ops-grid {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.admin-main > .ops-grid > .panel {
+  height: 100%;
+  min-height: 0;
 }
 
 .admin-list-head {
