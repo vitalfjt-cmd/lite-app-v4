@@ -534,7 +534,7 @@ export function StaffScreen({
                       客用QR表示
                     </button>
                   )}
-                  <button className="btn-secondary" onClick={() => setShowHandyModal(true)}>追加注文</button>
+                  <button className="btn-secondary" onClick={() => setShowHandyModal(true)}>注文</button>
                   <button className="btn-primary" onClick={() => setShowPaymentModal(true)}>会計へ進む</button>
                 </div>
               </div>
