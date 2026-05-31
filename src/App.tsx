@@ -272,7 +272,7 @@ export default function App() {
   }, [liveStore?.slug, profile, session, view])
 
   useEffect(() => {
-    if (!staffReadApiEnabled || (view !== 'admin' && view !== 'staff') || !profile) return
+    if (!staffReadApiEnabled || (view !== 'admin' && view !== 'staff' && view !== 'kds') || !profile) return
     const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
     if (!storeSlug) return
     void loadAdminPrototypeData(storeSlug).catch((err) => setError(formatError(err)))
@@ -378,6 +378,11 @@ export default function App() {
         const ticket = activeLiveTickets.find((item) => item.id === line.order_ticket_id)
         const table = liveTables.find((item) => item.id === ticket?.table_ref_id)
         const item = liveItems.find((i) => i.id === line.item_id)
+        const relation = liveBookSubcategoryItems.find((r) => r.menu_book_id === ticket?.menu_book_id && r.menu_item_id === line.item_id)
+          || liveBookSubcategoryItems.find((r) => r.menu_item_id === line.item_id)
+        const subcategory = relation
+          ? liveSubcategories.find((s) => s.id === relation.menu_subcategory_id)
+          : undefined
         const qty = line.quantity
         return {
           id: line.id,
@@ -391,9 +396,11 @@ export default function App() {
           ticketNo: ticket?.ticket_no ?? '-',
           tableName: table?.label ?? '-',
           createdAt: line.created_at,
+          subcategoryName: subcategory?.name ?? 'その他',
+          subcategorySortOrder: subcategory?.sort_order ?? 9999,
         }
       })
-  }, [activeLiveTickets, liveLines, liveTables, liveItems, session])
+  }, [activeLiveTickets, liveLines, liveTables, liveItems, liveSubcategories, liveBookSubcategoryItems, session])
 
   const kdsTableOptions = useMemo(
     () =>

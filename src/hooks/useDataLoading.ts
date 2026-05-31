@@ -94,6 +94,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
         [...ticket.lines, ...ticket.cancelled_lines].map((line) => ({
           id: line.id,
           order_ticket_id: ticket.ticketId,
+          item_id: (line as any).itemId || (line as any).item_id || (line as any).menu_item_id || '00000000-0000-0000-0000-000000000000',
           item_name_snapshot: line.item_name_snapshot,
           quantity: line.quantity,
           line_subtotal: line.line_subtotal,
@@ -218,7 +219,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
           setLivePaymentEntries([])
         } else {
           await loadOperationalData(currentProfile, prototypeStoreSlug)
-          if (view === 'staff') {
+          if (view === 'staff' || view === 'kds') {
             await loadAdminPrototypeData(prototypeStoreSlug)
           } else {
             setLiveCategories([])

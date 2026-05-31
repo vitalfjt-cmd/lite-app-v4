@@ -8,6 +8,8 @@ type KdsQueueItem = {
   ticketNo: string
   tableName: string
   createdAt: string
+  subcategoryName?: string
+  subcategorySortOrder?: number
 }
 
 type KdsScreenProps = {
@@ -143,22 +145,42 @@ export function KdsScreen({
                 </div>
               </div>
               <div className="kds-items">
-                {order.items.map(item => {
-                  // In Mock, clicking the item toggled it "done". Here, clicking advances NEW -> COOKING
-                  const isDone = item.status === 'COOKING';
-                  return (
-                    <button 
-                      key={item.id} 
-                      className={`kds-item-btn ${isDone ? 'done' : ''}`}
-                      disabled={mutationBusy === item.id || item.status === 'SERVED'}
-                      onClick={() => onAdvanceStatus(item.id)}
-                    >
-                      <div className="checkbox-ring"></div>
-                      <span className="item-name">{item.itemName}</span>
-                      <strong className="item-qty">x{item.qty}</strong>
-                    </button>
-                  )
-                })}
+                {(() => {
+                  const subcategoryMap = new Map<string, { name: string; sortOrder: number; items: typeof order.items }>()
+                  order.items.forEach(item => {
+                    const subcatName = item.subcategoryName || 'その他'
+                    const subcatSort = item.subcategorySortOrder ?? 9999
+                    if (!subcategoryMap.has(subcatName)) {
+                      subcategoryMap.set(subcatName, { name: subcatName, sortOrder: subcatSort, items: [] })
+                    }
+                    subcategoryMap.get(subcatName)!.items.push(item)
+                  })
+
+                  const sortedSubcategories = Array.from(subcategoryMap.values()).sort((a, b) => a.sortOrder - b.sortOrder)
+
+                  return sortedSubcategories.map(subcat => (
+                    <div key={subcat.name} className="kds-subcategory-group">
+                      <div className="kds-subcategory-title">{subcat.name}</div>
+                      <div className="kds-subcategory-items">
+                        {subcat.items.map(item => {
+                          const isDone = item.status === 'COOKING';
+                          return (
+                            <button 
+                              key={item.id} 
+                              className={`kds-item-btn ${isDone ? 'done' : ''}`}
+                              disabled={mutationBusy === item.id || item.status === 'SERVED'}
+                              onClick={() => onAdvanceStatus(item.id)}
+                            >
+                              <div className="checkbox-ring"></div>
+                              <span className="item-name">{item.itemName}</span>
+                              <strong className="item-qty">x{item.qty}</strong>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))
+                })()}
               </div>
               <div className="kds-card-footer">
                 <button 

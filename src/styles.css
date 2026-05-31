@@ -3978,6 +3978,10 @@ h1 {
 .item-qty { font-size: 1.2rem; background: #444; padding: 4px 8px; border-radius: 4px; }
 .kds-item-btn.done { opacity: 0.5; text-decoration: line-through; }
 .kds-item-btn.done .checkbox-ring { background: #51cf66; border-color: #51cf66; }
+.kds-subcategory-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.kds-subcategory-group:last-child { margin-bottom: 0; }
+.kds-subcategory-title { font-size: 0.8rem; font-weight: bold; color: #fd7e14; border-bottom: 1px solid #333; padding-bottom: 4px; margin-top: 4px; }
+.kds-subcategory-items { display: flex; flex-direction: column; gap: 8px; }
 .kds-card-footer { padding: 16px; background: #1a1a1a; margin-top: auto; flex-shrink: 0; }
 .kds-serve-btn { width: 100%; padding: 16px; background: #333; color: white; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; }
 .kds-serve-btn.ready { background: #fd7e14; animation: pop 0.3s ease; }
