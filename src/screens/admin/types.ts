@@ -77,6 +77,8 @@ export type AdminStoreSettings = {
   payment_timing_mode: 'PREPAID' | 'POSTPAID'
   ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
   ticket_no_digits: number
+  open_business_date?: string | null
+  today_business_date?: string
 } | null
 
 export type AdminTableRow = {

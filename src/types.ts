@@ -105,6 +105,8 @@ export type LiveStore = {
   payment_timing_mode: 'PREPAID' | 'POSTPAID'
   ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
   ticket_no_digits: number
+  open_business_date?: string | null
+  today_business_date?: string
 }
 export type LiveTableRef = { id: string; label: string; qr_token: string; group_name?: string | null; sort_order?: number; is_active: boolean }
 export type LiveTicket = {

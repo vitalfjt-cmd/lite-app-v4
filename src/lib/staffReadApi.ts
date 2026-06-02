@@ -129,6 +129,8 @@ export function loginStaffPrototype(storeSlug: string, email: string, password: 
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
+      open_business_date?: string | null
+      today_business_date?: string
     }
   }>({
     action: 'staff-login',
@@ -166,6 +168,8 @@ export function fetchStaffPrototypeSession(storeSlug: string, accessToken: strin
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
+      open_business_date?: string | null
+      today_business_date?: string
     }
   }>({
     action: 'staff-session',
@@ -194,6 +198,8 @@ export function fetchStaffPrototypeBootstrap(storeSlug: string) {
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
+      open_business_date?: string | null
+      today_business_date?: string
     }
     tables: {
       id: string
@@ -231,6 +237,8 @@ export function fetchAdminPrototypeBootstrap(storeSlug: string) {
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
+      open_business_date?: string | null
+      today_business_date?: string
     }
     tables: {
       id: string
@@ -343,6 +351,8 @@ export function saveAdminPrototypeStore(
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
+      open_business_date?: string | null
+      today_business_date?: string
     }
   }>({
     action: 'admin-save-store',

@@ -56,7 +56,12 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       setAdminMessage('閉店処理が完了しました')
       await fetchReport()
     } catch (err: any) {
-      setError(err.message || String(err))
+      const msg = err.message || String(err)
+      if (msg === 'open_tickets_exist') {
+        setError('未会計の伝票が残っています')
+      } else {
+        setError(msg)
+      }
       setLoading(false)
     }
   }

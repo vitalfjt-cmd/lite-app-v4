@@ -211,6 +211,14 @@ export function useDataLoading(setters: DataLoadingSetters) {
         }
         setProfile(currentProfile)
         setLiveStore(auth.store)
+        const store = auth.store
+        if (store.open_business_date && store.today_business_date && store.today_business_date > store.open_business_date) {
+          const sessionKey = `warned_close_${store.id}_${store.open_business_date}`
+          if (!window.sessionStorage.getItem(sessionKey)) {
+            window.sessionStorage.setItem(sessionKey, 'true')
+            alert('閉店処理がされていません')
+          }
+        }
         setLiveStaffUsers([currentProfile])
         if (view === 'admin') {
           await loadAdminPrototypeData(prototypeStoreSlug)
