@@ -32,3 +32,21 @@ npm.cmd run dev
 
 
 // db → customer-api-prototype\.wrangler-clean\v3\d1
+
+
+
+customer-api-prototype ディレクトリはGitリポジトリになっていないため、以下のコマンドを実行してバックエンドをCloudflare Workersへデプロイ
+
+cd customer-api-prototype
+npm run deploy
+
+
+Cloudflare APIへの接続で認証エラー（Authentication error [code: 10000]）が発生した場合、
+
+一度ログアウトしてから再ログインすると正常に動作する場合がある
+
+npx wrangler logout
+
+npx wrangler login
+
+npm run deploy
