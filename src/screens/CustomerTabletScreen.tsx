@@ -192,7 +192,7 @@ export function CustomerTabletScreen({
       {/* Header with 2-tier category nav */}
       <header className="tablet-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 0, padding: 0 }}>
         {/* Top row: store name + table badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 28px', borderBottom: '1px solid #eee' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 64px', borderBottom: '1px solid #eee' }}>
           <div className="tablet-meta" style={{ marginBottom: 0 }}>
             <h1 style={{ margin: 0 }}>{activeStoreName || '焼肉 UCD'}</h1>
           </div>
@@ -228,14 +228,14 @@ export function CustomerTabletScreen({
         </div>
         
         {customerMessage && customerStep === 'menu' && (
-          <div style={{ padding: '12px 28px', background: '#ff5a5f', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+          <div style={{ padding: '12px 64px', background: '#ff5a5f', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
             {customerMessage}
           </div>
         )}
 
         {/* Tier 1: Top categories */}
         {customerTopCategories.length > 0 && (
-          <div className="tablet-categories" style={{ padding: '10px 28px 0', borderBottom: customerSubCategories.length > 0 ? 'none' : '1px solid #eee' }}>
+          <div className="tablet-categories" style={{ padding: '14px 64px 0', borderBottom: customerSubCategories.length > 0 ? 'none' : '1px solid #eee' }}>
             {customerTopCategories.map((cat) => (
               <button
                 key={cat.id}
@@ -253,9 +253,9 @@ export function CustomerTabletScreen({
           <div
             className="tablet-categories"
             style={{
-              padding: '8px 28px 10px',
+              padding: '8px 64px 14px',
               borderBottom: '1px solid #eee',
-              gap: '8px',
+              gap: '10px',
             }}
           >
             {customerSubCategories.map((cat) => (
@@ -264,8 +264,8 @@ export function CustomerTabletScreen({
                 className={`tablet-cat-btn ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
                 onClick={() => onSelectCategory(cat.id)}
                 style={{
-                  fontSize: '0.9rem',
-                  padding: '8px 18px',
+                  fontSize: '1.05rem',
+                  padding: '10px 22px',
                   background: selectedCustomerCategoryId === cat.id ? '#ff5a5f' : '#f0f3f5',
                   color: selectedCustomerCategoryId === cat.id ? 'white' : '#59656f',
                   borderColor: 'transparent',

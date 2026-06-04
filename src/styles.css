@@ -4258,8 +4258,8 @@ h1 {
 }
 .tablet-meta h1 { font-size: 1.2rem; margin: 0; color: #333; }
 .tablet-table-badge { background: #ff5a5f; color: white; padding: 3px 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; }
-.tablet-categories { display: flex; gap: 8px; flex-wrap: wrap; }
-.tablet-cat-btn { padding: 7px 16px; font-size: 1rem; font-weight: bold; border-radius: 30px; border: 2px solid transparent; background: #f1f3f5; color: #555; cursor: pointer; transition: all 0.2s; }
+.tablet-categories { display: flex; gap: 12px; flex-wrap: wrap; }
+.tablet-cat-btn { padding: 10px 24px; font-size: 1.2rem; font-weight: bold; border-radius: 30px; border: 2px solid transparent; background: #f1f3f5; color: #555; cursor: pointer; transition: all 0.2s; }
 .tablet-cat-btn.active { background: #ff5a5f; color: white; border-color: #ff5a5f; }
 .lang-btn { background: #fff; border: 1px solid #ccc; padding: 8px 16px; font-size: 1rem; border-radius: 8px; cursor: pointer; }
 
