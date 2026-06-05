@@ -31,25 +31,40 @@ export function AdminStoreTab(props: Props) {
           </div>
         </div>
         <div className="form-stack">
-          <label>店舗名<input value={props.adminStoreName} onChange={(event) => props.onStoreNameChange(event.target.value)} disabled={props.disabled} /></label>
-          <label>店舗スラッグ (URL用)<input value={props.adminStoreSlug} onChange={(event) => props.onStoreSlugChange(event.target.value)} disabled={props.disabled} /></label>
-          <label>タイムゾーン<input value={props.adminStoreTimezone} onChange={(event) => props.onStoreTimezoneChange(event.target.value)} disabled={props.disabled} /></label>
-          <label>営業日切替オフセット (分)<input type="number" value={props.adminStoreBusinessOffsetMinutes} onChange={(event) => props.onStoreBusinessOffsetMinutesChange(event.target.value)} disabled={props.disabled} /></label>
-          <label>
-            支払いタイミング
+          <label className="admin-store-field">
+            <span>店舗名</span>
+            <input value={props.adminStoreName} onChange={(event) => props.onStoreNameChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>店舗スラッグ (URL用)</span>
+            <input value={props.adminStoreSlug} onChange={(event) => props.onStoreSlugChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>タイムゾーン</span>
+            <input value={props.adminStoreTimezone} onChange={(event) => props.onStoreTimezoneChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>営業日切替時刻</span>
+            <input type="number" value={props.adminStoreBusinessOffsetMinutes} onChange={(event) => props.onStoreBusinessOffsetMinutesChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>支払いタイミング</span>
             <select value={props.adminStorePaymentTimingMode} onChange={(event) => props.onStorePaymentTimingModeChange(event.target.value as 'PREPAID' | 'POSTPAID')} disabled={props.disabled}>
               <option value="PREPAID">先払い</option>
               <option value="POSTPAID">後払い</option>
             </select>
           </label>
-          <label>
-            伝票番号リセット設定
+          <label className="admin-store-field">
+            <span>伝票番号リセット設定</span>
             <select value={props.adminStoreTicketNoResetMode} onChange={(event) => props.onStoreTicketNoResetModeChange(event.target.value as 'DAILY' | 'SEQUENCE')} disabled={props.disabled}>
               <option value="DAILY">毎日リセット</option>
               <option value="SEQUENCE">通し番号</option>
             </select>
           </label>
-          <label>伝票番号桁数<input type="number" value={props.adminStoreTicketNoDigits} onChange={(event) => props.onStoreTicketNoDigitsChange(event.target.value)} disabled={props.disabled} /></label>
+          <label className="admin-store-field">
+            <span>伝票番号桁数</span>
+            <input type="number" value={props.adminStoreTicketNoDigits} onChange={(event) => props.onStoreTicketNoDigitsChange(event.target.value)} disabled={props.disabled} />
+          </label>
           <div className="button-row">
             <button className="primary-button" onClick={props.onSaveStoreSettings} disabled={props.disabled}>店舗設定を保存</button>
           </div>

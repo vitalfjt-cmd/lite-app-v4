@@ -1854,13 +1854,13 @@ h1 {
   padding: 20px;
   box-sizing: border-box;
   position: relative;
-  --admin-surface: #fffdfa;
-  --admin-surface-soft: #f6f8f9;
-  --admin-line: #dbe3ea;
-  --admin-line-soft: #e7edf2;
+  --admin-surface: #ffffff;
+  --admin-surface-soft: #f8fafc;
+  --admin-line: #dee2e6;
+  --admin-line-soft: #e9ecef;
   --admin-accent: #2f4f68;
   --admin-accent-soft: #eef3f7;
-  --admin-active: #edf4ea;
+  --admin-active: #e2e8f0;
 }
 
 .admin-layout {
@@ -1948,94 +1948,100 @@ h1 {
   font-size: 0.98rem;
 }
 
-.admin-nav-button::before {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
+/* Sidebar Nav, List Head, and Modal Head Icons using Material Icons */
+.admin-nav-button::before,
+.admin-list-head h2::before,
+.admin-modal-head h2::before {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
   flex: 0 0 28px;
   border: 1px solid var(--admin-line);
   background: var(--admin-accent-soft);
   color: var(--admin-accent);
+  box-sizing: border-box;
   position: relative;
-  content: "";
 }
 
-.admin-nav-button-menuBooks::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 8px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 6px 6px / 1.5px 16px no-repeat;
+/* Tab Icon content mapping */
+.admin-nav-button-menuBooks::before,
+.admin-section-menuBooks .admin-list-head h2::before,
+.admin-modal-head-menuBooks h2::before {
+  content: "menu_book";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-categories::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 8px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 18px / 12px 1.5px no-repeat;
+.admin-nav-button-categories::before,
+.admin-section-categories .admin-list-head h2::before,
+.admin-modal-head-categories h2::before {
+  content: "category";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-subcategories::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 12px 18px / 8px 1.5px no-repeat;
+.admin-nav-button-subcategories::before,
+.admin-section-subcategories .admin-list-head h2::before,
+.admin-modal-head-subcategories h2::before {
+  content: "layers";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-items::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 1.5px 12px no-repeat;
+.admin-nav-button-items::before,
+.admin-section-items .admin-list-head h2::before,
+.admin-modal-head-items h2::before {
+  content: "restaurant_menu";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-placements::before {
-  background:
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 7px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 15px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 11px 15px / 6px 6px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 9px / 6px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 9px 13px / 1.5px 5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 15px 13px / 1.5px 5px no-repeat;
+.admin-nav-button-placements::before,
+.admin-section-placements .admin-list-head h2::before,
+.admin-modal-head-placements h2::before {
+  content: "dashboard";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-store::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 9px 9px / 1.5px 11px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 19px 9px / 1.5px 11px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 20px / 12px 1.5px no-repeat;
+.admin-nav-button-sales::before,
+.admin-section-sales .admin-list-head h2::before,
+.admin-modal-head-sales h2::before {
+  content: "bar_chart";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-tables::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 9px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 14px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 19px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 11px 7px / 1.5px 15px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 17px 7px / 1.5px 15px no-repeat;
+.admin-nav-button-store::before,
+.admin-section-store .admin-list-head h2::before,
+.admin-modal-head-store h2::before {
+  content: "store";
+  background: var(--admin-accent-soft);
 }
-
-.admin-nav-button-staff::before {
-  background:
-    radial-gradient(circle, var(--admin-accent) 0 3px, transparent 3.5px) 11px 6px / 6px 6px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 16px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 18px / 8px 1.5px no-repeat;
+.admin-nav-button-tables::before,
+.admin-section-tables .admin-list-head h2::before,
+.admin-modal-head-tables h2::before {
+  content: "table_restaurant";
+  background: var(--admin-accent-soft);
+}
+.admin-nav-button-staff::before,
+.admin-section-staff .admin-list-head h2::before,
+.admin-modal-head-staff h2::before {
+  content: "people";
+  background: var(--admin-accent-soft);
 }
 
 .admin-nav-button.active {
   border-color: var(--admin-line);
   background: var(--admin-active);
-  box-shadow: inset 0 0 0 1px rgba(47, 79, 104, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .admin-nav-button.active::before {
-  border-color: rgba(47, 79, 104, 0.14);
-  background: #f7fbfd;
+  border-color: var(--admin-line);
+  background: var(--admin-surface);
 }
 
 .admin-main {
@@ -2074,64 +2080,7 @@ h1 {
   gap: 10px;
 }
 
-.admin-list-head h2::before {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 28px;
-  border: 1px solid var(--admin-line);
-  background: var(--admin-accent-soft);
-  content: "";
-}
-
-.admin-section-menuBooks .admin-list-head h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 8px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 6px 6px / 1.5px 16px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-section-categories .admin-list-head h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 8px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 18px / 12px 1.5px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-section-subcategories .admin-list-head h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 12px 18px / 8px 1.5px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-section-items .admin-list-head h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 1.5px 12px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-section-placements .admin-list-head h2::before {
-  background:
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 7px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 15px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 11px 15px / 6px 6px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 9px / 6px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 9px 13px / 1.5px 5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 15px 13px / 1.5px 5px no-repeat,
-    var(--admin-accent-soft);
-}
-
+/* admin-list-head h2::before overrides are consolidated under the nav-button-*** icon mapping */
 /* Placement Drill-down UI */
 .placement-explorer {
   display: flex;
@@ -2144,17 +2093,33 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #f8fafc;
+  background: var(--admin-surface-soft);
   padding: 10px 16px;
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--admin-line);
   font-size: 0.9rem;
+}
+
+.breadcrumb-separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0; /* Hides "/" */
+  margin: 0 4px;
+}
+
+.breadcrumb-separator::before {
+  content: "chevron_right";
+  font-family: 'Material Icons';
+  font-size: 16px;
+  line-height: 1;
 }
 
 .breadcrumb-item {
   color: #64748b;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, text-decoration 0.2s;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -2162,16 +2127,14 @@ h1 {
 
 .breadcrumb-item:hover {
   color: var(--admin-accent);
+  text-decoration: underline;
 }
 
 .breadcrumb-item.active {
   color: #1e293b;
   font-weight: 600;
   cursor: default;
-}
-
-.breadcrumb-separator {
-  color: #cbd5e1;
+  text-decoration: none !important;
 }
 
 .placement-view-container {
@@ -2203,6 +2166,9 @@ h1 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
 }
 
 .placement-card {
@@ -2221,7 +2187,8 @@ h1 {
 
 .placement-card:hover {
   border-color: var(--admin-accent);
-  box-shadow: 0 8px 24px rgba(47, 79, 104, 0.08);
+  background: var(--admin-surface-soft);
+  box-shadow: 0 8px 24px rgba(181, 110, 47, 0.08);
   transform: translateY(-2px);
 }
 
@@ -2230,10 +2197,31 @@ h1 {
   border-color: var(--admin-accent);
 }
 
+.placement-card:hover .placement-card-title {
+  color: var(--admin-accent);
+  text-decoration: underline;
+}
+
 .placement-card-content {
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+}
+
+.placement-card-content::after {
+  content: "chevron_right";
+  font-family: 'Material Icons';
+  font-size: 20px;
+  color: var(--admin-accent);
+  opacity: 0.3;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.placement-card:hover .placement-card-content::after {
+  opacity: 1;
+  transform: translateX(4px);
 }
 
 .placement-card-icon {
@@ -2730,81 +2718,7 @@ h1 {
   gap: 10px;
 }
 
-.admin-modal-head h2::before {
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 28px;
-  border: 1px solid var(--admin-line);
-  background: var(--admin-accent-soft);
-  content: "";
-}
-
-.admin-modal-head-menuBooks h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 8px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 6px 6px / 1.5px 16px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-categories h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 8px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 18px / 12px 1.5px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-subcategories h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 13px / 10px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 12px 18px / 8px 1.5px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-items h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 13px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 18px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 8px / 1.5px 12px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-placements h2::before {
-  background:
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 7px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 15px 7px / 6px 6px no-repeat,
-    radial-gradient(circle, var(--admin-accent) 0 1.5px, transparent 2px) 11px 15px / 6px 6px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 9px / 6px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 9px 13px / 1.5px 5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 15px 13px / 1.5px 5px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-tables h2::before {
-  background:
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 9px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 14px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 7px 19px / 14px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 11px 7px / 1.5px 15px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 17px 7px / 1.5px 15px no-repeat,
-    var(--admin-accent-soft);
-}
-
-.admin-modal-head-staff h2::before {
-  background:
-    radial-gradient(circle, var(--admin-accent) 0 3px, transparent 3.5px) 11px 6px / 6px 6px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 8px 16px / 12px 1.5px no-repeat,
-    linear-gradient(var(--admin-accent), var(--admin-accent)) 10px 18px / 8px 1.5px no-repeat,
-    var(--admin-accent-soft);
-}
+/* admin-modal-head h2::before overrides are consolidated under the nav-button-*** icon mapping */
 
 .admin-modal-panel .form-stack {
   grid-template-columns: repeat(2, minmax(0, 1fr));
