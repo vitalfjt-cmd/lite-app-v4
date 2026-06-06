@@ -1,4 +1,4 @@
-export type AppView = 'customer' | 'cust-tablet' | 'staff' | 'kds' | 'admin' | 'handy'
+export type AppView = 'customer' | 'cust-tablet' | 'staff' | 'kds' | 'admin' | 'handy' | 'sales'
 
 export type MenuCategory = {
   id: string

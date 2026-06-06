@@ -266,13 +266,13 @@ export default function App() {
   useEffect(() => {
     if (!session || view === 'customer') return
     if (!profile) return
-    if (staffReadApiEnabled && view === 'admin') return
+    if (staffReadApiEnabled && (view === 'admin' || view === 'sales')) return
     const timer = window.setInterval(() => void loadOperationalData(profile, liveStore?.slug), 5000)
     return () => window.clearInterval(timer)
   }, [liveStore?.slug, profile, session, view])
 
   useEffect(() => {
-    if (!staffReadApiEnabled || (view !== 'admin' && view !== 'staff' && view !== 'kds') || !profile) return
+    if (!staffReadApiEnabled || (view !== 'admin' && view !== 'sales' && view !== 'staff' && view !== 'kds') || !profile) return
     const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
     if (!storeSlug) return
     void loadAdminPrototypeData(storeSlug).catch((err) => setError(formatError(err)))
@@ -505,7 +505,7 @@ export default function App() {
 
   return (
     <div
-      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${view === 'admin' ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''}`}
+      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''}`}
     >
       <AppLauncher
         isOpen={isLauncherOpen}
@@ -705,8 +705,10 @@ export default function App() {
             onOpenLauncher={() => setIsLauncherOpen(true)}
           />
         ) : null}
-        {view === 'admin' ? (
+        {view === 'admin' || view === 'sales' ? (
           <AdminScreen
+            key={view}
+            mode={view === 'sales' ? 'sales' : 'master'}
             storeName={liveStore?.name ?? activeStore.name}
             categoryCount={liveCategories.length}
             itemCount={adminVisibleItems.length}

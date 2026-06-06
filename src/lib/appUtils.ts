@@ -45,7 +45,7 @@ export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'h
   if (hash.startsWith('#/')) {
     const raw = hash.slice(2)
     const [hashView, hashQuery = ''] = raw.split('?')
-    if (hashView === 'customer' || hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'cust-tablet') {
+    if (hashView === 'customer' || hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet') {
       url.searchParams.set('view', hashView)
     }
 
@@ -78,9 +78,9 @@ export function readCustomerAccessParams(
 export function readViewFromHash(currentLocation: Pick<Location, 'hash' | 'search'> = window.location): AppView | null {
   const params = new URLSearchParams(currentLocation.search)
   const queryView = params.get('view')
-  if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'customer' || queryView === 'cust-tablet') return queryView
+  if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'sales' || queryView === 'customer' || queryView === 'cust-tablet') return queryView as AppView
   const hash = currentLocation.hash.replace('#/', '')
-  return hash === 'staff' || hash === 'handy' || hash === 'kds' || hash === 'admin' || hash === 'cust-tablet' || hash === 'customer' ? hash as AppView : null
+  return hash === 'staff' || hash === 'handy' || hash === 'kds' || hash === 'admin' || hash === 'sales' || hash === 'cust-tablet' || hash === 'customer' ? hash as AppView : null
 }
 
 export function yen(value: number): string {
