@@ -122,7 +122,7 @@ export function AppSidebar({
           📱 Cust(Mobile)
         </button>
         <button style={getBtnStyle(view === 'cust-tablet', '#ff5a5f')} onClick={() => onMove('cust-tablet')}>
-          💊 Cust(Tablet)
+          📱 Cust(Tablet)
         </button>
         <button style={getBtnStyle(view === 'staff', '#4dabf7')} onClick={() => onMove('staff')}>
           🖥️ Staff
