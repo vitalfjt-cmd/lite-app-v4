@@ -75,17 +75,45 @@ class MockAuth {
   }
 }
 
+class FirebaseAuthWrapper {
+  private auth: any
+
+  constructor(auth: any) {
+    this.auth = auth
+  }
+
+  async signInWithEmailAndPassword(email: string, password: string) {
+    const { signInWithEmailAndPassword: fbSignIn } = await import('firebase/auth')
+    const credential = await fbSignIn(this.auth, email, password)
+    return {
+      user: {
+        uid: credential.user.uid,
+        email: credential.user.email || '',
+        displayName: credential.user.displayName || undefined,
+      },
+    }
+  }
+
+  async signOut() {
+    const { signOut: fbSignOut } = await import('firebase/auth')
+    await fbSignOut(this.auth)
+  }
+}
+
 const firebaseApiKey = import.meta.env.VITE_FIREBASE_API_KEY
 
 export const firebaseAuth = firebaseApiKey
-  ? getAuth(
-      initializeApp({
-        apiKey: firebaseApiKey,
-        authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-        projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-        storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-        messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-        appId: import.meta.env.VITE_FIREBASE_APP_ID,
-      })
+  ? new FirebaseAuthWrapper(
+      getAuth(
+        initializeApp({
+          apiKey: firebaseApiKey,
+          authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+          projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+          storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+          messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+          appId: import.meta.env.VITE_FIREBASE_APP_ID,
+        })
+      )
     )
   : (new MockAuth() as any)
+
