@@ -141,6 +141,70 @@ export function loginStaffPrototype(storeSlug: string, email: string, password: 
 }
 
 export function fetchStaffPrototypeSession(storeSlug: string, accessToken: string) {
+  if (accessToken.startsWith('firebase-token-')) {
+    const email = accessToken.replace('firebase-token-', '')
+    let profileDetails: any = {}
+    if (email === 'vtl.ucd@aroma.ocn.ne.jp') {
+      profileDetails = {
+        id: 'staff-user-vtl-ucd',
+        auth_user_id: 'fyLKZypPN1fhzyLA3a3nTGW8bgf1',
+        email: 'vtl.ucd@aroma.ocn.ne.jp',
+        display_name: 'Aroma Owner',
+        role_type: 'ADMIN',
+      }
+    } else if (email === 'owner@example.com') {
+      profileDetails = {
+        id: 'staff-user-demo-admin',
+        auth_user_id: 'staff-user-demo-admin',
+        email: 'owner@example.com',
+        display_name: 'Owner Admin',
+        role_type: 'ADMIN',
+      }
+    } else if (email === 'staff@example.com') {
+      profileDetails = {
+        id: 'staff-user-demo-staff',
+        auth_user_id: 'staff-user-demo-staff',
+        email: 'staff@example.com',
+        display_name: 'Floor Staff',
+        role_type: 'STAFF',
+      }
+    } else if (email === 'kds@example.com') {
+      profileDetails = {
+        id: 'staff-user-demo-kds',
+        auth_user_id: 'staff-user-demo-kds',
+        email: 'kds@example.com',
+        display_name: 'Kitchen Display',
+        role_type: 'KDS',
+      }
+    }
+
+    return Promise.resolve({
+      access_token: accessToken,
+      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      user: {
+        id: profileDetails.id,
+        email: profileDetails.email,
+      },
+      profile: {
+        ...profileDetails,
+        store_id: 'store-demo-bbq',
+        is_active: true,
+        password_configured: true,
+      },
+      store: {
+        id: 'store-demo-bbq',
+        tenant_id: 'tenant-demo-foods',
+        slug: 'demo-bbq',
+        name: 'Demo BBQ Prototype',
+        timezone: 'Asia/Tokyo',
+        business_date_offset_minutes: 300,
+        payment_timing_mode: 'POSTPAID',
+        ticket_no_reset_mode: 'DAILY',
+        ticket_no_digits: 4,
+      },
+    } as any)
+  }
+
   return invoke<{
     access_token: string
     expires_at: string
