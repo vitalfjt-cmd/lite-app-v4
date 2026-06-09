@@ -24,6 +24,7 @@ import { CustomerScreen } from './screens/CustomerScreen'
 import { CustomerTabletScreen } from './screens/CustomerTabletScreen'
 import { KdsScreen } from './screens/KdsScreen'
 import { StaffScreen } from './screens/StaffScreen'
+import { LoginScreen } from './screens/LoginScreen'
 import type {
   ActiveStoreSummary,
   AppView,
@@ -115,6 +116,7 @@ export default function App() {
   const [staffMessage, setStaffMessage] = useState<string | null>(null)
   const [adminMessage, setAdminMessage] = useState<string | null>(null)
   const [isLauncherOpen, setIsLauncherOpen] = useState(false)
+  const [wasLoggingIn, setWasLoggingIn] = useState(false)
 
   const [draftQuantities, setDraftQuantities] = useState<Record<string, number>>({})
   const [handyItemId, setHandyItemId] = useState('')
@@ -305,6 +307,19 @@ export default function App() {
     const timer = window.setTimeout(() => setAdminMessage(null), 4000)
     return () => window.clearTimeout(timer)
   }, [adminMessage, setAdminMessage])
+
+  useEffect(() => {
+    if (!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales')) {
+      setWasLoggingIn(true)
+    }
+  }, [session, view])
+
+  useEffect(() => {
+    if (session && wasLoggingIn) {
+      setWasLoggingIn(false)
+      setView('staff')
+    }
+  }, [session, wasLoggingIn])
 
   const publicTicketIsOpen = !publicOpenTicket || publicOpenTicket.status === 'OPEN'
   const customerCanViewMyOrder = Boolean(ticketReceipt && publicTicketIsOpen)
@@ -554,7 +569,19 @@ export default function App() {
         />
       )}
       <main className="content">
-        {view === 'customer' ? (
+        {!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales') ? (
+          <LoginScreen
+            email={email}
+            onEmailChange={setEmail}
+            password={password}
+            onPasswordChange={setPassword}
+            onSignIn={handleSignIn}
+            authBusy={authBusy}
+            error={error}
+          />
+        ) : (
+          <>
+            {view === 'customer' ? (
           <CustomerScreen
             activeStoreName={activeStore.name}
             activeTableName={activeStore.tableName}
@@ -894,6 +921,8 @@ export default function App() {
             onCancelPlacementEdit={adminForm.resetPlacement}
           />
         ) : null}
+          </>
+        )}
       </main>
     </div>
   )
