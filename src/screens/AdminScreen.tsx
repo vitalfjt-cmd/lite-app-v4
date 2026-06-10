@@ -17,6 +17,8 @@ import { AdminPlacementModal, AdminPlacementCategoryModal, AdminPlacementSubcate
 import { AdminPlacementsTab } from './admin/AdminPlacementsTab'
 import { AdminStoreTab } from './admin/AdminStoreTab'
 import { AdminSalesTab } from './admin/AdminSalesTab'
+import { AdminSalesHistoryTab } from './admin/AdminSalesHistoryTab'
+import { AdminPaymentHistoryTab } from './admin/AdminPaymentHistoryTab'
 import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminTab } from './admin/types'
 
 
@@ -26,13 +28,15 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'subcategories', label: 'サブカテゴリ', caption: '商品分類管理' },
   { id: 'items', label: 'メニュー', caption: '商品マスタ' },
   { id: 'placements', label: 'メニューブック構成', caption: '掲載カテゴリ・商品紐付け' },
-  { id: 'sales', label: '売上管理', caption: '営業日・集計' },
+  { id: 'sales', label: 'レジ締め・売上状況', caption: '営業日・本日売上' },
+  { id: 'salesHistory', label: '売上データ照会', caption: '期間指定での売上・客数照会' },
+  { id: 'paymentHistory', label: '会計種別データ照会', caption: '期間指定での決済別売上照会' },
   { id: 'store', label: '店舗', caption: '店舗設定' },
   { id: 'tables', label: 'テーブル', caption: '席・QR管理' },
   { id: 'staff', label: 'スタッフ', caption: '認証・権限管理' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -213,9 +217,9 @@ export function AdminScreen(props: Props) {
 
   const tabs = useMemo(() => {
     if (props.mode === 'sales') {
-      return ADMIN_TABS.filter((t) => t.id === 'sales')
+      return ADMIN_TABS.filter((t) => t.id === 'sales' || t.id === 'salesHistory' || t.id === 'paymentHistory')
     } else {
-      return ADMIN_TABS.filter((t) => t.id !== 'sales')
+      return ADMIN_TABS.filter((t) => t.id !== 'sales' && t.id !== 'salesHistory' && t.id !== 'paymentHistory')
     }
   }, [props.mode])
   const [menuBookModalOpen, setMenuBookModalOpen] = useState(false)
@@ -481,6 +485,24 @@ export function AdminScreen(props: Props) {
               disabled={disabled}
               yen={props.yen}
               setAdminMessage={(msg) => msg ? alert(msg) : null}
+              setError={(msg) => msg ? alert(msg) : null}
+            />
+          ) : null}
+
+          {activeTab === 'salesHistory' ? (
+            <AdminSalesHistoryTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
+              setError={(msg) => msg ? alert(msg) : null}
+            />
+          ) : null}
+
+          {activeTab === 'paymentHistory' ? (
+            <AdminPaymentHistoryTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
               setError={(msg) => msg ? alert(msg) : null}
             />
           ) : null}

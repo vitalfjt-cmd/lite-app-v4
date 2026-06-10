@@ -940,6 +940,28 @@ export function getStaffSalesReport(storeSlug: string, businessDate?: string) {
   })
 }
 
+export function getStaffSalesHistory(storeSlug: string, startDate: string, endDate: string) {
+  return invoke<{
+    summaries: {
+      business_date: string
+      total_sales: number
+      total_discount: number
+      ticket_count: number
+      customer_count: number
+    }[]
+    payments: {
+      business_date: string
+      payment_type: string
+      amount: number
+    }[]
+  }>({
+    action: 'get-sales-history',
+    storeSlug,
+    startDate,
+    endDate,
+  })
+}
+
 export function staffAuditLog(storeSlug: string, actionType: string, targetTicketId?: string | null, detailsJson?: string | null) {
   return invoke<{ ok: true }>({
     action: 'audit-log',
