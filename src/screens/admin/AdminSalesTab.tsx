@@ -257,27 +257,29 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         report ? (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>時間帯別売上</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>時間</th>
-                  <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>売上</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(report.sales_by_hour || {}).length === 0 && (
-                  <tr>
-                    <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+            <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8f9fa' }}>
+                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>時間</th>
+                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>売上</th>
                   </tr>
-                )}
-                {Object.entries(report.sales_by_hour || {}).map(([hour, amount]: [string, any]) => (
-                  <tr key={hour}>
-                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{hour}:00</td>
-                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {Object.entries(report.sales_by_hour || {}).length === 0 && (
+                    <tr>
+                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                    </tr>
+                  )}
+                  {Object.entries(report.sales_by_hour || {}).map(([hour, amount]: [string, any]) => (
+                    <tr key={hour}>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{hour}:00</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
@@ -290,29 +292,31 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         report ? (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>商品別注文数</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-              <thead>
-                <tr>
-                  <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>商品名</th>
-                  <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>数量</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(report.item_sales || {}).length === 0 && (
-                  <tr>
-                    <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+            <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8f9fa' }}>
+                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>商品名</th>
+                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>数量</th>
                   </tr>
-                )}
-                {Object.entries(report.item_sales || {})
-                  .sort((a: any, b: any) => b[1] - a[1])
-                  .map(([itemName, qty]: [string, any]) => (
-                  <tr key={itemName}>
-                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{itemName}</td>
-                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{qty}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {Object.entries(report.item_sales || {}).length === 0 && (
+                    <tr>
+                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                    </tr>
+                  )}
+                  {Object.entries(report.item_sales || {})
+                    .sort((a: any, b: any) => b[1] - a[1])
+                    .map(([itemName, qty]: [string, any]) => (
+                    <tr key={itemName}>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{itemName}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{qty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         ) : (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
