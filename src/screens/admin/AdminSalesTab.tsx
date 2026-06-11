@@ -13,6 +13,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   const [report, setReport] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [businessDateStr, setBusinessDateStr] = useState<string>('')
+  const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items'>('status')
   
   const [voidReceiptNo, setVoidReceiptNo] = useState('')
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')
@@ -95,83 +96,114 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         </div>
       </div>
 
-      <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>営業状況</h3>
-        
-        {report ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <div>
-              <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>現在の営業日</span>
-              <strong style={{ fontSize: '1.5rem', color: '#212529' }}>{report.business_date || '未設定'}</strong>
-            </div>
-            <div>
-              <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>ステータス</span>
-              <span style={{ 
-                display: 'inline-block', 
-                padding: '4px 12px', 
-                borderRadius: '100px', 
-                background: report.is_open ? '#ebfbee' : '#f8f9fa', 
-                color: report.is_open ? '#2b8a3e' : '#495057',
-                fontWeight: 'bold'
-              }}>
-                {report.is_open ? '営業中' : '閉店'}
-              </span>
-            </div>
-            <div style={{ flex: 1 }} />
-            <div>
-              {report.is_open ? (
-                <button className="primary-button" style={{ background: '#fa5252' }} disabled={disabled || loading} onClick={handleClose}>
-                  締め処理（閉店）を行う
-                </button>
-              ) : (
-                <button className="primary-button" style={{ background: '#51cf66' }} disabled={disabled || loading} onClick={handleOpen}>
-                  新しい営業日を開店する
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div style={{ color: '#868e96' }}>レポートがありません。開店してください。</div>
-        )}
-      </div>
-
-      <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-        <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>VOID・会計変更</h3>
-        <p style={{ color: '#868e96', fontSize: '0.9rem', marginBottom: '16px' }}>
-          レシート番号を入力して会計の取消、または会計種別の変更を行います。
-        </p>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <input 
-            type="text" 
-            placeholder="レシート番号" 
-            value={voidReceiptNo} 
-            onChange={e => setVoidReceiptNo(e.target.value)}
-            style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
-          />
-          <select 
-            value={voidPaymentType} 
-            onChange={e => setVoidPaymentType(e.target.value)}
-            style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #dee2e6', paddingBottom: '12px', flexWrap: 'wrap' }}>
+        {[
+          { id: 'status', label: '営業状況' },
+          { id: 'void', label: 'VOID・会計変更' },
+          { id: 'summary', label: '売上サマリー' },
+          { id: 'hourly', label: '時間帯別売上' },
+          { id: 'items', label: '商品別注文数' }
+        ].map(t => (
+          <button
+            key={t.id}
+            onClick={() => setActiveSubTab(t.id as any)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: '1px solid #dee2e6',
+              background: activeSubTab === t.id ? '#228be6' : 'white',
+              color: activeSubTab === t.id ? 'white' : '#495057',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
           >
-            <option value="">（選択なし：VOID取消）</option>
-            <option value="CASH">現金 に変更</option>
-            <option value="CARD">クレジットカード に変更</option>
-            <option value="OTHER">その他 に変更</option>
-          </select>
-          <button 
-            className="primary-button" 
-            style={{ background: voidPaymentType ? '#4dabf7' : '#fa5252' }} 
-            disabled={disabled || loading || !voidReceiptNo} 
-            onClick={handleVoid}
-          >
-            {voidPaymentType ? '会計種別を変更' : 'VOID取消を実行'}
+            {t.label}
           </button>
-        </div>
+        ))}
       </div>
 
-      {report && (
-        <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start' }}>
-          <div style={{ flex: 1, padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6' }}>
+      {activeSubTab === 'status' && (
+        <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>営業状況</h3>
+          
+          {report ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+              <div>
+                <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>現在の営業日</span>
+                <strong style={{ fontSize: '1.5rem', color: '#212529' }}>{report.business_date || '未設定'}</strong>
+              </div>
+              <div>
+                <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>ステータス</span>
+                <span style={{ 
+                  display: 'inline-block', 
+                  padding: '4px 12px', 
+                  borderRadius: '100px', 
+                  background: report.is_open ? '#ebfbee' : '#f8f9fa', 
+                  color: report.is_open ? '#2b8a3e' : '#495057',
+                  fontWeight: 'bold'
+                }}>
+                  {report.is_open ? '営業中' : '閉店'}
+                </span>
+              </div>
+              <div style={{ flex: 1 }} />
+              <div>
+                {report.is_open ? (
+                  <button className="primary-button" style={{ background: '#fa5252' }} disabled={disabled || loading} onClick={handleClose}>
+                    締め処理（閉店）を行う
+                  </button>
+                ) : (
+                  <button className="primary-button" style={{ background: '#51cf66' }} disabled={disabled || loading} onClick={handleOpen}>
+                    新しい営業日を開店する
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={{ color: '#868e96' }}>レポートがありません。開店してください。</div>
+          )}
+        </div>
+      )}
+
+      {activeSubTab === 'void' && (
+        <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+          <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>VOID・会計変更</h3>
+          <p style={{ color: '#868e96', fontSize: '0.9rem', marginBottom: '16px' }}>
+            レシート番号を入力して会計の取消、または会計種別の変更を行います。
+          </p>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <input 
+              type="text" 
+              placeholder="レシート番号" 
+              value={voidReceiptNo} 
+              onChange={e => setVoidReceiptNo(e.target.value)}
+              style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
+            />
+            <select 
+              value={voidPaymentType} 
+              onChange={e => setVoidPaymentType(e.target.value)}
+              style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
+            >
+              <option value="">（選択なし：VOID取消）</option>
+              <option value="CASH">現金 に変更</option>
+              <option value="CARD">クレジットカード に変更</option>
+              <option value="OTHER">その他 に変更</option>
+            </select>
+            <button 
+              className="primary-button" 
+              style={{ background: voidPaymentType ? '#4dabf7' : '#fa5252' }} 
+              disabled={disabled || loading || !voidReceiptNo} 
+              onClick={handleVoid}
+            >
+              {voidPaymentType ? '会計種別を変更' : 'VOID取消を実行'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeSubTab === 'summary' && (
+        report ? (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>売上サマリー</h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
@@ -214,61 +246,79 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
               </tbody>
             </table>
           </div>
-
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>時間帯別売上</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>時間</th>
-                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>売上</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(report.sales_by_hour || {}).length === 0 && (
-                    <tr>
-                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
-                    </tr>
-                  )}
-                  {Object.entries(report.sales_by_hour || {}).map(([hour, amount]: [string, any]) => (
-                    <tr key={hour}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{hour}:00</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6' }}>
-              <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>商品別注文数</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                <thead>
-                  <tr>
-                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>商品名</th>
-                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>数量</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(report.item_sales || {}).length === 0 && (
-                    <tr>
-                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
-                    </tr>
-                  )}
-                  {Object.entries(report.item_sales || {})
-                    .sort((a: any, b: any) => b[1] - a[1])
-                    .map(([itemName, qty]: [string, any]) => (
-                    <tr key={itemName}>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{itemName}</td>
-                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{qty}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        ) : (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
+            レポートがありません。開店してください。
           </div>
-        </div>
+        )
+      )}
+
+      {activeSubTab === 'hourly' && (
+        report ? (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>時間帯別売上</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>時間</th>
+                  <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>売上</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(report.sales_by_hour || {}).length === 0 && (
+                  <tr>
+                    <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                  </tr>
+                )}
+                {Object.entries(report.sales_by_hour || {}).map(([hour, amount]: [string, any]) => (
+                  <tr key={hour}>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{hour}:00</td>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
+            レポートがありません。開店してください。
+          </div>
+        )
+      )}
+
+      {activeSubTab === 'items' && (
+        report ? (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>商品別注文数</h3>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>商品名</th>
+                  <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96' }}>数量</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(report.item_sales || {}).length === 0 && (
+                  <tr>
+                    <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                  </tr>
+                )}
+                {Object.entries(report.item_sales || {})
+                  .sort((a: any, b: any) => b[1] - a[1])
+                  .map(([itemName, qty]: [string, any]) => (
+                  <tr key={itemName}>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{itemName}</td>
+                    <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{qty}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
+            レポートがありません。開店してください。
+          </div>
+        )
       )}
     </div>
   )

@@ -89,34 +89,36 @@ export function AdminSalesHistoryTab({ storeSlug, disabled, yen, setError }: Pro
         </div>
 
         {summaries && (
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
-            <thead>
-              <tr style={{ background: '#f8f9fa' }}>
-                <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057' }}>日付</th>
-                <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057' }}>売上金額</th>
-                <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057' }}>客数</th>
-                <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057' }}>組数</th>
-              </tr>
-            </thead>
-            <tbody>
-              {summaries.length === 0 ? (
-                <tr>
-                  <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#adb5bd' }}>
-                    指定された期間の売上データはありません。
-                  </td>
+          <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+              <thead>
+                <tr style={{ background: '#f8f9fa' }}>
+                  <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>日付</th>
+                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>売上金額</th>
+                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>客数</th>
+                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>組数</th>
                 </tr>
-              ) : (
-                summaries.map((s, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #f1f3f5' }}>
-                    <td style={{ padding: '12px 8px', color: '#212529' }}>{s.business_date}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#212529' }}>{yen(s.total_sales)}</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.customer_count} 名</td>
-                    <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.ticket_count} 組</td>
+              </thead>
+              <tbody>
+                {summaries.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#adb5bd' }}>
+                      指定された期間の売上データはありません。
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  summaries.map((s, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #f1f3f5' }}>
+                      <td style={{ padding: '12px 8px', color: '#212529' }}>{s.business_date}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#212529' }}>{yen(s.total_sales)}</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.customer_count} 名</td>
+                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.ticket_count} 組</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
