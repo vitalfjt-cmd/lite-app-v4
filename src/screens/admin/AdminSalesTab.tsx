@@ -257,7 +257,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         report ? (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>時間帯別売上</h3>
-            <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+            <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
                   <tr style={{ background: '#f8f9fa' }}>
@@ -292,7 +292,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         report ? (
           <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
             <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>商品別注文数</h3>
-            <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+            <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
                   <tr style={{ background: '#f8f9fa' }}>
