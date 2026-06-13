@@ -101,4 +101,4 @@ export type AdminStaffUserRow = {
   password_configured?: boolean
 }
 
-export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory'
+export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory'
