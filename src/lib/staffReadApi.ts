@@ -725,25 +725,48 @@ export function deleteAdminPrototypeStaffUser(storeSlug: string, staffUserId: st
   return invoke<{ ok: true }>({ action: 'admin-delete-staff-user', storeSlug, staffUserId })
 }
 
-export function fetchStaffTicketDetail(storeSlug: string, ticketId: string, ticketNo?: string | null) {
+export function fetchStaffTicketDetail(
+  storeSlug: string,
+  ticketId: string | null,
+  ticketNo?: string | null,
+  receiptNo?: string | null,
+) {
   return invoke<{
     store: { id: string; slug: string; name: string }
     ticket: {
       id: string
       ticket_no: string
       ordered_at: string
-      status: 'OPEN' | 'CANCELLED' | 'CLOSED'
+      status: 'OPEN' | 'CANCELLED' | 'CLOSED' | 'VOIDED'
       customer_access_token: string
+      customer_count?: number | null
+      receipt_no?: string | null
       table: { id: string; label: string }
       reference_subtotal: number
       lines: StaffTicketLineResponse[]
       cancelled_lines: StaffTicketLineResponse[]
+      payment_entries: {
+        id: string
+        order_ticket_id: string
+        payment_seq: number
+        payment_type: 'CASH' | 'CARD' | 'OTHER'
+        discount_amount: number
+        coupon_amount: number
+        voucher_amount: number
+        received_amount: number | null
+        change_amount: number | null
+        final_amount: number
+        entry_status: 'ACTIVE' | 'VOIDED'
+        memo: string | null
+        paid_at: string
+      }[]
     }
   }>({
     action: 'get-ticket',
     storeSlug,
     ticketId,
     ticketNo,
+    receiptNo,
   })
 }
 
@@ -989,11 +1012,17 @@ export function staffAuditLog(storeSlug: string, actionType: string, targetTicke
   })
 }
 
-export function voidStaffTicket(storeSlug: string, receiptNo: string, newPaymentType?: 'CASH' | 'CARD' | 'OTHER' | null) {
+export function voidStaffTicket(
+  storeSlug: string,
+  receiptNo: string,
+  newPaymentType?: 'CASH' | 'CARD' | 'OTHER' | null,
+  paymentChanges?: { id: string; paymentType: 'CASH' | 'CARD' | 'OTHER' }[] | null,
+) {
   return invoke<{ ok: true; ticket_id: string }>({
     action: 'void-ticket',
     storeSlug,
     receiptNo,
     newPaymentType,
+    paymentChanges,
   })
 }

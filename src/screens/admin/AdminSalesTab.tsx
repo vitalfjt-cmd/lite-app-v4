@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { openStaffBusinessDay, closeStaffBusinessDay, getStaffSalesReport, voidStaffTicket } from '../../lib/staffReadApi'
+import { openStaffBusinessDay, closeStaffBusinessDay, getStaffSalesReport, voidStaffTicket, fetchStaffTicketDetail } from '../../lib/staffReadApi'
 
 type Props = {
   storeSlug: string
@@ -17,6 +17,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   
   const [voidReceiptNo, setVoidReceiptNo] = useState('')
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')
+  const [loadedTicket, setLoadedTicket] = useState<any>(null)
+  const [receiptPaymentChanges, setReceiptPaymentChanges] = useState<any[]>([])
 
   const fetchReport = async (date?: string) => {
     if (!storeSlug) return
@@ -67,15 +69,75 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     }
   }
 
-  const handleVoid = async () => {
+  const handleSearchReceipt = async () => {
     if (!voidReceiptNo) return
-    if (!window.confirm(`レシート番号 ${voidReceiptNo} の伝票を処理しますか？\n会計種別の変更が未選択の場合はVOID（取消）になります。`)) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetchStaffTicketDetail(storeSlug, null, null, voidReceiptNo)
+      if (res.ticket) {
+        setLoadedTicket(res.ticket)
+        const initialChanges = (res.ticket.payment_entries || []).map((entry: any) => ({
+          id: entry.id,
+          paymentType: entry.payment_type,
+          amount: entry.final_amount,
+        }))
+        setReceiptPaymentChanges(initialChanges)
+      } else {
+        setError('該当する伝票が見つかりませんでした')
+        setLoadedTicket(null)
+      }
+    } catch (err: any) {
+      setError(err.message || String(err))
+      setLoadedTicket(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const hasPaymentChanges = () => {
+    if (!loadedTicket || !loadedTicket.payment_entries) return false
+    return receiptPaymentChanges.some((change: any) => {
+      const orig = loadedTicket.payment_entries.find((pe: any) => pe.id === change.id)
+      return orig && orig.payment_type !== change.paymentType
+    })
+  }
+
+  const handleSavePaymentChanges = async () => {
+    if (!voidReceiptNo || !loadedTicket) return
+    const changedItems = receiptPaymentChanges.filter((change: any) => {
+      const orig = loadedTicket.payment_entries.find((pe: any) => pe.id === change.id)
+      return orig && orig.payment_type !== change.paymentType
+    }).map((change: any) => ({
+      id: change.id,
+      paymentType: change.paymentType
+    }))
+
+    if (changedItems.length === 0) return
+
+    if (!window.confirm(`レシート番号 ${voidReceiptNo} の会計種別を変更しますか？`)) return
     setLoading(true)
     try {
-      await voidStaffTicket(storeSlug, voidReceiptNo, voidPaymentType ? (voidPaymentType as any) : null)
+      await voidStaffTicket(storeSlug, voidReceiptNo, null, changedItems)
+      setAdminMessage('会計種別の変更が完了しました')
+      setVoidReceiptNo('')
+      setLoadedTicket(null)
+      await fetchReport()
+    } catch (err: any) {
+      setError(err.message || String(err))
+      setLoading(false)
+    }
+  }
+
+  const handleVoidExecuteOnly = async () => {
+    if (!voidReceiptNo) return
+    if (!window.confirm(`レシート番号 ${voidReceiptNo} の伝票をVOID（取消）しますか？`)) return
+    setLoading(true)
+    try {
+      await voidStaffTicket(storeSlug, voidReceiptNo, null, null)
       setAdminMessage('VOID処理が完了しました')
       setVoidReceiptNo('')
-      setVoidPaymentType('')
+      setLoadedTicket(null)
       await fetchReport()
     } catch (err: any) {
       setError(err.message || String(err))
@@ -169,35 +231,118 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
           <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>VOID・会計変更</h3>
           <p style={{ color: '#868e96', fontSize: '0.9rem', marginBottom: '16px' }}>
-            レシート番号を入力して会計の取消、または会計種別の変更を行います。
+            レシート番号を入力して検索し、会計の取消（VOID）または決済明細ごとの会計種別の変更を行います。
           </p>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '20px' }}>
             <input 
               type="text" 
               placeholder="レシート番号" 
               value={voidReceiptNo} 
-              onChange={e => setVoidReceiptNo(e.target.value)}
+              onChange={e => {
+                setVoidReceiptNo(e.target.value)
+                setLoadedTicket(null)
+              }}
               style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
             />
-            <select 
-              value={voidPaymentType} 
-              onChange={e => setVoidPaymentType(e.target.value)}
-              style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
-            >
-              <option value="">（選択なし：VOID取消）</option>
-              <option value="CASH">現金 に変更</option>
-              <option value="CARD">クレジットカード に変更</option>
-              <option value="OTHER">その他 に変更</option>
-            </select>
             <button 
               className="primary-button" 
-              style={{ background: voidPaymentType ? '#4dabf7' : '#fa5252' }} 
+              style={{ background: '#228be6' }} 
               disabled={disabled || loading || !voidReceiptNo} 
-              onClick={handleVoid}
+              onClick={handleSearchReceipt}
             >
-              {voidPaymentType ? '会計種別を変更' : 'VOID取消を実行'}
+              検索する
             </button>
           </div>
+
+          {loadedTicket && (
+            <div style={{ marginTop: '24px', padding: '20px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #e9ecef' }}>
+              <h4 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.1rem', color: '#495057' }}>
+                レシート情報: {loadedTicket.receipt_no || voidReceiptNo}
+              </h4>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                <div>
+                  <span style={{ fontSize: '0.85rem', color: '#868e96', display: 'block' }}>伝票番号</span>
+                  <strong style={{ color: '#212529' }}>{loadedTicket.ticket_no}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.85rem', color: '#868e96', display: 'block' }}>テーブル</span>
+                  <strong style={{ color: '#212529' }}>{loadedTicket.table?.label}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.85rem', color: '#868e96', display: 'block' }}>合計金額</span>
+                  <strong style={{ color: '#212529' }}>{yen(loadedTicket.reference_subtotal)}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.85rem', color: '#868e96', display: 'block' }}>状態</span>
+                  <span style={{ 
+                    display: 'inline-block', 
+                    padding: '2px 8px', 
+                    borderRadius: '4px', 
+                    fontSize: '0.85rem', 
+                    fontWeight: 'bold',
+                    background: loadedTicket.status === 'CLOSED' ? '#ebfbee' : loadedTicket.status === 'VOIDED' ? '#fff5f5' : '#fff9db',
+                    color: loadedTicket.status === 'CLOSED' ? '#2b8a3e' : loadedTicket.status === 'VOIDED' ? '#c92a2a' : '#f59f00'
+                  }}>
+                    {loadedTicket.status === 'CLOSED' ? '会計済' : loadedTicket.status === 'VOIDED' ? 'VOID（取消済）' : loadedTicket.status}
+                  </span>
+                </div>
+              </div>
+
+              {loadedTicket.status !== 'VOIDED' && (
+                <>
+                  <h5 style={{ margin: '16px 0 8px 0', fontSize: '1rem', color: '#495057' }}>決済明細（複数可）</h5>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                    {(receiptPaymentChanges || []).map((change: any, index: number) => {
+                      const origEntry = loadedTicket.payment_entries?.find((pe: any) => pe.id === change.id)
+                      const isVoided = origEntry?.entry_status === 'VOIDED' || origEntry?.entry_status === 'VOID'
+                      
+                      return (
+                        <div key={change.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '12px 16px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                          <span style={{ fontWeight: 'bold', color: '#495057', minWidth: '60px' }}>決済 #{index + 1}</span>
+                          <span style={{ color: '#212529', fontWeight: 'bold', minWidth: '100px' }}>{yen(change.amount)}</span>
+                          <select 
+                            value={change.paymentType} 
+                            disabled={disabled || loading || isVoided}
+                            onChange={e => {
+                              const val = e.target.value
+                              setReceiptPaymentChanges((prev: any) => prev.map((item: any) => 
+                                item.id === change.id ? { ...item, paymentType: val } : item
+                              ))
+                            }}
+                            style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.95rem', width: '200px' }}
+                          >
+                            <option value="CASH">現金</option>
+                            <option value="CARD">クレジットカード</option>
+                            <option value="OTHER">その他</option>
+                          </select>
+                          {isVoided && <span style={{ color: '#fa5252', fontSize: '0.85rem' }}>（取消済）</span>}
+                        </div>
+                      )
+                    })}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <button 
+                      className="primary-button" 
+                      style={{ background: '#4dabf7' }} 
+                      disabled={disabled || loading || !hasPaymentChanges()} 
+                      onClick={handleSavePaymentChanges}
+                    >
+                      会計種別を変更
+                    </button>
+                    <button 
+                      className="primary-button" 
+                      style={{ background: '#fa5252' }} 
+                      disabled={disabled || loading} 
+                      onClick={handleVoidExecuteOnly}
+                    >
+                      VOID取消を実行
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       )}
 
