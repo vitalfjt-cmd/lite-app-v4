@@ -81,6 +81,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
           id: entry.id,
           paymentType: entry.payment_type,
           amount: entry.final_amount,
+          isNew: false,
+          isDeleted: false,
         }))
         setReceiptPaymentChanges(initialChanges)
       } else {
@@ -95,31 +97,81 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     }
   }
 
+  const handleAddPayment = () => {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    setReceiptPaymentChanges((prev: any) => [
+      ...prev,
+      {
+        id: tempId,
+        paymentType: 'CASH',
+        amount: 0,
+        isNew: true,
+        isDeleted: false,
+      }
+    ])
+  }
+
   const hasPaymentChanges = () => {
     if (!loadedTicket || !loadedTicket.payment_entries) return false
-    return receiptPaymentChanges.some((change: any) => {
+    
+    // Check if there are any new items that are not deleted
+    const hasNew = receiptPaymentChanges.some((change: any) => change.isNew && !change.isDeleted)
+    if (hasNew) return true
+
+    // Check if any existing items are marked as deleted
+    const hasDeleted = receiptPaymentChanges.some((change: any) => change.isDeleted)
+    if (hasDeleted) return true
+
+    // Check if any existing items are modified (amount or type)
+    const hasModified = receiptPaymentChanges.some((change: any) => {
+      if (change.isNew || change.isDeleted) return false
       const orig = loadedTicket.payment_entries.find((pe: any) => pe.id === change.id)
-      return orig && orig.payment_type !== change.paymentType
+      if (!orig) return false
+      return orig.payment_type !== change.paymentType || orig.final_amount !== Number(change.amount)
     })
+    return hasModified
   }
 
   const handleSavePaymentChanges = async () => {
     if (!voidReceiptNo || !loadedTicket) return
-    const changedItems = receiptPaymentChanges.filter((change: any) => {
-      const orig = loadedTicket.payment_entries.find((pe: any) => pe.id === change.id)
-      return orig && orig.payment_type !== change.paymentType
-    }).map((change: any) => ({
-      id: change.id,
-      paymentType: change.paymentType
-    }))
+    
+    const changedItems: any[] = []
+
+    receiptPaymentChanges.forEach((change: any) => {
+      if (change.isNew) {
+        if (!change.isDeleted) {
+          changedItems.push({
+            id: change.id,
+            paymentType: change.paymentType,
+            amount: Number(change.amount),
+            action: 'ADD',
+          })
+        }
+      } else if (change.isDeleted) {
+        changedItems.push({
+          id: change.id,
+          action: 'DELETE',
+        })
+      } else {
+        const orig = loadedTicket.payment_entries.find((pe: any) => pe.id === change.id)
+        if (orig && (orig.payment_type !== change.paymentType || orig.final_amount !== Number(change.amount))) {
+          changedItems.push({
+            id: change.id,
+            paymentType: change.paymentType,
+            amount: Number(change.amount),
+            action: 'UPDATE',
+          })
+        }
+      }
+    })
 
     if (changedItems.length === 0) return
 
-    if (!window.confirm(`レシート番号 ${voidReceiptNo} の会計種別を変更しますか？`)) return
+    if (!window.confirm(`レシート番号 ${voidReceiptNo} の決済明細を変更しますか？`)) return
     setLoading(true)
     try {
       await voidStaffTicket(storeSlug, voidReceiptNo, null, changedItems)
-      setAdminMessage('会計種別の変更が完了しました')
+      setAdminMessage('決済明細の変更が完了しました')
       setVoidReceiptNo('')
       setLoadedTicket(null)
       await fetchReport()
@@ -291,35 +343,177 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
               {loadedTicket.status !== 'VOIDED' && (
                 <>
                   <h5 style={{ margin: '16px 0 8px 0', fontSize: '1rem', color: '#495057' }}>決済明細（複数可）</h5>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
                     {(receiptPaymentChanges || []).map((change: any, index: number) => {
                       const origEntry = loadedTicket.payment_entries?.find((pe: any) => pe.id === change.id)
                       const isVoided = origEntry?.entry_status === 'VOIDED' || origEntry?.entry_status === 'VOID'
-                      
+                      const isDeleted = change.isDeleted
+
                       return (
-                        <div key={change.id} style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'white', padding: '12px 16px', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+                        <div 
+                          key={change.id} 
+                          style={{ 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            gap: '16px', 
+                            background: 'white', 
+                            padding: '12px 16px', 
+                            borderRadius: '8px', 
+                            border: '1px solid #dee2e6',
+                            opacity: isDeleted ? 0.5 : 1,
+                            textDecoration: isDeleted ? 'line-through' : 'none'
+                          }}
+                        >
                           <span style={{ fontWeight: 'bold', color: '#495057', minWidth: '60px' }}>決済 #{index + 1}</span>
-                          <span style={{ color: '#212529', fontWeight: 'bold', minWidth: '100px' }}>{yen(change.amount)}</span>
+                          
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <input 
+                              type="number"
+                              value={change.amount}
+                              disabled={disabled || loading || isVoided || isDeleted}
+                              onChange={e => {
+                                const val = parseInt(e.target.value, 10) || 0
+                                setReceiptPaymentChanges((prev: any) => prev.map((item: any) => 
+                                  item.id === change.id ? { ...item, amount: val } : item
+                                ))
+                              }}
+                              style={{ 
+                                padding: '8px', 
+                                border: '1px solid #ced4da', 
+                                borderRadius: '6px', 
+                                fontSize: '0.95rem', 
+                                width: '100px',
+                                textAlign: 'right'
+                              }}
+                            />
+                            <span style={{ fontSize: '0.9rem', color: '#495057' }}>円</span>
+                          </div>
+
                           <select 
                             value={change.paymentType} 
-                            disabled={disabled || loading || isVoided}
+                            disabled={disabled || loading || isVoided || isDeleted}
                             onChange={e => {
                               const val = e.target.value
                               setReceiptPaymentChanges((prev: any) => prev.map((item: any) => 
                                 item.id === change.id ? { ...item, paymentType: val } : item
                               ))
                             }}
-                            style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.95rem', width: '200px' }}
+                            style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.95rem', width: '150px' }}
                           >
                             <option value="CASH">現金</option>
                             <option value="CARD">クレジットカード</option>
                             <option value="OTHER">その他</option>
                           </select>
+
                           {isVoided && <span style={{ color: '#fa5252', fontSize: '0.85rem' }}>（取消済）</span>}
+                          
+                          {!isVoided && (
+                            isDeleted ? (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReceiptPaymentChanges((prev: any) => prev.map((item: any) =>
+                                    item.id === change.id ? { ...item, isDeleted: false } : item
+                                  ))
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: '#e9ecef',
+                                  border: '1px solid #ced4da',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.85rem',
+                                  color: '#495057'
+                                }}
+                              >
+                                元に戻す
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (change.isNew) {
+                                    setReceiptPaymentChanges((prev: any) => prev.filter((item: any) => item.id !== change.id))
+                                  } else {
+                                    setReceiptPaymentChanges((prev: any) => prev.map((item: any) =>
+                                      item.id === change.id ? { ...item, isDeleted: true } : item
+                                    ))
+                                  }
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: '#fff5f5',
+                                  border: '1px solid #ffc9c9',
+                                  borderRadius: '6px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.85rem',
+                                  color: '#fa5252'
+                                }}
+                              >
+                                削除
+                              </button>
+                            )
+                          )}
                         </div>
                       )
                     })}
                   </div>
+
+                  <div style={{ marginBottom: '24px' }}>
+                    <button
+                      type="button"
+                      disabled={disabled || loading}
+                      onClick={handleAddPayment}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'white',
+                        border: '1px solid #228be6',
+                        color: '#228be6',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      <span>＋</span> 明細を追加
+                    </button>
+                  </div>
+
+                  {(() => {
+                    const activeTotal = (receiptPaymentChanges || [])
+                      .filter((change: any) => !change.isDeleted)
+                      .reduce((sum: number, change: any) => sum + Number(change.amount || 0), 0)
+                    const isTotalMismatch = activeTotal !== loadedTicket.reference_subtotal
+
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                        <div>
+                          <span style={{ fontSize: '0.9rem', color: '#868e96' }}>現在の決済合計: </span>
+                          <strong style={{ fontSize: '1.2rem', color: '#212529' }}>{yen(activeTotal)}</strong>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '0.9rem', color: '#868e96' }}>伝票合計: </span>
+                          <strong style={{ fontSize: '1.2rem', color: '#212529' }}>{yen(loadedTicket.reference_subtotal)}</strong>
+                        </div>
+                        {isTotalMismatch && (
+                          <span style={{
+                            display: 'inline-block',
+                            padding: '4px 12px',
+                            borderRadius: '4px',
+                            fontSize: '0.85rem',
+                            fontWeight: 'bold',
+                            background: '#fff9db',
+                            color: '#f59f00',
+                            border: '1px solid #ffe3e3'
+                          }}>
+                            ⚠️ 決済合計が伝票合計と異なります
+                          </span>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   <div style={{ display: 'flex', gap: '16px' }}>
                     <button 
@@ -328,7 +522,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                       disabled={disabled || loading || !hasPaymentChanges()} 
                       onClick={handleSavePaymentChanges}
                     >
-                      会計種別を変更
+                      決済明細を変更
                     </button>
                     <button 
                       className="primary-button" 

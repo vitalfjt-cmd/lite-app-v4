@@ -1016,7 +1016,12 @@ export function voidStaffTicket(
   storeSlug: string,
   receiptNo: string,
   newPaymentType?: 'CASH' | 'CARD' | 'OTHER' | null,
-  paymentChanges?: { id: string; paymentType: 'CASH' | 'CARD' | 'OTHER' }[] | null,
+  paymentChanges?: {
+    id: string
+    paymentType?: 'CASH' | 'CARD' | 'OTHER'
+    amount?: number
+    action: 'UPDATE' | 'DELETE' | 'ADD'
+  }[] | null,
 ) {
   return invoke<{ ok: true; ticket_id: string }>({
     action: 'void-ticket',
