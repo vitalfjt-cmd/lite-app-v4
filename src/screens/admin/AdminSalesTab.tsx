@@ -372,9 +372,9 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                               value={change.amount}
                               disabled={disabled || loading || isVoided || isDeleted}
                               onChange={e => {
-                                const val = parseInt(e.target.value, 10) || 0
+                                const val = e.target.value
                                 setReceiptPaymentChanges((prev: any) => prev.map((item: any) => 
-                                  item.id === change.id ? { ...item, amount: val } : item
+                                  item.id === change.id ? { ...item, amount: val === '' ? '' : (parseInt(val, 10) || 0) } : item
                                 ))
                               }}
                               style={{ 
