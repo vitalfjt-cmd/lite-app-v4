@@ -1002,6 +1002,21 @@ export function getStaffAccountingTransactions(storeSlug: string, startDate: str
   })
 }
 
+export function getStaffProductSalesHistory(storeSlug: string, startDate: string, endDate: string) {
+  return invoke<{
+    items: {
+      business_date: string
+      item_name: string
+      quantity: number
+    }[]
+  }>({
+    action: 'get-product-sales-history',
+    storeSlug,
+    startDate,
+    endDate,
+  })
+}
+
 export function staffAuditLog(storeSlug: string, actionType: string, targetTicketId?: string | null, detailsJson?: string | null) {
   return invoke<{ ok: true }>({
     action: 'audit-log',
