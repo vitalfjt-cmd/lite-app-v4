@@ -602,7 +602,7 @@ export function StaffScreen({
               </label>
               <label>
                 <div style={{marginBottom:'8px', color:'#aaa'}}>客数</div>
-                <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px'}}>
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
                   <button 
                     type="button" 
                     onClick={() => setNewTicketCustomerCount(prev => String(Math.max(1, (parseInt(prev) || 1) - 1)))}
@@ -661,30 +661,6 @@ export function StaffScreen({
                   >
                     +
                   </button>
-                </div>
-                <div style={{display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px'}}>
-                  {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => setNewTicketCustomerCount(String(num))}
-                      style={{
-                        padding: '10px 0',
-                        background: newTicketCustomerCount === String(num) ? '#4dabf7' : '#2c2c2c',
-                        color: 'white',
-                        border: newTicketCustomerCount === String(num) ? 'none' : '1px solid #444',
-                        borderRadius: '8px',
-                        fontSize: '1rem',
-                        fontWeight: newTicketCustomerCount === String(num) ? 'bold' : 'normal',
-                        cursor: 'pointer',
-                        transition: 'background 0.2s, border-color 0.2s',
-                        textAlign: 'center',
-                        userSelect: 'none'
-                      }}
-                    >
-                      {num}名
-                    </button>
-                  ))}
                 </div>
               </label>
             </div>
