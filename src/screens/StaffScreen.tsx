@@ -149,6 +149,9 @@ export function StaffScreen({
   const [paymentFinalized, setPaymentFinalized] = useState(false)
   const [finalizedSummary, setFinalizedSummary] = useState<TicketSummaryView | null>(null)
   const [finalizedLines, setFinalizedLines] = useState<LiveLine[]>([])
+  const [finalizedPayments, setFinalizedPayments] = useState<Array<{id:number, method:string, amount:number}>>([])
+  const [finalizedDiscountAmount, setFinalizedDiscountAmount] = useState<number>(0)
+  const [finalizedDiscountRate, setFinalizedDiscountRate] = useState<number>(0)
   const [showQrModal, setShowQrModal] = useState(false)
   
   const [calcMode, setCalcMode] = useState<'normal' | 'split' | 'itemized'>('normal')
@@ -357,6 +360,9 @@ export function StaffScreen({
     if (closed) {
       setFinalizedSummary(selectedSummary)
       setFinalizedLines(selectedLines)
+      setFinalizedPayments(payments)
+      setFinalizedDiscountAmount(discountAmount)
+      setFinalizedDiscountRate(discountRate)
       setPaymentFinalized(true)
     }
   }
@@ -382,14 +388,26 @@ export function StaffScreen({
   const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : selectedLines;
 
   if (showPaymentModal && displaySummary) {
+    const displayPayments = paymentFinalized ? finalizedPayments : payments;
+    const displayDiscountAmount = paymentFinalized ? finalizedDiscountAmount : discountAmount;
+    const displayDiscountRate = paymentFinalized ? finalizedDiscountRate : discountRate;
+
+    const subtotal = displaySummary.subtotal ?? 0;
+    const rateDiscount = Math.floor(subtotal * (displayDiscountRate / 100));
+    const totalDisc = displayDiscountAmount + rateDiscount;
+    const billed = Math.max(0, subtotal - totalDisc);
+    const paid = displayPayments.reduce((sum, p) => sum + p.amount, 0);
+    const change = Math.max(0, paid - billed);
+    const remaining = Math.max(0, billed - paid);
+
     return (
       <StaffPaymentView
         selectedSummary={displaySummary}
         selectedLines={displayLines}
-        payments={payments}
-        currentPaymentInput={currentPaymentInput}
-        discountAmount={discountAmount}
-        discountRate={discountRate}
+        payments={displayPayments}
+        currentPaymentInput={paymentFinalized ? '' : currentPaymentInput}
+        discountAmount={displayDiscountAmount}
+        discountRate={displayDiscountRate}
         paymentFinalized={paymentFinalized}
         mutationBusy={mutationBusy}
         storeName={storeName}
@@ -416,12 +434,12 @@ export function StaffScreen({
         getItemUnitPrice={getItemUnitPrice}
         currentItemizedTotal={currentItemizedTotal}
         processItemizedCalculation={processItemizedCalculation}
-        remainingTotal={remainingTotal}
-        paidTotal={paidTotal}
-        finalBilledAmount={finalBilledAmount}
-        discountFromRate={discountFromRate}
-        totalDiscount={totalDiscount}
-        changeTotal={changeTotal}
+        remainingTotal={remaining}
+        paidTotal={paid}
+        finalBilledAmount={billed}
+        discountFromRate={rateDiscount}
+        totalDiscount={totalDisc}
+        changeTotal={change}
         paidLineQtys={paidLineQtys}
         setInputSource={setInputSource}
         onAbortPayment={onAbortPayment}
