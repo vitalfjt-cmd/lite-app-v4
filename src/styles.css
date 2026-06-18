@@ -4546,3 +4546,257 @@ h1 {
 .menu-trigger .material-icons {
   font-size: 24px;
 }
+
+/* =========================================
+   EPSON TM-T88Ⅳ (80mm) Receipt Printing
+   ========================================= */
+@media print {
+  /* 80mm連続用紙サイズ設定（余白0） */
+  @page {
+    size: 80mm auto;
+    margin: 0;
+  }
+  
+  /* 印刷対象以外の共通UIを非表示にする */
+  html, body {
+    width: 80mm;
+    margin: 0;
+    padding: 0;
+    background: #fff !important;
+    color: #000 !important;
+    font-family: 'Courier New', Courier, monospace, "MS Gothic", sans-serif !important;
+  }
+
+  /* 非表示対象: ヘッダー、右側操作ペイン、ナビゲーション、ボタン、不要なモーダル等 */
+  .payment-full-header,
+  .payment-action-pane,
+  .nav-bar,
+  .sidebar,
+  .top-bar,
+  .topbar,
+  button,
+  .btn-secondary,
+  .payment-modal-footer,
+  .admin-modal-head,
+  .table-qr-details,
+  .mobile-cart-toggle {
+    display: none !important;
+  }
+
+  /* 印刷親要素のレイアウト崩れを防ぐためのリセット */
+  #root,
+  .app-container,
+  .payment-app,
+  .payment-full-layout,
+  .payment-receipt-pane {
+    display: block !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* レシート用紙エリアの印字スタイル */
+  .receipt-paper {
+    display: block !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 4mm !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    color: #000 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* 明細行リストのスクロール制限を解除 */
+  .receipt-paper > div {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+
+  /* 店舗名、メタ情報 */
+  .receipt-brand {
+    font-size: 1.4rem !important;
+    font-weight: bold !important;
+    text-align: center !important;
+    margin-bottom: 4px !important;
+    color: #000 !important;
+  }
+
+  .receipt-meta {
+    font-size: 0.85rem !important;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+    color: #000 !important;
+  }
+
+  /* 区切り線（1px破線） */
+  .receipt-divider {
+    border-top: 1px dashed #000 !important;
+    margin: 10px 0 !important;
+    height: 0 !important;
+    border-bottom: none !important;
+  }
+
+  /* 明細行（flexで綺麗に右寄せ） */
+  .receipt-item-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 6px !important;
+    line-height: 1.3 !important;
+    color: #000 !important;
+  }
+
+  .receipt-item-name {
+    flex: 1 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    word-break: break-all !important;
+    padding-right: 8px !important;
+  }
+
+  .receipt-item-qty {
+    width: 30px !important;
+    text-align: center !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+  }
+
+  .receipt-item-price {
+    width: 90px !important;
+    text-align: right !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+  }
+
+  /* ご請求額 */
+  .receipt-grand-total {
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 1.25rem !important;
+    font-weight: bold !important;
+    margin: 8px 0 !important;
+    color: #000 !important;
+  }
+
+  .receipt-grand-total .total-amount {
+    font-size: 1.4rem !important;
+    color: #000 !important;
+  }
+
+  /* お預かり・お釣りなどのグループ */
+  .receipt-deposit-group {
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin-top: 8px !important;
+    color: #000 !important;
+  }
+
+  .deposit-line {
+    display: flex !important;
+    justify-content: space-between !important;
+    font-size: 0.95rem !important;
+    margin-bottom: 4px !important;
+    color: #000 !important;
+  }
+
+  .deposit-line.change {
+    font-weight: bold !important;
+    font-size: 1.1rem !important;
+    border-top: 1px dashed #000 !important;
+    padding-top: 6px !important;
+    margin-top: 6px !important;
+  }
+
+  .change-amount {
+    color: #000 !important;
+    font-size: 1.2rem !important;
+  }
+
+  /* -----------------------------------------
+     Table QR 印刷用対応
+     ----------------------------------------- */
+  .payment-modal-backdrop {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #fff !important;
+    padding: 0 !important;
+    display: block !important;
+    width: 80mm !important;
+    height: auto !important;
+  }
+
+  .table-qr-modal {
+    display: block !important;
+    width: 80mm !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    height: auto !important;
+  }
+
+  .table-qr-layout {
+    display: block !important;
+  }
+
+  .table-qr-card {
+    display: block !important;
+    border: none !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .table-qr-sheet {
+    display: block !important;
+    width: 80mm !important;
+    padding: 6mm !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  .table-qr-sheet img.table-qr-image {
+    width: 50mm !important;
+    height: 50mm !important;
+    margin: 6mm auto !important;
+    display: block !important;
+  }
+
+  .table-qr-sheet h3 {
+    font-size: 1.2rem !important;
+    margin: 4px 0 !important;
+    color: #000 !important;
+  }
+
+  .table-qr-sheet .table-qr-label {
+    font-size: 2rem !important;
+    font-weight: bold !important;
+    display: block !important;
+    margin: 8px 0 !important;
+    color: #000 !important;
+  }
+
+  .table-qr-sheet .table-qr-token {
+    font-size: 0.85rem !important;
+    color: #000 !important;
+    margin-top: 6px !important;
+  }
+}
