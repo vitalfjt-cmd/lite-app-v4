@@ -143,13 +143,29 @@ export function StaffScreen({
 
   // Payment Data
   const [currentPaymentInput, setCurrentPaymentInput] = useState('')
-  const [payments, setPayments] = useState<Array<{id:number, method:string, amount:number}>>([])
+  const [payments, setPayments] = useState<Array<{
+    id: number
+    method: string
+    amount: number
+    received: number
+    change: number
+    items?: Array<{ name: string; qty: number; subtotal: number }>
+    label?: string
+  }>>([])
   const [discountAmount, setDiscountAmount] = useState<number>(0)
   const [discountRate, setDiscountRate] = useState<number>(0)
   const [paymentFinalized, setPaymentFinalized] = useState(false)
   const [finalizedSummary, setFinalizedSummary] = useState<TicketSummaryView | null>(null)
   const [finalizedLines, setFinalizedLines] = useState<LiveLine[]>([])
-  const [finalizedPayments, setFinalizedPayments] = useState<Array<{id:number, method:string, amount:number}>>([])
+  const [finalizedPayments, setFinalizedPayments] = useState<Array<{
+    id: number
+    method: string
+    amount: number
+    received: number
+    change: number
+    items?: Array<{ name: string; qty: number; subtotal: number }>
+    label?: string
+  }>>([])
   const [finalizedDiscountAmount, setFinalizedDiscountAmount] = useState<number>(0)
   const [finalizedDiscountRate, setFinalizedDiscountRate] = useState<number>(0)
   const [showQrModal, setShowQrModal] = useState(false)
@@ -160,6 +176,52 @@ export function StaffScreen({
   const [splitCount, setSplitCount] = useState<number>(2)
   const [calculatingLineQtys, setCalculatingLineQtys] = useState<Record<string, number>>({})
   const [paidLineQtys, setPaidLineQtys] = useState<Record<string, number>>({})
+
+  const [targetPaymentAmount, setTargetPaymentAmount] = useState<number | null>(null)
+  const [pendingPaymentItems, setPendingPaymentItems] = useState<Array<{ name: string; qty: number; subtotal: number }>>([])
+
+  // Synchronize paidLineQtys with payments and pendingPaymentItems
+  useEffect(() => {
+    const newPaid: Record<string, number> = {}
+    
+    const allocate = (name: string, qty: number) => {
+      const matchingLines = selectedLines.filter(l => l.item_name_snapshot === name)
+      let remainingQty = qty
+      for (const line of matchingLines) {
+        if (remainingQty <= 0) break
+        const currentAllocated = newPaid[line.id] || 0
+        const available = Math.max(0, line.quantity - currentAllocated)
+        const toAlloc = Math.min(remainingQty, available)
+        newPaid[line.id] = currentAllocated + toAlloc
+        remainingQty -= toAlloc
+      }
+      if (remainingQty > 0 && matchingLines.length > 0) {
+        const firstLine = matchingLines[0]
+        newPaid[firstLine.id] = (newPaid[firstLine.id] || 0) + remainingQty
+      }
+    }
+
+    for (const p of payments) {
+      if (p.items) {
+        for (const item of p.items) {
+          allocate(item.name, item.qty)
+        }
+      }
+    }
+
+    for (const item of pendingPaymentItems) {
+      allocate(item.name, item.qty)
+    }
+
+    setPaidLineQtys(newPaid)
+  }, [payments, pendingPaymentItems, selectedLines])
+
+  // Clear calculatingLineQtys when payments and pendingPaymentItems are reset
+  useEffect(() => {
+    if (payments.length === 0 && pendingPaymentItems.length === 0) {
+      setCalculatingLineQtys({})
+    }
+  }, [payments, pendingPaymentItems])
 
   const waitingCount = liveTicketSummaries.filter((ticket) => ticket.status === 'NEW').length
   const cookingCount = liveTicketSummaries.filter((ticket) => ticket.status === 'COOKING').length
@@ -204,7 +266,8 @@ export function StaffScreen({
     setCalcMode('normal')
     setSplitCount(2)
     setCalculatingLineQtys({})
-    setPaidLineQtys({})
+    setTargetPaymentAmount(null)
+    setPendingPaymentItems([])
     setPaymentFinalized(false)
     setShowPaymentModal(false)  // ← 新規伝票起票/チケット切替時に会計画面を閉じる
     setHandyCart([])
@@ -264,7 +327,7 @@ export function StaffScreen({
 
   const paidTotal = payments.reduce((sum, p) => sum + p.amount, 0)
   const remainingTotal = Math.max(0, finalBilledAmount - paidTotal)
-  const changeTotal = Math.max(0, paidTotal - finalBilledAmount)
+  const changeTotal = Math.max(0, payments.reduce((sum, p) => sum + p.change, 0))
   
   const updateCalculatingQty = (id: string, delta: number) => {
     if (id === '__clear__') {
@@ -288,13 +351,22 @@ export function StaffScreen({
   const processItemizedCalculation = () => {
     if (currentItemizedTotal <= 0) return
     setCurrentPaymentInput(String(currentItemizedTotal))
-    setPaidLineQtys(prev => {
-      const next = { ...prev }
-      for (const [id, qty] of Object.entries(calculatingLineQtys)) {
-        next[id] = (next[id] || 0) + qty
+    setTargetPaymentAmount(currentItemizedTotal)
+
+    const items: Array<{ name: string; qty: number; subtotal: number }> = []
+    for (const [id, qty] of Object.entries(calculatingLineQtys)) {
+      if (qty > 0) {
+        const line = selectedLines.find(x => x.id === id)
+        if (line) {
+          items.push({
+            name: line.item_name_snapshot,
+            qty,
+            subtotal: qty * getItemUnitPrice(id)
+          })
+        }
       }
-      return next
-    })
+    }
+    setPendingPaymentItems(items)
     setCalculatingLineQtys({})
   }
 
@@ -314,11 +386,49 @@ export function StaffScreen({
   }
   const addPaymentMethod = (methodStr: string) => {
     if (remainingTotal === 0) return
-    let amountToPay = currentPaymentInput && parseInt(currentPaymentInput) > 0 ? parseInt(currentPaymentInput) : 0
-    if (amountToPay <= 0) return // Force user to input amount first
+    let inputVal = currentPaymentInput && parseInt(currentPaymentInput) > 0 ? parseInt(currentPaymentInput) : 0
+    if (inputVal <= 0) return // Force user to input amount first
 
-    setPayments(prev => [...prev, { id: Date.now(), method: methodStr, amount: amountToPay }])
+    let billedAmt = inputVal
+    let receivedAmt = inputVal
+
+    if (targetPaymentAmount !== null) {
+      billedAmt = Math.min(targetPaymentAmount, remainingTotal)
+      receivedAmt = Math.max(inputVal, billedAmt)
+    } else {
+      if (inputVal > remainingTotal) {
+        billedAmt = remainingTotal
+        receivedAmt = inputVal
+      }
+    }
+
+    const changeAmt = Math.max(0, receivedAmt - billedAmt)
+
+    let label = ''
+    let items: Array<{ name: string; qty: number; subtotal: number }> = []
+    if (pendingPaymentItems.length > 0) {
+      items = [...pendingPaymentItems]
+      setPendingPaymentItems([])
+    } else if (targetPaymentAmount !== null) {
+      label = `割勘分 (${payments.length + 1}人目)`
+    } else {
+      label = `個別会計 (${payments.length + 1}人目)`
+    }
+
+    setPayments(prev => [
+      ...prev,
+      {
+        id: Date.now(),
+        method: methodStr,
+        amount: billedAmt,
+        received: receivedAmt,
+        change: changeAmt,
+        items,
+        label
+      }
+    ])
     setCurrentPaymentInput('')
+    setTargetPaymentAmount(null)
   }
   
   const applyDiscountAmount = () => {
@@ -350,7 +460,7 @@ export function StaffScreen({
          couponAmount: 0,
          voucherAmount: 0,
          finalAmount: p.amount,
-         receivedAmount: p.amount,
+         receivedAmount: p.received,
        })
        if (!saved) return
        remainingDiscountToSave = 0 // Only apply discount to the first entry to avoid double counting
@@ -397,14 +507,14 @@ export function StaffScreen({
     const totalDisc = displayDiscountAmount + rateDiscount;
     const billed = Math.max(0, subtotal - totalDisc);
     const paid = displayPayments.reduce((sum, p) => sum + p.amount, 0);
-    const change = Math.max(0, paid - billed);
+    const change = Math.max(0, displayPayments.reduce((sum, p) => sum + p.change, 0));
     const remaining = Math.max(0, billed - paid);
 
     return (
       <StaffPaymentView
         selectedSummary={displaySummary}
         selectedLines={displayLines}
-        payments={displayPayments}
+        payments={displayPayments as any}
         currentPaymentInput={paymentFinalized ? '' : currentPaymentInput}
         discountAmount={displayDiscountAmount}
         discountRate={displayDiscountRate}
@@ -413,7 +523,7 @@ export function StaffScreen({
         storeName={storeName}
         yen={yen}
         setShowPaymentModal={setShowPaymentModal}
-        setPayments={setPayments}
+        setPayments={setPayments as any}
         setCurrentPaymentInput={setCurrentPaymentInput}
         setDiscountAmount={setDiscountAmount}
         setDiscountRate={setDiscountRate}
@@ -447,6 +557,9 @@ export function StaffScreen({
           const nextTicket = liveTicketSummaries.find(t => t.ticketId !== selectedTicketId)
           onSelectTicket(nextTicket?.ticketId || null)
         }}
+        targetPaymentAmount={targetPaymentAmount}
+        setTargetPaymentAmount={setTargetPaymentAmount}
+        setPendingPaymentItems={setPendingPaymentItems as any}
       />
     )
   }
