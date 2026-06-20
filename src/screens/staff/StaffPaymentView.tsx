@@ -146,7 +146,7 @@ export function StaffPaymentView({
         </div>
 
         {/* ---- スクロール可能な注文明細 ---- */}
-        <div style={{ flex: 1, padding: '0 20px' }}>
+        <div style={{ flex: 1, padding: '0 20px', overflowY: 'auto' }}>
           {p ? (
             p.items && p.items.length > 0 ? (
               p.items.map((item, idx) => (
