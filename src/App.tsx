@@ -309,6 +309,12 @@ export default function App() {
   }, [adminMessage, setAdminMessage])
 
   useEffect(() => {
+    if (!staffMessage) return
+    const timer = window.setTimeout(() => setStaffMessage(null), 4000)
+    return () => window.clearTimeout(timer)
+  }, [staffMessage, setStaffMessage])
+
+  useEffect(() => {
     if (!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales')) {
       setWasLoggingIn(true)
     }
