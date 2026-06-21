@@ -409,10 +409,11 @@ export function StaffScreen({
     if (pendingPaymentItems.length > 0) {
       items = [...pendingPaymentItems]
       setPendingPaymentItems([])
+      label = `個別会計 (${payments.length + 1}人目)`
     } else if (targetPaymentAmount !== null) {
       label = `割勘分 (${payments.length + 1}人目)`
     } else {
-      label = `個別会計 (${payments.length + 1}人目)`
+      label = ''
     }
 
     setPayments(prev => [
