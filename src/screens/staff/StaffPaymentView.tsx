@@ -515,9 +515,24 @@ export function StaffPaymentView({
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%', overflowY: 'auto' }}>
                 <div className="numpad-section">
-                  <div className="numpad-display">
-                    <span className="numpad-label">入力金額</span>
-                    <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                  <div className="numpad-display" style={targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : undefined}>
+                    {targetPaymentAmount !== null ? (
+                      <>
+                        <div style={{ fontSize: '1rem', color: '#868e96', display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
+                          <span>お会計額:</span>
+                          <span style={{ fontWeight: 'bold', color: '#495057' }}>{yen(targetPaymentAmount)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'baseline' }}>
+                          <span className="numpad-label" style={{ margin: 0 }}>お預かり金額</span>
+                          <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span className="numpad-label">入力金額</span>
+                        <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                      </>
+                    )}
                   </div>
                   <div className="numpad-grid">
                     {[7, 8, 9, 4, 5, 6, 1, 2, 3, 0, '00', 'C'].map((num) => (
