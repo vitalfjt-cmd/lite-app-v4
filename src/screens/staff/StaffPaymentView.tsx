@@ -306,7 +306,7 @@ export function StaffPaymentView({
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
           {activePrintPayment ? (
             renderReceiptPaper(activePrintPayment, false)
-          ) : payments.length > 1 ? (
+          ) : (payments.length > 1 && payments.some(p => p.items && p.items.length > 0)) ? (
             payments.map((p, idx) => renderReceiptPaper(p, idx < payments.length - 1))
           ) : (
             renderReceiptPaper(null, false)
@@ -331,7 +331,7 @@ export function StaffPaymentView({
                 >
                   全体 (一括)
                 </button>
-                {payments.map((p, idx) => (
+                {payments.some(p => p.items && p.items.length > 0) && payments.map((p, idx) => (
                   <button
                     key={p.id}
                     onClick={() => setActivePrintPaymentId(p.id)}
