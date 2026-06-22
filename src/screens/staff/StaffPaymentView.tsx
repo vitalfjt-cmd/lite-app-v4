@@ -156,7 +156,7 @@ export function StaffPaymentView({
                   <span className="receipt-item-price">{yen(item.subtotal)}</span>
                 </div>
               ))
-            ) : calcMode === 'split' ? (
+            ) : (calcMode === 'split' || (p && p.label && p.label.includes('割勘'))) ? (
               Object.values(
                 selectedLines.reduce((acc, line) => {
                   const name = line.item_name_snapshot
@@ -324,7 +324,7 @@ export function StaffPaymentView({
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
           {activePrintPayment ? (
             renderReceiptPaper(activePrintPayment, false)
-          ) : (payments.length > 1 && calcMode !== 'normal') ? (
+          ) : (payments.length > 1 && payments.some(p => p.label !== '')) ? (
             payments.map((p, idx) => renderReceiptPaper(p, idx < payments.length - 1))
           ) : (
             renderReceiptPaper(null, false)
@@ -349,7 +349,7 @@ export function StaffPaymentView({
                 >
                   全体 (一括)
                 </button>
-                {calcMode !== 'normal' && payments.map((p, idx) => (
+                {payments.some(p => p.label !== '') && payments.map((p, idx) => (
                   <button
                     key={p.id}
                     onClick={() => setActivePrintPaymentId(p.id)}

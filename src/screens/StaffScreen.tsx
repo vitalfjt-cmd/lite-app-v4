@@ -404,13 +404,19 @@ export function StaffScreen({
 
     const changeAmt = Math.max(0, receivedAmt - billedAmt)
 
+    const isItemizedHistory = payments.some(p => p.label && p.label.includes('個別会計'))
+    const isSplitHistory = payments.some(p => p.label && p.label.includes('割勘分'))
+    const activeCalcMode = calcMode !== 'normal' ? calcMode : 
+                           isItemizedHistory ? 'itemized' :
+                           isSplitHistory ? 'split' : 'normal'
+
     let label = ''
     let items: Array<{ name: string; qty: number; subtotal: number }> = []
     if (pendingPaymentItems.length > 0) {
       items = [...pendingPaymentItems]
       setPendingPaymentItems([])
       label = `個別会計 (${payments.length + 1}人目)`
-    } else if (calcMode === 'itemized') {
+    } else if (activeCalcMode === 'itemized') {
       const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
       for (const line of selectedLines) {
         const name = line.item_name_snapshot
@@ -439,7 +445,7 @@ export function StaffScreen({
         }
       }
       label = `個別会計 (${payments.length + 1}人目)`
-    } else if (targetPaymentAmount !== null) {
+    } else if (targetPaymentAmount !== null || activeCalcMode === 'split') {
       label = `割勘分 (${payments.length + 1}人目)`
     } else {
       label = ''
