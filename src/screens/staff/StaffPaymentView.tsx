@@ -156,6 +156,24 @@ export function StaffPaymentView({
                   <span className="receipt-item-price">{yen(item.subtotal)}</span>
                 </div>
               ))
+            ) : calcMode === 'split' ? (
+              Object.values(
+                selectedLines.reduce((acc, line) => {
+                  const name = line.item_name_snapshot
+                  if (!acc[name]) {
+                    acc[name] = { id: name, item_name_snapshot: name, quantity: 0, line_subtotal: 0 }
+                  }
+                  acc[name].quantity += line.quantity
+                  acc[name].line_subtotal += line.line_subtotal
+                  return acc
+                }, {} as Record<string, { id: string; item_name_snapshot: string; quantity: number; line_subtotal: number }>),
+              ).map((l: any) => (
+                <div key={l.id} className="receipt-item-row">
+                  <span className="receipt-item-name">{l.item_name_snapshot}</span>
+                  <span className="receipt-item-qty">x{l.quantity}</span>
+                  <span className="receipt-item-price">{yen(l.line_subtotal)}</span>
+                </div>
+              ))
             ) : (
               <div className="receipt-item-row">
                 <span className="receipt-item-name">{p.label || 'ご飲食代'}</span>
@@ -306,7 +324,7 @@ export function StaffPaymentView({
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
           {activePrintPayment ? (
             renderReceiptPaper(activePrintPayment, false)
-          ) : (payments.length > 1 && payments.some(p => p.items && p.items.length > 0)) ? (
+          ) : (payments.length > 1 && calcMode !== 'normal') ? (
             payments.map((p, idx) => renderReceiptPaper(p, idx < payments.length - 1))
           ) : (
             renderReceiptPaper(null, false)
@@ -331,7 +349,7 @@ export function StaffPaymentView({
                 >
                   全体 (一括)
                 </button>
-                {payments.some(p => p.items && p.items.length > 0) && payments.map((p, idx) => (
+                {calcMode !== 'normal' && payments.map((p, idx) => (
                   <button
                     key={p.id}
                     onClick={() => setActivePrintPaymentId(p.id)}

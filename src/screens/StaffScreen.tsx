@@ -410,6 +410,35 @@ export function StaffScreen({
       items = [...pendingPaymentItems]
       setPendingPaymentItems([])
       label = `個別会計 (${payments.length + 1}人目)`
+    } else if (calcMode === 'itemized') {
+      const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
+      for (const line of selectedLines) {
+        const name = line.item_name_snapshot
+        const unitPrice = line.quantity > 0 ? Math.round(line.line_subtotal / line.quantity) : 0
+        if (!remainingMap[name]) {
+          remainingMap[name] = { qty: 0, unitPrice }
+        }
+        remainingMap[name].qty += line.quantity
+      }
+      for (const p of payments) {
+        if (p.items) {
+          for (const item of p.items) {
+            if (remainingMap[item.name]) {
+              remainingMap[item.name].qty = Math.max(0, remainingMap[item.name].qty - item.qty)
+            }
+          }
+        }
+      }
+      for (const [name, info] of Object.entries(remainingMap)) {
+        if (info.qty > 0) {
+          items.push({
+            name,
+            qty: info.qty,
+            subtotal: info.qty * info.unitPrice
+          })
+        }
+      }
+      label = `個別会計 (${payments.length + 1}人目)`
     } else if (targetPaymentAmount !== null) {
       label = `割勘分 (${payments.length + 1}人目)`
     } else {
