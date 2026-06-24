@@ -669,6 +669,9 @@ export default function App() {
             onBackToMenu={returnToCustomerMenu}
             onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent))}
             selectedCustomerUrl={selectedCustomerUrl}
+            ticketReceipt={ticketReceipt}
+            ticketSummaryLines={ticketSummaryLines}
+            onRefreshTicket={() => void refreshCustomerTicket()}
           />
 
         ) : null}

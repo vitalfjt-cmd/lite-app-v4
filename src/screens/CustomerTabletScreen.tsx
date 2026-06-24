@@ -11,6 +11,14 @@ type CustomerMenuItem = {
 }
 type CartItem = CustomerMenuItem & { qty: number }
 
+type TicketReceipt = {
+  ticketNo: string
+  orderedAt: string
+  subtotal: number
+  lines: { id: string; itemName: string; qty: number; subtotal: number }[]
+}
+type ReceiptSummaryLine = { itemName: string; qty: number; subtotal: number }
+
 type CustomerTabletScreenProps = {
   activeStoreName: string
   activeTableName: string
@@ -39,6 +47,9 @@ type CustomerTabletScreenProps = {
   onOpenConfirm: () => void
   onBackToMenu: () => void
   onSubmitOrder: () => void
+  ticketReceipt?: TicketReceipt | null
+  ticketSummaryLines?: ReceiptSummaryLine[]
+  onRefreshTicket?: () => void
 }
 
 export function CustomerTabletScreen({
@@ -69,10 +80,14 @@ export function CustomerTabletScreen({
   onOpenConfirm,
   onBackToMenu,
   onSubmitOrder,
+  ticketReceipt,
+  ticketSummaryLines,
+  onRefreshTicket,
 }: CustomerTabletScreenProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   const [showQrModal, setShowQrModal] = useState(false)
+  const [showHistoryModal, setShowHistoryModal] = useState(false)
   
   const scrollHorizontally = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -175,13 +190,30 @@ export function CustomerTabletScreen({
             </div>
           </div>
 
-          <button
-            className={`tablet-submit-btn glowing`}
-            disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
-            onClick={onSubmitOrder}
-          >
-            {customerBusy ? '送信中...' : '注文を確定する'}
-          </button>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <button
+              className="tablet-submit-btn glowing"
+              style={{
+                background: '#4dabf7',
+                boxShadow: '0 4px 15px rgba(77,171,247,0.4)',
+                cursor: 'pointer',
+              }}
+              onClick={() => {
+                onRefreshTicket?.()
+                setShowHistoryModal(true)
+              }}
+            >
+              📋 注文履歴
+            </button>
+
+            <button
+              className={`tablet-submit-btn glowing`}
+              disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
+              onClick={onSubmitOrder}
+            >
+              {customerBusy ? '送信中...' : '注文を確定する'}
+            </button>
+          </div>
         </footer>
       </div>
     );
@@ -399,13 +431,30 @@ export function CustomerTabletScreen({
           </div>
         </div>
 
-        <button
-          className={`tablet-submit-btn ${cartCount > 0 ? 'glowing' : ''}`}
-          disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
-          onClick={onOpenConfirm}
-        >
-          {customerBusy ? '送信中...' : '注文を確認して送信する'}
-        </button>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <button
+            className="tablet-submit-btn glowing"
+            style={{
+              background: '#4dabf7',
+              boxShadow: '0 4px 15px rgba(77,171,247,0.4)',
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              onRefreshTicket?.()
+              setShowHistoryModal(true)
+            }}
+          >
+            📋 注文履歴
+          </button>
+
+          <button
+            className={`tablet-submit-btn ${cartCount > 0 ? 'glowing' : ''}`}
+            disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
+            onClick={onOpenConfirm}
+          >
+            {customerBusy ? '送信中...' : '注文を確認して送信する'}
+          </button>
+        </div>
       </footer>
 
       {showQrModal && selectedCustomerUrl && (
@@ -433,6 +482,100 @@ export function CustomerTabletScreen({
             >
               閉じる
             </button>
+          </div>
+        </div>
+      )}
+
+      {showHistoryModal && (
+        <div 
+          style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.8)', backdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 2000}}
+          onClick={() => setShowHistoryModal(false)}
+        >
+          <div 
+            style={{background:'white', padding:'32px', borderRadius:'24px', color:'#333', width:'100%', maxWidth:'600px', maxHeight:'80vh', display:'flex', flexDirection:'column', boxShadow:'0 20px 40px rgba(0,0,0,0.2)', position:'relative'}}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid #eee', paddingBottom:'16px', marginBottom:'16px'}}>
+              <h2 style={{margin:0, fontSize:'1.8rem', fontWeight:'bold', color:'#333'}}>📋 ご注文履歴</h2>
+              <button 
+                onClick={() => setShowHistoryModal(false)}
+                style={{background:'none', border:'none', fontSize:'1.8rem', color:'#999', cursor:'pointer'}}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Body */}
+            <div style={{flex: 1, overflowY: 'auto', paddingRight: '4px'}}>
+              {ticketReceipt ? (
+                <>
+                  <div style={{background:'#f8f9fa', padding:'16px', borderRadius:'12px', marginBottom:'20px', fontSize:'1.1rem', color:'#555', display:'flex', justifyContent:'space-between'}}>
+                    <span><strong>伝票番号:</strong> {ticketReceipt.ticketNo || activeTicketNo || '—'}</span>
+                    <span>
+                      <strong>注文時刻:</strong> {(() => {
+                        try {
+                          return new Intl.DateTimeFormat('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(ticketReceipt.orderedAt))
+                        } catch {
+                          return ticketReceipt.orderedAt || '—'
+                        }
+                      })()}
+                    </span>
+                  </div>
+
+                  {ticketSummaryLines && ticketSummaryLines.length > 0 ? (
+                    <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
+                      {ticketSummaryLines.map((line) => (
+                        <div key={line.itemName} style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px dashed #eee', paddingBottom:'12px'}}>
+                          <div>
+                            <strong style={{fontSize:'1.3rem', color:'#333'}}>{line.itemName}</strong>
+                            <div style={{color:'#666', fontSize:'1rem', marginTop:'4px'}}>数量: {line.qty}点</div>
+                          </div>
+                          <strong style={{fontSize:'1.3rem', color:'#333'}}>{yen(line.subtotal)}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{textAlign:'center', color:'#888', margin:'32px 0', fontSize:'1.2rem'}}>注文内容はまだありません。</p>
+                  )}
+
+                  {/* Summary */}
+                  <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.8rem', fontWeight:'bold', color:'#333'}}>
+                    <span>合計金額</span>
+                    <span style={{color:'#ff5a5f'}}>{yen(ticketReceipt.subtotal)}</span>
+                  </div>
+                </>
+              ) : customerBusy ? (
+                <div style={{textAlign:'center', padding:'48px 0'}}>
+                  <div style={{fontSize:'2.5rem', marginBottom:'16px', animation: 'spin 1.5s linear infinite'}}>🔄</div>
+                  <p style={{color:'#888', fontSize:'1.2rem', margin:0}}>注文履歴を読み込んでいます...</p>
+                  <style>{`
+                    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                  `}</style>
+                </div>
+              ) : (
+                <p style={{textAlign:'center', color:'#888', padding:'48px 0', fontSize:'1.2rem'}}>注文履歴はありません。</p>
+              )}
+            </div>
+
+            {/* Footer buttons */}
+            <div style={{display:'flex', gap:'16px', marginTop:'24px', borderTop:'1px solid #eee', paddingTop:'20px'}}>
+              <button 
+                className="tablet-submit-btn glowing" 
+                style={{flex: 1, padding:'16px', background:'#4dabf7', boxShadow:'0 4px 15px rgba(77,171,247,0.3)', cursor:'pointer'}}
+                onClick={() => onRefreshTicket?.()}
+                disabled={customerBusy}
+              >
+                {customerBusy ? '更新中...' : '最新状態に更新'}
+              </button>
+              <button 
+                className="tablet-submit-btn" 
+                style={{flex: 1, padding:'16px', background:'#f0f3f5', color:'#555', cursor:'pointer'}}
+                onClick={() => setShowHistoryModal(false)}
+              >
+                閉じる
+              </button>
+            </div>
           </div>
         </div>
       )}
