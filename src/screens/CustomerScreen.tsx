@@ -101,7 +101,7 @@ export function CustomerScreen({
             <h1>注文内容の確認</h1>
             <span className="table-badge">卓番: {activeTableName}</span>
           </div>
-          <button style={{background:'transparent', border:'1px solid white', color:'white', padding:'4px 12px', borderRadius:'12px'}} onClick={onBackToMenu}>戻る</button>
+          <button className="customer-header-btn" onClick={onBackToMenu}>戻る</button>
         </header>
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center'}}>{customerMessage}</p> : null}
@@ -144,39 +144,46 @@ export function CustomerScreen({
     );
   }
 
-  if (customerStep === 'myOrder' && ticketReceipt) {
+  if (customerStep === 'myOrder') {
     return (
       <div className="customer-app">
         <header className="customer-header">
           <div className="header-meta">
-            <h1>送信済みの注文</h1>
-            <span className="table-badge">伝票: {ticketReceipt.ticketNo}</span>
+            <span className="table-badge">{ticketReceipt ? `伝票: ${ticketReceipt.ticketNo}` : '注文履歴'}</span>
           </div>
-          <button style={{background:'transparent', border:'1px solid white', color:'white', padding:'4px 12px', borderRadius:'12px'}} onClick={onBackToMenu}>戻る</button>
+          <button className="customer-header-btn" onClick={onBackToMenu}>戻る</button>
         </header>
 
         <main className="menu-grid" style={{paddingTop: '24px'}}>
           <div style={{background:'white', borderRadius:'16px', padding:'24px', boxShadow:'0 4px 12px rgba(0,0,0,0.05)'}}>
-            <h3 style={{marginBottom:'16px', color:'#555', borderBottom:'2px solid #eee', paddingBottom:'8px'}}>注文時刻 {formatTime(ticketReceipt.orderedAt)}</h3>
-            
-            {ticketSummaryLines.length === 0 ? <p style={{textAlign:'center', color:'#888'}}>注文内容はまだありません。</p> : null}
-            
-            <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
-              {ticketSummaryLines.map((line) => (
-                <div key={line.itemName} style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-                  <div>
-                    <strong style={{fontSize:'1.1rem'}}>{line.itemName}</strong>
-                    <div style={{color:'#888', fontSize:'0.9rem'}}>{line.qty} 点</div>
-                  </div>
-                  <strong style={{fontSize:'1.2rem'}}>{yen(line.subtotal)}</strong>
+            {ticketReceipt ? (
+              <>
+                <h3 style={{marginBottom:'16px', color:'#555', borderBottom:'2px solid #eee', paddingBottom:'8px'}}>注文時刻 {formatTime(ticketReceipt.orderedAt)}</h3>
+                
+                {ticketSummaryLines.length === 0 ? <p style={{textAlign:'center', color:'#888'}}>注文内容はまだありません。</p> : null}
+                
+                <div style={{display:'flex', flexDirection:'column', gap:'12px'}}>
+                  {ticketSummaryLines.map((line) => (
+                    <div key={line.itemName} style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                      <div>
+                        <strong style={{fontSize:'1.1rem'}}>{line.itemName}</strong>
+                        <div style={{color:'#888', fontSize:'0.9rem'}}>{line.qty} 点</div>
+                      </div>
+                      <strong style={{fontSize:'1.2rem'}}>{yen(line.subtotal)}</strong>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>
-              <span>合計</span>
-              <span style={{color:'#ff5a5f'}}>{yen(ticketReceipt.subtotal)}</span>
-            </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>
+                  <span>合計</span>
+                  <span style={{color:'#ff5a5f'}}>{yen(ticketReceipt.subtotal)}</span>
+                </div>
+              </>
+            ) : customerBusy ? (
+              <p style={{textAlign:'center', color:'#888'}}>読み込み中...</p>
+            ) : (
+              <p style={{textAlign:'center', color:'#888'}}>注文履歴はありません。</p>
+            )}
           </div>
         </main>
         
@@ -196,11 +203,10 @@ export function CustomerScreen({
     <div className="customer-app" data-testid="customer-screen">
       <header className="customer-header">
         <div className="header-meta">
-          <h1>{activeStoreName}</h1>
           <span className="table-badge">卓番: {activeTableName}</span>
         </div>
         {customerCanViewMyOrder && (
-          <button style={{background:'rgba(255,255,255,0.2)', border:'none', color:'white', padding:'4px 12px', borderRadius:'12px', fontWeight:'bold'}} onClick={onOpenMyOrder}>
+          <button className="customer-header-btn" onClick={onOpenMyOrder}>
             注文履歴
           </button>
         )}

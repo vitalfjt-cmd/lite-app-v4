@@ -328,7 +328,7 @@ export default function App() {
   }, [session, wasLoggingIn])
 
   const publicTicketIsOpen = !publicOpenTicket || publicOpenTicket.status === 'OPEN'
-  const customerCanViewMyOrder = Boolean(ticketReceipt && publicTicketIsOpen)
+  const customerCanViewMyOrder = Boolean((ticketReceipt || publicOpenTicket) && publicTicketIsOpen)
   const customerApiAvailable = customerApiSupportsTicketBootstrap
   const customerOrderingEnabled = customerApiSupportsTicketBootstrap
     ? hasPublicCustomerAccess && publicTicketIsOpen
@@ -626,7 +626,10 @@ export default function App() {
               setCart((current) => ({ ...current, [itemId]: (current[itemId] ?? 0) + 1 }))
             }}
             onReloadMenu={() => void loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess)}
-            onOpenMyOrder={() => setCustomerStep('myOrder')}
+            onOpenMyOrder={() => {
+              setCustomerStep('myOrder')
+              void refreshCustomerTicket()
+            }}
             onOpenConfirm={() => setCustomerStep('confirm')}
             onBackToMenu={returnToCustomerMenu}
             onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent))}

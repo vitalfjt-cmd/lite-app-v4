@@ -3381,6 +3381,22 @@ h1 {
   font-weight: 600;
 }
 
+.customer-header-btn {
+  background: transparent;
+  border: 1px solid var(--c-primary);
+  color: var(--c-primary);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.customer-header-btn:hover {
+  background: var(--c-primary);
+  color: white;
+}
+
 /* 2-tier sticky category navigation */
 .customer-category-tiers {
   position: sticky;

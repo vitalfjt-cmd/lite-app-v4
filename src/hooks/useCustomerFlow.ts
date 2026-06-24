@@ -224,11 +224,12 @@ export function useCustomerFlow(view: AppView) {
   }
 
   const refreshCustomerTicket = async () => {
-    if (!ticketReceipt) return
+    const ticketNo = ticketReceipt?.ticketNo || publicOpenTicket?.ticket_no
+    if (!ticketNo) return
     setCustomerBusy(true)
     setCustomerMessage(null)
     try {
-      const ticket = await fetchPublicTicket(publicStoreSlug, publicQrToken, effectivePublicTicketToken, ticketReceipt.ticketNo)
+      const ticket = await fetchPublicTicket(publicStoreSlug, publicQrToken, effectivePublicTicketToken, ticketNo)
       setTicketReceipt(createTicketReceipt(ticket.ticket))
       setCustomerMessage('My Order updated.')
     } catch (err) {
