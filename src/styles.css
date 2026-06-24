@@ -3354,7 +3354,6 @@ h1 {
   margin: 0 auto; /* mobile frame look on desktop */
   box-shadow: 0 0 20px rgba(0,0,0,0.05);
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .customer-header {
