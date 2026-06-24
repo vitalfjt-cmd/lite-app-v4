@@ -201,66 +201,68 @@ export function CustomerScreen({
   // Menu Step
   return (
     <div className="customer-app" data-testid="customer-screen">
-      <header className="customer-header">
-        <div className="header-meta">
-          <span className="table-badge">卓番: {activeTableName}</span>
-        </div>
-        {customerCanViewMyOrder && (
-          <button className="customer-header-btn" onClick={onOpenMyOrder}>
-            注文履歴
-          </button>
-        )}
-      </header>
-      
-      {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
-
-      {!customerOrderingEnabled && publicMenuReady ? (
-        <p style={{background:'#fcc419', color:'#333', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>この卓は現在注文を受け付けていません。</p>
-      ) : null}
-
-      <div className="customer-category-tiers" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'white', borderBottom: '1px solid var(--c-border)' }}>
-        {customerTopCategories.length > 0 && (
-          <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1, paddingBottom: customerTopCategories.length > 0 && customerSubCategories.length > 0 ? '6px' : '12px' }}>
-            {customerTopCategories.map((cat) => (
-              <button 
-                key={cat.id} 
-                className={`category-tab ${selectedCustomerTopCategoryId === cat.id ? 'active' : ''}`}
-                onClick={() => onSelectTopCategory(cat.id)}
-              >
-                {cat.name}
-              </button>
-            ))}
+      <div style={{ position: 'sticky', top: 0, zIndex: 20 }}>
+        <header className="customer-header">
+          <div className="header-meta">
+            <span className="table-badge">卓番: {activeTableName}</span>
           </div>
-        )}
+          {customerCanViewMyOrder && (
+            <button className="customer-header-btn" onClick={onOpenMyOrder}>
+              注文履歴
+            </button>
+          )}
+        </header>
         
-        {customerSubCategories.length > 0 && customerTopCategories.length > 0 && (
-          <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1, paddingTop: '0px' }}>
-            {customerSubCategories.map((cat) => (
-              <button 
-                key={cat.id} 
-                className={`customer-sub-tab ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
-                onClick={() => onSelectCategory(cat.id)}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
+        {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
 
-        {/* Fallback if no top-level categories */}
-        {customerTopCategories.length === 0 && customerSubCategories.length > 0 && (
-          <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1 }}>
-            {customerSubCategories.map((cat) => (
-              <button 
-                key={cat.id} 
-                className={`category-tab ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
-                onClick={() => onSelectCategory(cat.id)}
-              >
-                {cat.name}
-              </button>
-            ))}
-          </div>
-        )}
+        {!customerOrderingEnabled && publicMenuReady ? (
+          <p style={{background:'#fcc419', color:'#333', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>この卓は現在注文を受け付けていません。</p>
+        ) : null}
+
+        <div className="customer-category-tiers" style={{ background: 'white', borderBottom: '1px solid var(--c-border)' }}>
+          {customerTopCategories.length > 0 && (
+            <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1, paddingBottom: customerTopCategories.length > 0 && customerSubCategories.length > 0 ? '6px' : '12px' }}>
+              {customerTopCategories.map((cat) => (
+                <button 
+                  key={cat.id} 
+                  className={`category-tab ${selectedCustomerTopCategoryId === cat.id ? 'active' : ''}`}
+                  onClick={() => onSelectTopCategory(cat.id)}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
+          
+          {customerSubCategories.length > 0 && customerTopCategories.length > 0 && (
+            <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1, paddingTop: '0px' }}>
+              {customerSubCategories.map((cat) => (
+                <button 
+                  key={cat.id} 
+                  className={`customer-sub-tab ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
+                  onClick={() => onSelectCategory(cat.id)}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Fallback if no top-level categories */}
+          {customerTopCategories.length === 0 && customerSubCategories.length > 0 && (
+            <div className="category-scroller" style={{ borderBottom: 'none', position: 'relative', zIndex: 1 }}>
+              {customerSubCategories.map((cat) => (
+                <button 
+                  key={cat.id} 
+                  className={`category-tab ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
+                  onClick={() => onSelectCategory(cat.id)}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <main className="menu-grid">
