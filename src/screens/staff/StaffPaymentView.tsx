@@ -122,7 +122,19 @@ export function StaffPaymentView({
 }: StaffPaymentViewProps) {
   const [activePrintPaymentId, setActivePrintPaymentId] = React.useState<number | null>(null)
   const activePrintPayment = activePrintPaymentId ? payments.find(p => p.id === activePrintPaymentId) : null
-  const [isFocused, setIsFocused] = React.useState(false)
+  const [isFocused, setIsFocused] = React.useState(true)
+  const inputRef = React.useRef<HTMLInputElement | null>(null)
+
+  const focusInput = () => {
+    setIsFocused(true)
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
+  }
+
+  React.useEffect(() => {
+    focusInput()
+  }, [combinedTicketIds.length, payments.length, calcMode])
 
   const availableToCombine = React.useMemo(() => {
     return liveTicketSummaries.filter(t => 
@@ -639,7 +651,7 @@ export function StaffPaymentView({
                 </div>
 
                 <div className="numpad-section">
-                <div className="numpad-display" onClick={() => setIsFocused(true)} style={{ cursor: 'text', ...(targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : {}) }}>
+                <div className="numpad-display" onClick={() => focusInput()} style={{ cursor: 'text', ...(targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : {}) }}>
                     {targetPaymentAmount !== null ? (
                       <>
                         <div style={{ fontSize: '1rem', color: '#868e96', display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
@@ -650,6 +662,7 @@ export function StaffPaymentView({
                           <span className="numpad-label" style={{ margin: 0 }}>お預かり金額</span>
                           {isFocused ? (
                             <input
+                              ref={inputRef}
                               type="text"
                               pattern="[0-9]*"
                               inputMode="numeric"
@@ -687,6 +700,7 @@ export function StaffPaymentView({
                         <span className="numpad-label">入力金額</span>
                         {isFocused ? (
                           <input
+                            ref={inputRef}
                             type="text"
                             pattern="[0-9]*"
                             inputMode="numeric"
