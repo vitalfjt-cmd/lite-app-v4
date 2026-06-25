@@ -65,6 +65,10 @@ type StaffPaymentViewProps = {
   targetPaymentAmount: number | null
   setTargetPaymentAmount: React.Dispatch<React.SetStateAction<number | null>>
   setPendingPaymentItems: React.Dispatch<React.SetStateAction<Array<{ name: string; qty: number; subtotal: number }>>>
+  liveTicketSummaries: TicketSummaryView[]
+  combinedTicketIds: string[]
+  onAddCombinedTicket: (ticketId: string) => void
+  onRemoveCombinedTicket: (ticketId: string) => void
 }
 
 export function StaffPaymentView({
@@ -111,9 +115,20 @@ export function StaffPaymentView({
   targetPaymentAmount,
   setTargetPaymentAmount,
   setPendingPaymentItems,
+  liveTicketSummaries,
+  combinedTicketIds,
+  onAddCombinedTicket,
+  onRemoveCombinedTicket,
 }: StaffPaymentViewProps) {
   const [activePrintPaymentId, setActivePrintPaymentId] = React.useState<number | null>(null)
   const activePrintPayment = activePrintPaymentId ? payments.find(p => p.id === activePrintPaymentId) : null
+
+  const availableToCombine = React.useMemo(() => {
+    return liveTicketSummaries.filter(t => 
+      t.ticketId !== selectedSummary.ticketId && 
+      !combinedTicketIds.includes(t.ticketId)
+    )
+  }, [liveTicketSummaries, selectedSummary.ticketId, combinedTicketIds])
 
   const renderReceiptPaper = (p: typeof activePrintPayment, hasPageBreak: boolean) => {
     return (
@@ -532,6 +547,96 @@ export function StaffPaymentView({
           ) : (
             <>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%', overflowY: 'auto' }}>
+                {/* 伝票加算セクション */}
+                <div style={{ 
+                  background: '#2b3035', 
+                  borderRadius: '12px', 
+                  padding: '16px', 
+                  border: '1px solid #495057', 
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  marginBottom: '8px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '1.2rem' }}>🔗</span>
+                    <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#f8f9fa' }}>伝票加算（複数伝票のまとめ払い）</h4>
+                  </div>
+                  
+                  {combinedTicketIds.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                      {liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId)).map(t => (
+                        <div key={t.ticketId} style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          alignItems: 'center', 
+                          background: '#343a40', 
+                          padding: '8px 12px', 
+                          borderRadius: '8px', 
+                          border: '1px solid #495057',
+                          transition: 'all 0.2s ease'
+                        }}>
+                          <span style={{ fontSize: '0.9rem', color: '#e9ecef' }}>
+                            {t.tableName} <span style={{ color: '#adb5bd', fontSize: '0.8rem' }}>({t.ticketNo})</span> : <strong style={{ color: '#74c0fc' }}>{yen(t.subtotal)}</strong>
+                          </span>
+                          <button 
+                            type="button" 
+                            onClick={() => onRemoveCombinedTicket(t.ticketId)}
+                            style={{ 
+                              background: 'transparent', 
+                              border: 'none', 
+                              color: '#ff6b6b', 
+                              cursor: 'pointer', 
+                              fontSize: '1.2rem', 
+                              padding: '0 4px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              transition: 'color 0.2s'
+                            }}
+                            title="加算を解除"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  {availableToCombine.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <select
+                        value=""
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            onAddCombinedTicket(e.target.value)
+                          }
+                        }}
+                        style={{ 
+                          width: '100%', 
+                          padding: '10px 12px', 
+                          borderRadius: '8px', 
+                          background: '#1a1d20', 
+                          color: '#f8f9fa', 
+                          border: '1px solid #495057',
+                          fontSize: '0.9rem',
+                          cursor: 'pointer',
+                          outline: 'none'
+                        }}
+                      >
+                        <option value="">＋ 他の伝票を追加する...</option>
+                        {availableToCombine.map(t => (
+                          <option key={t.ticketId} value={t.ticketId}>
+                            {t.tableName} ({t.ticketNo}) - {yen(t.subtotal)}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '0.85rem', color: '#adb5bd', textAlign: 'center', padding: '4px 0' }}>
+                      加算可能な他の未会計伝票はありません
+                    </div>
+                  )}
+                </div>
+
                 <div className="numpad-section">
                   <div className="numpad-display" style={targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : undefined}>
                     {targetPaymentAmount !== null ? (

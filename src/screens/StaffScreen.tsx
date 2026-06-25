@@ -23,6 +23,7 @@ type StaffScreenProps = {
   selectedSummary: TicketSummaryView | null
   liveTicketSummaries: TicketSummaryView[]
   selectedLines: LiveLine[]
+  liveLines: LiveLine[]
   cancelledLineCount: number
   draftQuantities: Record<string, number>
   liveItems: LiveMenuItem[]
@@ -50,6 +51,7 @@ type StaffScreenProps = {
   onNewTicketMenuBookChange: (value: string) => void
   onCreateTicket: (tableRefId: string, menuBookId: string, customerCount: number | null) => Promise<boolean>
   onSavePaymentEntry: (payload: {
+    ticketId?: string
     paymentType: PaymentKind
     discountAmount: number
     couponAmount: number
@@ -57,7 +59,7 @@ type StaffScreenProps = {
     finalAmount: number
     receivedAmount: number
   }) => Promise<boolean>
-  onCloseTicket: () => Promise<boolean>
+  onCloseTicket: (ticketId?: string) => Promise<boolean>
   onAbortPayment: () => void
   directAction?: 'HANDY' | 'PAYMENT' | null
   onClearDirectAction?: () => void
@@ -88,6 +90,7 @@ export function StaffScreen({
   selectedSummary,
   liveTicketSummaries,
   selectedLines,
+  liveLines,
   cancelledLineCount,
   draftQuantities,
   liveItems,
@@ -180,6 +183,34 @@ export function StaffScreen({
   const [targetPaymentAmount, setTargetPaymentAmount] = useState<number | null>(null)
   const [pendingPaymentItems, setPendingPaymentItems] = useState<Array<{ name: string; qty: number; subtotal: number }>>([])
 
+  // Combined ticket IDs state for 伝票加算
+  const [combinedTicketIds, setCombinedTicketIds] = useState<string[]>([])
+
+  const combinedLines = useMemo(() => {
+    const lines = [...selectedLines]
+    for (const ticketId of combinedTicketIds) {
+      lines.push(...liveLines.filter(l => l.order_ticket_id === ticketId))
+    }
+    return lines
+  }, [selectedLines, combinedTicketIds, liveLines])
+
+  const combinedSummary = useMemo(() => {
+    if (!selectedSummary) return null
+    const allTickets = [
+      selectedSummary,
+      ...liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId))
+    ]
+    const totalSubtotal = allTickets.reduce((sum, t) => sum + t.subtotal, 0)
+    const tableNames = allTickets.map(t => t.tableName).join(' + ')
+    const ticketNos = allTickets.map(t => t.ticketNo).join(' + ')
+    return {
+      ...selectedSummary,
+      tableName: tableNames,
+      ticketNo: ticketNos,
+      subtotal: totalSubtotal,
+    }
+  }, [selectedSummary, liveTicketSummaries, combinedTicketIds])
+
   // Synchronize paidLineQtys with payments and pendingPaymentItems
   useEffect(() => {
     const newPaid: Record<string, number> = {}
@@ -270,6 +301,7 @@ export function StaffScreen({
     setPendingPaymentItems([])
     setPaymentFinalized(false)
     setShowPaymentModal(false)  // ← 新規伝票起票/チケット切替時に会計画面を閉じる
+    setCombinedTicketIds([])
     setHandyCart([])
     setShowQrModal(false)
     if (selectedTicketId) setMobileView('detail')
@@ -485,32 +517,126 @@ export function StaffScreen({
       alert('預かり金額が請求額に達していません。')
       return
     }
-    
-    // Process each payment method separately
-    let remainingDiscountToSave = totalDiscount
-    
-    for (const p of payments) {
-       const saved = await onSavePaymentEntry({
-         paymentType: METHOD_MAP[p.method] || 'CASH',
-         discountAmount: remainingDiscountToSave,
-         couponAmount: 0,
-         voucherAmount: 0,
-         finalAmount: p.amount,
-         receivedAmount: p.received,
-       })
-       if (!saved) return
-       remainingDiscountToSave = 0 // Only apply discount to the first entry to avoid double counting
+
+    const targetTickets = [
+      selectedSummary,
+      ...liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId))
+    ]
+
+    const totalSubtotal = targetTickets.reduce((sum, t) => sum + t.subtotal, 0)
+
+    // Calculate final bill amount and discount per ticket
+    const ticketBills = targetTickets.map((t, idx) => {
+      if (idx === targetTickets.length - 1) {
+        const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
+          const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
+          return sum + Math.round(finalBilledAmount * ratio)
+        }, 0)
+        return finalBilledAmount - sumPrevious
+      } else {
+        const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
+        return Math.round(finalBilledAmount * ratio)
+      }
+    })
+
+    const ticketDiscounts = targetTickets.map((t, idx) => {
+      if (idx === targetTickets.length - 1) {
+        const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
+          const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
+          return sum + Math.round(totalDiscount * ratio)
+        }, 0)
+        return totalDiscount - sumPrevious
+      } else {
+        const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
+        return Math.round(totalDiscount * ratio)
+      }
+    })
+
+    const remainingPayments = payments.map(p => ({
+      method: p.method,
+      amount: p.amount,
+      received: p.received,
+      change: p.change
+    }))
+
+    const ticketPaymentEntries: Array<{
+      ticketId: string
+      entries: Array<{
+        paymentType: PaymentKind
+        discountAmount: number
+        finalAmount: number
+        receivedAmount: number
+      }>
+    }> = targetTickets.map((t) => ({
+      ticketId: t.ticketId,
+      entries: []
+    }))
+
+    for (let i = 0; i < targetTickets.length; i++) {
+      let needed = ticketBills[i]
+      let discountApplied = ticketDiscounts[i]
+      const entries = ticketPaymentEntries[i].entries
+
+      if (needed === 0) {
+        entries.push({
+          paymentType: 'CASH',
+          discountAmount: discountApplied,
+          finalAmount: 0,
+          receivedAmount: 0
+        })
+        continue
+      }
+
+      for (const p of remainingPayments) {
+        if (needed <= 0) break
+        if (p.amount <= 0) continue
+
+        const takeAmount = Math.min(needed, p.amount)
+        const ratio = p.amount > 0 ? (takeAmount / p.amount) : 0
+        const takeReceived = Math.max(takeAmount, Math.round(p.received * ratio))
+
+        entries.push({
+          paymentType: (METHOD_MAP[p.method] || 'CASH') as PaymentKind,
+          discountAmount: discountApplied,
+          finalAmount: takeAmount,
+          receivedAmount: takeReceived,
+        })
+
+        p.amount -= takeAmount
+        p.received -= takeReceived
+        needed -= takeAmount
+        discountApplied = 0
+      }
     }
-    
-    const closed = await onCloseTicket()
-    if (closed) {
-      setFinalizedSummary(selectedSummary)
-      setFinalizedLines(selectedLines)
-      setFinalizedPayments(payments)
-      setFinalizedDiscountAmount(discountAmount)
-      setFinalizedDiscountRate(discountRate)
-      setPaymentFinalized(true)
+
+    // Save payment entries sequentially
+    for (const ticketPayment of ticketPaymentEntries) {
+      for (const entry of ticketPayment.entries) {
+        const saved = await onSavePaymentEntry({
+          ticketId: ticketPayment.ticketId,
+          paymentType: entry.paymentType,
+          discountAmount: entry.discountAmount,
+          couponAmount: 0,
+          voucherAmount: 0,
+          finalAmount: entry.finalAmount,
+          receivedAmount: entry.receivedAmount,
+        })
+        if (!saved) return
+      }
     }
+
+    // Close all tickets
+    for (const t of targetTickets) {
+      const closed = await onCloseTicket(t.ticketId)
+      if (!closed) return
+    }
+
+    setFinalizedSummary(combinedSummary)
+    setFinalizedLines(combinedLines)
+    setFinalizedPayments(payments)
+    setFinalizedDiscountAmount(discountAmount)
+    setFinalizedDiscountRate(discountRate)
+    setPaymentFinalized(true)
   }
 
   /* =======================================
@@ -530,75 +656,79 @@ export function StaffScreen({
     )
   }
 
-  const displaySummary = paymentFinalized && finalizedSummary ? finalizedSummary : selectedSummary;
-  const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : selectedLines;
+    const displaySummary = paymentFinalized && finalizedSummary ? finalizedSummary : combinedSummary;
+    const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : combinedLines;
 
-  if (showPaymentModal && displaySummary) {
-    const displayPayments = paymentFinalized ? finalizedPayments : payments;
-    const displayDiscountAmount = paymentFinalized ? finalizedDiscountAmount : discountAmount;
-    const displayDiscountRate = paymentFinalized ? finalizedDiscountRate : discountRate;
+    if (showPaymentModal && displaySummary) {
+      const displayPayments = paymentFinalized ? finalizedPayments : payments;
+      const displayDiscountAmount = paymentFinalized ? finalizedDiscountAmount : discountAmount;
+      const displayDiscountRate = paymentFinalized ? finalizedDiscountRate : discountRate;
 
-    const subtotal = displaySummary.subtotal ?? 0;
-    const rateDiscount = Math.floor(subtotal * (displayDiscountRate / 100));
-    const totalDisc = displayDiscountAmount + rateDiscount;
-    const billed = Math.max(0, subtotal - totalDisc);
-    const paid = displayPayments.reduce((sum, p) => sum + p.amount, 0);
-    const change = Math.max(0, displayPayments.reduce((sum, p) => sum + p.change, 0));
-    const remaining = Math.max(0, billed - paid);
+      const subtotal = displaySummary.subtotal ?? 0;
+      const rateDiscount = Math.floor(subtotal * (displayDiscountRate / 100));
+      const totalDisc = displayDiscountAmount + rateDiscount;
+      const billed = Math.max(0, subtotal - totalDisc);
+      const paid = displayPayments.reduce((sum, p) => sum + p.amount, 0);
+      const change = Math.max(0, displayPayments.reduce((sum, p) => sum + p.change, 0));
+      const remaining = Math.max(0, billed - paid);
 
-    return (
-      <StaffPaymentView
-        selectedSummary={displaySummary}
-        selectedLines={displayLines}
-        payments={displayPayments as any}
-        currentPaymentInput={paymentFinalized ? '' : currentPaymentInput}
-        discountAmount={displayDiscountAmount}
-        discountRate={displayDiscountRate}
-        paymentFinalized={paymentFinalized}
-        mutationBusy={mutationBusy}
-        storeName={storeName}
-        yen={yen}
-        setShowPaymentModal={setShowPaymentModal}
-        setPayments={setPayments as any}
-        setCurrentPaymentInput={setCurrentPaymentInput}
-        setDiscountAmount={setDiscountAmount}
-        setDiscountRate={setDiscountRate}
-        setPaymentFinalized={setPaymentFinalized}
-        onSavePaymentEntry={onSavePaymentEntry}
-        onCloseTicket={onCloseTicket}
-        handleNumpadPayment={handleNumpadPayment}
-        addPaymentMethod={addPaymentMethod}
-        applyDiscountAmount={applyDiscountAmount}
-        applyDiscountRate={applyDiscountRate}
-        commitPaymentToDB={commitPaymentToDB}
-        calcMode={calcMode}
-        setCalcMode={setCalcMode}
-        splitCount={splitCount}
-        setSplitCount={setSplitCount}
-        calculatingLineQtys={calculatingLineQtys}
-        updateCalculatingQty={updateCalculatingQty}
-        getItemUnitPrice={getItemUnitPrice}
-        currentItemizedTotal={currentItemizedTotal}
-        processItemizedCalculation={processItemizedCalculation}
-        remainingTotal={remaining}
-        paidTotal={paid}
-        finalBilledAmount={billed}
-        discountFromRate={rateDiscount}
-        totalDiscount={totalDisc}
-        changeTotal={change}
-        paidLineQtys={paidLineQtys}
-        setInputSource={setInputSource}
-        onAbortPayment={onAbortPayment}
-        onReceiptClosed={() => {
-          const nextTicket = liveTicketSummaries.find(t => t.ticketId !== selectedTicketId)
-          onSelectTicket(nextTicket?.ticketId || null)
-        }}
-        targetPaymentAmount={targetPaymentAmount}
-        setTargetPaymentAmount={setTargetPaymentAmount}
-        setPendingPaymentItems={setPendingPaymentItems as any}
-      />
-    )
-  }
+      return (
+        <StaffPaymentView
+          selectedSummary={displaySummary}
+          selectedLines={displayLines}
+          payments={displayPayments as any}
+          currentPaymentInput={paymentFinalized ? '' : currentPaymentInput}
+          discountAmount={displayDiscountAmount}
+          discountRate={displayDiscountRate}
+          paymentFinalized={paymentFinalized}
+          mutationBusy={mutationBusy}
+          storeName={storeName}
+          yen={yen}
+          setShowPaymentModal={setShowPaymentModal}
+          setPayments={setPayments as any}
+          setCurrentPaymentInput={setCurrentPaymentInput}
+          setDiscountAmount={setDiscountAmount}
+          setDiscountRate={setDiscountRate}
+          setPaymentFinalized={setPaymentFinalized}
+          onSavePaymentEntry={onSavePaymentEntry}
+          onCloseTicket={onCloseTicket}
+          handleNumpadPayment={handleNumpadPayment}
+          addPaymentMethod={addPaymentMethod}
+          applyDiscountAmount={applyDiscountAmount}
+          applyDiscountRate={applyDiscountRate}
+          commitPaymentToDB={commitPaymentToDB}
+          calcMode={calcMode}
+          setCalcMode={setCalcMode}
+          splitCount={splitCount}
+          setSplitCount={setSplitCount}
+          calculatingLineQtys={calculatingLineQtys}
+          updateCalculatingQty={updateCalculatingQty}
+          getItemUnitPrice={getItemUnitPrice}
+          currentItemizedTotal={currentItemizedTotal}
+          processItemizedCalculation={processItemizedCalculation}
+          remainingTotal={remaining}
+          paidTotal={paid}
+          finalBilledAmount={billed}
+          discountFromRate={rateDiscount}
+          totalDiscount={totalDisc}
+          changeTotal={change}
+          paidLineQtys={paidLineQtys}
+          setInputSource={setInputSource}
+          onAbortPayment={onAbortPayment}
+          onReceiptClosed={() => {
+            const nextTicket = liveTicketSummaries.find(t => t.ticketId !== selectedTicketId)
+            onSelectTicket(nextTicket?.ticketId || null)
+          }}
+          targetPaymentAmount={targetPaymentAmount}
+          setTargetPaymentAmount={setTargetPaymentAmount}
+          setPendingPaymentItems={setPendingPaymentItems as any}
+          liveTicketSummaries={liveTicketSummaries}
+          combinedTicketIds={combinedTicketIds}
+          onAddCombinedTicket={(id) => setCombinedTicketIds((prev) => [...prev, id])}
+          onRemoveCombinedTicket={(id) => setCombinedTicketIds((prev) => prev.filter((x) => x !== id))}
+        />
+      )
+    }
 
   const shouldRenderHandy = (showHandyModal || isHandyMode) && selectedSummary;
 

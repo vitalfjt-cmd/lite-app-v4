@@ -238,6 +238,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
   }
 
   const savePaymentEntry = async (payload: {
+    ticketId?: string
     paymentType: 'CASH' | 'CARD' | 'OTHER'
     discountAmount: number
     couponAmount: number
@@ -245,7 +246,10 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     finalAmount: number
     receivedAmount: number
   }): Promise<boolean> => {
-    if (!selectedTicket) return false
+    const targetTicket = payload.ticketId
+      ? liveTickets.find((t) => t.id === payload.ticketId)
+      : selectedTicket
+    if (!targetTicket) return false
     if (payload.receivedAmount < payload.finalAmount) {
       const message = '預かり金額が会計金額以上になるように入力してください。'
       setError(message)
@@ -259,7 +263,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       const saved = await addStaffPrototypePaymentEntry(storeSlug, {
-        ticketId: selectedTicket.id,
+        ticketId: targetTicket.id,
         paymentType: payload.paymentType,
         discountAmount: payload.discountAmount,
         couponAmount: payload.couponAmount,
@@ -296,16 +300,19 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
-  const settleTicket = async (): Promise<boolean> => {
-    if (!selectedTicket) return false
-    const closingTicketId = selectedTicket.id
+  const settleTicket = async (ticketId?: string): Promise<boolean> => {
+    const targetTicket = ticketId
+      ? liveTickets.find((t) => t.id === ticketId)
+      : selectedTicket
+    if (!targetTicket) return false
+    const closingTicketId = targetTicket.id
     setMutationBusy('close-ticket')
     setStaffMessage(null)
     setError(null)
     try {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       if (!storeSlug) throw new Error('staff_store_slug_missing')
-      await closeStaffPrototypeTicket(storeSlug, selectedTicket.id, selectedTicket.ticket_no)
+      await closeStaffPrototypeTicket(storeSlug, targetTicket.id, targetTicket.ticket_no)
       setLiveTickets((current) => current.map((ticket) => (ticket.id === closingTicketId ? { ...ticket, status: 'CLOSED' } : ticket)))
       setStaffMessage(null)
       return true
