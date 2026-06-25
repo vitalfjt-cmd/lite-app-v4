@@ -216,7 +216,7 @@ export function StaffScreen({
     const newPaid: Record<string, number> = {}
     
     const allocate = (name: string, qty: number) => {
-      const matchingLines = selectedLines.filter(l => l.item_name_snapshot === name)
+      const matchingLines = combinedLines.filter(l => l.item_name_snapshot === name)
       let remainingQty = qty
       for (const line of matchingLines) {
         if (remainingQty <= 0) break
@@ -245,7 +245,7 @@ export function StaffScreen({
     }
 
     setPaidLineQtys(newPaid)
-  }, [payments, pendingPaymentItems, selectedLines])
+  }, [payments, pendingPaymentItems, combinedLines])
 
   // Clear calculatingLineQtys when payments and pendingPaymentItems are reset
   useEffect(() => {
@@ -352,7 +352,7 @@ export function StaffScreen({
   }
 
   /* Payment Handlers */
-  const selectedSubtotal = selectedSummary?.subtotal ?? 0
+  const selectedSubtotal = combinedSummary?.subtotal ?? 0
   const discountFromRate = Math.floor(selectedSubtotal * (discountRate / 100))
   const totalDiscount = discountAmount + discountFromRate
   const finalBilledAmount = Math.max(0, selectedSubtotal - totalDiscount)
@@ -373,7 +373,7 @@ export function StaffScreen({
   }
 
   const getItemUnitPrice = (id: string) => {
-    const l = selectedLines.find(x => x.id === id)
+    const l = combinedLines.find(x => x.id === id)
     if (!l) return 0
     return Math.round(l.line_subtotal / l.quantity)
   }
@@ -388,7 +388,7 @@ export function StaffScreen({
     const items: Array<{ name: string; qty: number; subtotal: number }> = []
     for (const [id, qty] of Object.entries(calculatingLineQtys)) {
       if (qty > 0) {
-        const line = selectedLines.find(x => x.id === id)
+        const line = combinedLines.find(x => x.id === id)
         if (line) {
           items.push({
             name: line.item_name_snapshot,
@@ -450,7 +450,7 @@ export function StaffScreen({
       label = `個別会計 (${payments.length + 1}人目)`
     } else if (activeCalcMode === 'itemized') {
       const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
-      for (const line of selectedLines) {
+      for (const line of combinedLines) {
         const name = line.item_name_snapshot
         const unitPrice = line.quantity > 0 ? Math.round(line.line_subtotal / line.quantity) : 0
         if (!remainingMap[name]) {

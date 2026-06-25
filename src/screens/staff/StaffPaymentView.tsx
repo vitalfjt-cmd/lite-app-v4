@@ -122,6 +122,7 @@ export function StaffPaymentView({
 }: StaffPaymentViewProps) {
   const [activePrintPaymentId, setActivePrintPaymentId] = React.useState<number | null>(null)
   const activePrintPayment = activePrintPaymentId ? payments.find(p => p.id === activePrintPaymentId) : null
+  const [isFocused, setIsFocused] = React.useState(false)
 
   const availableToCombine = React.useMemo(() => {
     return liveTicketSummaries.filter(t => 
@@ -638,7 +639,7 @@ export function StaffPaymentView({
                 </div>
 
                 <div className="numpad-section">
-                  <div className="numpad-display" style={targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : undefined}>
+                <div className="numpad-display" onClick={() => setIsFocused(true)} style={{ cursor: 'text', ...(targetPaymentAmount !== null ? { width: '100%', boxSizing: 'border-box' } : {}) }}>
                     {targetPaymentAmount !== null ? (
                       <>
                         <div style={{ fontSize: '1rem', color: '#868e96', display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
@@ -647,13 +648,75 @@ export function StaffPaymentView({
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'baseline' }}>
                           <span className="numpad-label" style={{ margin: 0 }}>お預かり金額</span>
-                          <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                          {isFocused ? (
+                            <input
+                              type="text"
+                              pattern="[0-9]*"
+                              inputMode="numeric"
+                              value={currentPaymentInput}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, '')
+                                setCurrentPaymentInput(val)
+                                setInputSource('manual')
+                              }}
+                              onBlur={() => {
+                                setTimeout(() => setIsFocused(false), 150)
+                              }}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                background: 'transparent',
+                                border: 'none',
+                                color: 'inherit',
+                                fontSize: '2rem',
+                                fontWeight: 'bold',
+                                textAlign: 'right',
+                                width: '180px',
+                                outline: 'none',
+                                padding: 0,
+                                fontFamily: 'inherit',
+                              }}
+                            />
+                          ) : (
+                            <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                          )}
                         </div>
                       </>
                     ) : (
                       <>
                         <span className="numpad-label">入力金額</span>
-                        <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                        {isFocused ? (
+                          <input
+                            type="text"
+                            pattern="[0-9]*"
+                            inputMode="numeric"
+                            value={currentPaymentInput}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/[^0-9]/g, '')
+                              setCurrentPaymentInput(val)
+                              setInputSource('manual')
+                            }}
+                            onBlur={() => {
+                              setTimeout(() => setIsFocused(false), 150)
+                            }}
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: 'inherit',
+                              fontSize: '2rem',
+                              fontWeight: 'bold',
+                              textAlign: 'right',
+                              width: '180px',
+                              outline: 'none',
+                              padding: 0,
+                              fontFamily: 'inherit',
+                            }}
+                          />
+                        ) : (
+                          <span className="numpad-value">{yen(parseInt(currentPaymentInput || '0'))}</span>
+                        )}
                       </>
                     )}
                   </div>
