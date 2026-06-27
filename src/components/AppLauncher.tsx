@@ -49,7 +49,11 @@ export function AppLauncher({
     <div className="launcher-overlay" onClick={onClose}>
       <div className="launcher-content" onClick={(e) => e.stopPropagation()}>
         <div className="launcher-header">
-          <h2>Application Launcher</h2>
+          <h2>
+            オーナー{"\n"}
+            POS 2{"\n"}
+            Demo
+          </h2>
           <button className="launcher-close" onClick={onClose}>&times;</button>
         </div>
         

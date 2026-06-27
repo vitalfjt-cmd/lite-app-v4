@@ -130,7 +130,7 @@ export function AppSidebar({
         <button style={getBtnStyle(false, '#cc5de8')} onClick={() => onDirectAction?.('HANDY')}>
           📝 Handy
         </button>
-        <button style={getBtnStyle(view === 'kds', '#fd7e14')} onClick={() => onMove('kds')}>
+        <button style={getBtnStyle(view === 'kds', '#1b813e')} onClick={() => onMove('kds')}>
           🔥 KDS
         </button>
         <button style={getBtnStyle(false, '#51cf66')} onClick={() => onDirectAction?.('PAYMENT')}>

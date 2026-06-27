@@ -40,8 +40,28 @@ export function LoginScreen({
   return (
     <div className="login-container">
       <div className="login-card">
-        <div className="login-header">
-          <div className="admin-login-tag">ADMIN LOGIN</div>
+        <div className="login-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="login-logo-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" width="240" height="75" className="login-logo-svg">
+              <g fill="none" stroke="#1b813e" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M 56 38 Q 50 70 46 105" />
+                <path d="M 52 38 C 28 42 12 36 12 28 C 12 20 28 26 52 38" />
+                <path d="M 52 38 C 20 24 16 12 26 8 C 36 4 44 20 52 38" />
+                <path d="M 52 38 C 45 10 52 2 60 2 C 68 2 65 15 52 38" />
+                <path d="M 52 38 C 72 14 84 8 90 14 C 96 20 78 30 52 38" />
+                <path d="M 52 38 C 84 32 98 40 96 48 C 94 56 76 46 52 38" />
+                
+                <path d="M 52 38 L 22 29" strokeWidth="2.5" />
+                <path d="M 52 38 L 32 14" strokeWidth="2.5" />
+                <path d="M 52 38 L 56 6" strokeWidth="2.5" />
+                <path d="M 52 38 L 76 18" strokeWidth="2.5" />
+                <path d="M 52 38 L 82 41" strokeWidth="2.5" />
+              </g>
+              <text x="115" y="60" fontFamily="'Outfit', 'Inter', -apple-system, sans-serif" fontSize="44" fontWeight="700" fill="#1b813e" letterSpacing="-1.5">pachira</text>
+              <text x="118" y="85" fontFamily="'Outfit', 'Inter', -apple-system, sans-serif" fontSize="16" fontWeight="500" fill="#64748b" letterSpacing="0.5">Food Order System</text>
+            </svg>
+          </div>
+          <div className="admin-login-tag" style={{ marginTop: '16px' }}>ADMIN LOGIN</div>
           <h1 className="login-title">管理者ログイン</h1>
         </div>
         
@@ -109,7 +129,7 @@ export function LoginScreen({
           justify-content: center;
           min-height: 100vh;
           width: 100%;
-          background-color: #f3f6fa;
+          background: linear-gradient(180deg, #f7f3ec 0%, #fcfaf5 100%);
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
           padding: 20px;
           box-sizing: border-box;
@@ -130,7 +150,7 @@ export function LoginScreen({
         }
 
         .admin-login-tag {
-          color: #3b82f6;
+          color: #1b813e;
           font-size: 13px;
           font-weight: 700;
           letter-spacing: 0.1em;
@@ -196,7 +216,7 @@ export function LoginScreen({
         }
 
         .login-submit-btn {
-          background-color: #005f54;
+          background-color: #1b813e;
           border: none;
           border-radius: 12px;
           color: #ffffff;
@@ -208,7 +228,7 @@ export function LoginScreen({
         }
 
         .login-submit-btn:hover {
-          background-color: #004d43;
+          background-color: #146932;
         }
 
         .login-submit-btn:disabled {
