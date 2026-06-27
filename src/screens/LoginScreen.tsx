@@ -43,19 +43,14 @@ export function LoginScreen({
         <div className="login-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div className="login-logo-wrapper">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 100" width="240" height="75" className="login-logo-svg">
-              <g fill="none" stroke="#1b813e" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M 56 38 Q 50 70 46 105" />
-                <path d="M 52 38 C 28 42 12 36 12 28 C 12 20 28 26 52 38" />
-                <path d="M 52 38 C 20 24 16 12 26 8 C 36 4 44 20 52 38" />
-                <path d="M 52 38 C 45 10 52 2 60 2 C 68 2 65 15 52 38" />
-                <path d="M 52 38 C 72 14 84 8 90 14 C 96 20 78 30 52 38" />
-                <path d="M 52 38 C 84 32 98 40 96 48 C 94 56 76 46 52 38" />
-                
-                <path d="M 52 38 L 22 29" strokeWidth="2.5" />
-                <path d="M 52 38 L 32 14" strokeWidth="2.5" />
-                <path d="M 52 38 L 56 6" strokeWidth="2.5" />
-                <path d="M 52 38 L 76 18" strokeWidth="2.5" />
-                <path d="M 52 38 L 82 41" strokeWidth="2.5" />
+              <g fill="none" stroke="#1b813e" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M 55 45 L 55 80" strokeWidth="4.5" />
+                <path d="M 43 80 L 67 80 L 63 92 L 47 92 Z" fill="#1b813e" strokeWidth="0" />
+                <path d="M 55 45 C 51 32 51 15 55 10 C 59 15 59 32 55 45 Z" fill="#1b813e" strokeWidth="1.5" />
+                <path d="M 55 45 C 42 36 29 27 30 20 C 38 18 48 29 55 45 Z" fill="#1b813e" strokeWidth="1.5" />
+                <path d="M 55 45 C 68 36 81 27 80 20 C 72 18 62 29 55 45 Z" fill="#1b813e" strokeWidth="1.5" />
+                <path d="M 55 45 C 39 47 23 49 20 42 C 26 37 42 40 55 45 Z" fill="#1b813e" strokeWidth="1.5" />
+                <path d="M 55 45 C 71 47 87 49 90 42 C 84 37 68 40 55 45 Z" fill="#1b813e" strokeWidth="1.5" />
               </g>
               <text x="115" y="60" fontFamily="'Outfit', 'Inter', -apple-system, sans-serif" fontSize="44" fontWeight="700" fill="#1b813e" letterSpacing="-1.5">pachira</text>
               <text x="118" y="85" fontFamily="'Outfit', 'Inter', -apple-system, sans-serif" fontSize="16" fontWeight="500" fill="#64748b" letterSpacing="0.5">Food Order System</text>

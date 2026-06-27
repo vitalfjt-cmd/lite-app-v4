@@ -50,8 +50,7 @@ export function AppLauncher({
       <div className="launcher-content" onClick={(e) => e.stopPropagation()}>
         <div className="launcher-header">
           <h2>
-            オーナー{"\n"}
-            POS 2{"\n"}
+            pachira{"\n"}
             Demo
           </h2>
           <button className="launcher-close" onClick={onClose}>&times;</button>

@@ -115,7 +115,7 @@ export function AppSidebar({
         flexWrap: 'wrap',
       }}>
         <span style={{ color: '#888', fontWeight: 'bold', marginRight: '16px', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Lite POS
+          pachira
         </span>
         
         <button style={getBtnStyle(view === 'customer', '#ff5a5f')} onClick={() => onMove('customer')}>
