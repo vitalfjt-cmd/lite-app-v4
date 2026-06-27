@@ -1864,13 +1864,13 @@ h1 {
   padding: 20px;
   box-sizing: border-box;
   position: relative;
-  --admin-surface: #ffffff;
-  --admin-surface-soft: #f8fafc;
-  --admin-line: #dee2e6;
-  --admin-line-soft: #e9ecef;
-  --admin-accent: #2f4f68;
-  --admin-accent-soft: #eef3f7;
-  --admin-active: #e2e8f0;
+  --admin-surface: #fffefa;
+  --admin-surface-soft: #faf6ef;
+  --admin-line: #e4dccf;
+  --admin-line-soft: #ece7de;
+  --admin-accent: #1b813e;
+  --admin-accent-soft: #eef5e4;
+  --admin-active: #ece7de;
 }
 
 .admin-layout {
