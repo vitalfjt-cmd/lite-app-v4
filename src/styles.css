@@ -1861,7 +1861,7 @@ h1 {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 20px;
+  padding: 0; /* Full-width header */
   box-sizing: border-box;
   position: relative;
   --admin-surface: #fffefa;
@@ -1873,11 +1873,50 @@ h1 {
   --admin-active: #ece7de;
 }
 
+.admin-header {
+  background: var(--s-primary, #1b813e);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.admin-header h2 {
+  color: #ffffff !important;
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.admin-header .menu-trigger {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.admin-header .menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
 .admin-layout {
   display: grid;
   gap: 16px;
   flex: 1;
   min-height: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .admin-shell .eyebrow {

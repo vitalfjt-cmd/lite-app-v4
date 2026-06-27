@@ -301,17 +301,17 @@ export function AdminScreen(props: Props) {
       {props.roleType !== 'ADMIN' ? <div className="notice error">この画面は ADMIN のみ利用できます。</div> : null}
       {props.adminMessage ? <div className={`notice ${props.messageTone(props.adminMessage)} admin-floating-notice`}>{props.adminMessage}</div> : null}
 
+      <header className="admin-header">
+        <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+          <button className="menu-trigger" onClick={props.onOpenLauncher} aria-label="Open Menu">
+            <span className="material-icons">menu</span>
+          </button>
+          <h2>{props.storeName} {props.mode === 'sales' ? '売上管理' : 'マスタメンテナンス'}</h2>
+        </div>
+      </header>
+
       <div className="admin-layout">
         <aside className="panel admin-side-panel">
-          <div className="admin-side-head">
-            <div style={{display:'flex', alignItems:'center', gap:'12px', marginBottom:'12px'}}>
-              <button className="menu-trigger" onClick={props.onOpenLauncher} aria-label="Open Menu" style={{background:'rgba(0,0,0,0.05)', border:'none', color:'var(--text-main)', width:'40px', height:'40px', borderRadius:'8px', display:'flex', alignItems:'center', justifyContent:'center'}}>
-                <span className="material-icons">menu</span>
-              </button>
-              <p className="eyebrow" style={{margin:0}}>ADMIN</p>
-            </div>
-            <h2>{props.mode === 'sales' ? '売上管理' : 'マスタメンテナンス'}</h2>
-          </div>
           <div className="admin-side-nav">
             {tabs.map((tab) => (
               <button
