@@ -1,6 +1,6 @@
 import type { AppView } from '../types'
 import { VIEWS } from '../constants'
-import { FormEventHandler } from 'react'
+import { FormEventHandler, useState } from 'react'
 
 type LoginCandidate = {
   email: string
@@ -12,7 +12,8 @@ type LauncherProps = {
   isOpen: boolean
   onClose: () => void
   currentView: AppView
-  onMove: (view: AppView) => void
+  activeTab?: string
+  onMove: (view: AppView, tab?: string) => void
   onSignOut: () => void
   session: unknown | null
   email: string
@@ -26,10 +27,53 @@ type LauncherProps = {
   onPickLoginCandidate: (email: string) => void
 }
 
+const ADMIN_SUB_MENU_ITEMS = [
+  { id: 'menuBooks', label: 'メニューブック' },
+  { id: 'categories', label: 'カテゴリ' },
+  { id: 'subcategories', label: 'サブカテゴリ' },
+  { id: 'items', label: 'メニュー' },
+  { id: 'placements', label: 'メニューブック構成' },
+  { id: 'store', label: '店舗' },
+  { id: 'tables', label: 'テーブル' },
+  { id: 'staff', label: 'スタッフ' },
+]
+
+const SALES_SUB_MENU_ITEMS = [
+  { id: 'sales', label: 'レジ締め・売上状況' },
+  { id: 'salesHistory', label: '売上データ参照' },
+  { id: 'paymentHistory', label: '会計種別データ参照' },
+  { id: 'accountingHistory', label: '会計データ参照' },
+  { id: 'productSalesHistory', label: '商品注文データ参照' },
+]
+
+function CaretIcon({ expanded }: { expanded: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{
+        transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
+        transition: 'transform 0.2s ease',
+        marginLeft: 'auto',
+        color: '#adb5bd',
+      }}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  )
+}
+
 export function AppLauncher({
   isOpen,
   onClose,
   currentView,
+  activeTab,
   onMove,
   onSignOut,
   session,
@@ -43,7 +87,19 @@ export function AppLauncher({
   loginCandidates,
   onPickLoginCandidate,
 }: LauncherProps) {
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => ({
+    admin: currentView === 'admin',
+    sales: currentView === 'sales',
+  }))
+
   if (!isOpen) return null
+
+  const toggleExpand = (menuId: 'admin' | 'sales') => {
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menuId]: !prev[menuId],
+    }))
+  }
 
   return (
     <div className="launcher-overlay" onClick={onClose}>
@@ -59,22 +115,53 @@ export function AppLauncher({
         {session ? (
           <>
             <div className="launcher-grid">
-              {VIEWS.map((view) => (
-                <button
-                  key={view.id}
-                  className={`launcher-item ${currentView === view.id ? 'active' : ''}`}
-                  onClick={() => {
-                    onMove(view.id)
-                    onClose()
-                  }}
-                >
-                  <div className="launcher-icon">{getIcon(view.id, currentView === view.id)}</div>
-                  <div className="launcher-info">
-                    <span className="launcher-label">{view.label}</span>
-                    <span className="launcher-caption">{view.caption}</span>
+              {VIEWS.map((view) => {
+                const hasSubmenu = view.id === 'admin' || view.id === 'sales'
+                const isExpanded = !!expandedMenus[view.id]
+                const submenuItems = view.id === 'admin' ? ADMIN_SUB_MENU_ITEMS : SALES_SUB_MENU_ITEMS
+
+                return (
+                  <div key={view.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                    <button
+                      className={`launcher-item ${currentView === view.id ? 'active' : ''}`}
+                      onClick={
+                        hasSubmenu
+                          ? () => toggleExpand(view.id as 'admin' | 'sales')
+                          : () => {
+                              onMove(view.id)
+                              onClose()
+                            }
+                      }
+                      style={{ width: '100%' }}
+                    >
+                      <div className="launcher-icon">{getIcon(view.id, currentView === view.id)}</div>
+                      <div className="launcher-info" style={{ flex: 1 }}>
+                        <span className="launcher-label">{view.label}</span>
+                        <span className="launcher-caption">{view.caption}</span>
+                      </div>
+                      {hasSubmenu && <CaretIcon expanded={isExpanded} />}
+                    </button>
+                    {hasSubmenu && isExpanded && (
+                      <div className="launcher-submenu">
+                        {submenuItems.map((subItem) => (
+                          <button
+                            key={subItem.id}
+                            className={`launcher-submenu-item ${
+                              currentView === view.id && activeTab === subItem.id ? 'active' : ''
+                            }`}
+                            onClick={() => {
+                              onMove(view.id, subItem.id)
+                              onClose()
+                            }}
+                          >
+                            {subItem.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </button>
-              ))}
+                )
+              })}
             </div>
 
             <div className="launcher-footer">

@@ -52,6 +52,10 @@ export default function App() {
   } = useAuth()
 
   const [view, setView] = useState<AppView>(() => readViewFromHash() || 'customer')
+  const [adminTab, setAdminTab] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('tab') || ''
+  })
   const custFlow = useCustomerFlow(view)
   const adminForm = useAdminForm()
   const staffData = useStaffData()
@@ -224,6 +228,8 @@ export default function App() {
       normalizeAppLocation()
       setView(readViewFromHash() || 'customer')
       setCustomerAccess(readCustomerAccessParams())
+      const params = new URLSearchParams(window.location.search)
+      setAdminTab(params.get('tab') || '')
     }
     window.addEventListener('hashchange', syncLocationState)
     window.addEventListener('popstate', syncLocationState)
@@ -473,7 +479,7 @@ export default function App() {
 
 
 
-  function moveTo(nextView: AppView) {
+  function moveTo(nextView: AppView, tab?: string) {
     // Both customer views (mobile and tablet) open in a new tab when there is store context available
     if (nextView === 'customer' && view !== 'customer') {
       const targetUrl = selectedCustomerUrl ?? buildCustomerUrl(window.location, publicStoreSlug, publicQrToken)
@@ -501,6 +507,13 @@ export default function App() {
 
     const url = new URL(window.location.href)
     url.searchParams.set('view', nextView)
+    if (tab) {
+      url.searchParams.set('tab', tab)
+      setAdminTab(tab)
+    } else {
+      url.searchParams.delete('tab')
+      setAdminTab('')
+    }
     if (!url.searchParams.get('store') && publicStoreSlug) {
       url.searchParams.set('store', publicStoreSlug)
     }
@@ -532,6 +545,7 @@ export default function App() {
         isOpen={isLauncherOpen}
         onClose={() => setIsLauncherOpen(false)}
         currentView={view}
+        activeTab={adminTab}
         onMove={moveTo}
         onSignOut={() => void handleSignOut()}
         session={session}
@@ -749,6 +763,13 @@ export default function App() {
           <AdminScreen
             key={view}
             mode={view === 'sales' ? 'sales' : 'master'}
+            activeTab={adminTab as any}
+            onTabChange={(tab) => {
+              setAdminTab(tab)
+              const url = new URL(window.location.href)
+              url.searchParams.set('tab', tab)
+              window.history.replaceState({}, '', url)
+            }}
             storeName={liveStore?.name ?? activeStore.name}
             categoryCount={liveCategories.length}
             itemCount={adminVisibleItems.length}

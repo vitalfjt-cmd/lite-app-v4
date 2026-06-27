@@ -4865,3 +4865,48 @@ h1 {
     margin-top: 6px !important;
   }
 }
+
+/* Submenu Styling */
+.launcher-submenu {
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+  border-bottom: 1px solid #f1f3f5;
+}
+
+.launcher-submenu-item {
+  width: 100%;
+  box-sizing: border-box;
+  background: #f8f9fa;
+  border: none;
+  border-bottom: 1px solid #f1f3f5;
+  padding: 12px 24px 12px 56px; /* Indent under parent */
+  color: #495057;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  display: block;
+}
+
+.launcher-submenu-item:last-child {
+  border-bottom: none;
+}
+
+.launcher-submenu-item:hover {
+  background: #f1f3f5;
+}
+
+.launcher-submenu-item.active {
+  background: #eef3f7;
+  color: var(--s-primary, #1b813e);
+  font-weight: 700;
+}
+
+/* Ensure vertical scrolling in drawer */
+.launcher-grid {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 160px); /* Adjust to leave header and footer visible */
+}
+

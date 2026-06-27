@@ -206,6 +206,8 @@ type Props = {
   onEditStaffUser: (id: string) => void
   onDeleteStaffUser: (id: string) => void
   onOpenLauncher?: () => void
+  activeTab?: AdminTab
+  onTabChange?: (tab: AdminTab) => void
 }
 
 function checkBox(checked: boolean, onChange: (next: boolean) => void, disabled = false) {
@@ -213,11 +215,23 @@ function checkBox(checked: boolean, onChange: (next: boolean) => void, disabled 
 }
 
 export function AdminScreen(props: Props) {
-  const [activeTab, setActiveTab] = useState<AdminTab>(props.mode === 'sales' ? 'sales' : 'menuBooks')
-  
+  const [localActiveTab, setLocalActiveTab] = useState<AdminTab>(props.mode === 'sales' ? 'sales' : 'menuBooks')
+  const activeTab = props.activeTab || localActiveTab
+
+  const handleTabChange = (tabId: AdminTab) => {
+    if (props.onTabChange) {
+      props.onTabChange(tabId)
+    } else {
+      setLocalActiveTab(tabId)
+    }
+  }
+
   useEffect(() => {
-    setActiveTab(props.mode === 'sales' ? 'sales' : 'menuBooks')
-  }, [props.mode])
+    const defaultTab = props.mode === 'sales' ? 'sales' : 'menuBooks'
+    if (!props.activeTab) {
+      setLocalActiveTab(defaultTab)
+    }
+  }, [props.mode, props.activeTab])
 
   const tabs = useMemo(() => {
     if (props.mode === 'sales') {
@@ -243,7 +257,7 @@ export function AdminScreen(props: Props) {
 
   useEffect(() => {
     if (props.mode !== 'sales' && props.adminReadOnlyMode && !D1_EDITABLE_ADMIN_TABS.includes(activeTab)) {
-      setActiveTab('menuBooks')
+      handleTabChange('menuBooks')
     }
   }, [activeTab, props.adminReadOnlyMode, props.mode])
 
@@ -304,7 +318,7 @@ export function AdminScreen(props: Props) {
                 key={tab.id}
                 className={`admin-nav-button admin-nav-button-${tab.id} ${activeTab === tab.id ? 'active' : ''}`}
                 disabled={!tabEnabled(tab.id)}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
                 type="button"
               >
                 <strong>{tab.label}</strong>
