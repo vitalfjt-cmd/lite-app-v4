@@ -137,7 +137,7 @@ export function AppLauncher({
                       <div className="launcher-icon">{getIcon(view.id, currentView === view.id)}</div>
                       <div className="launcher-info" style={{ flex: 1 }}>
                         <span className="launcher-label">{view.label}</span>
-                        <span className="launcher-caption">{view.caption}</span>
+                        {view.caption && <span className="launcher-caption">{view.caption}</span>}
                       </div>
                       {hasSubmenu && <CaretIcon expanded={isExpanded} />}
                     </button>
