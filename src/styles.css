@@ -4692,6 +4692,8 @@ h1 {
 
   /* 印刷親要素のレイアウト崩れを防ぐためのリセット */
   #root,
+  .shell,
+  .content,
   .app-container,
   .payment-app,
   .payment-full-layout,
