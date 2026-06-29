@@ -71,6 +71,7 @@ type StaffPaymentViewProps = {
   combinedTicketIds: string[]
   onAddCombinedTicket: (ticketId: string) => void
   onRemoveCombinedTicket: (ticketId: string) => void
+  staffMessage: string | null
 }
 
 export function StaffPaymentView({
@@ -123,6 +124,7 @@ export function StaffPaymentView({
   combinedTicketIds,
   onAddCombinedTicket,
   onRemoveCombinedTicket,
+  staffMessage,
 }: StaffPaymentViewProps) {
   const [activePrintPaymentId, setActivePrintPaymentId] = React.useState<number | null>(null)
   const activePrintPayment = activePrintPaymentId ? payments.find(p => p.id === activePrintPaymentId) : null
@@ -366,6 +368,12 @@ export function StaffPaymentView({
           <span className="payment-time">伝票: {selectedSummary.ticketNo}</span>
         </div>
       </header>
+
+      {staffMessage && (
+        <div style={{ background: '#fa5252', color: 'white', padding: '12px 24px', fontWeight: 'bold', fontSize: '1.1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', flexShrink: 0 }}>
+          <span>⚠️ {staffMessage}</span>
+        </div>
+      )}
 
       <div className="payment-full-layout">
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
