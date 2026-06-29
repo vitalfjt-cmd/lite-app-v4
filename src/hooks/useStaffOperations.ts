@@ -249,7 +249,12 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     const targetTicket = payload.ticketId
       ? liveTickets.find((t) => t.id === payload.ticketId)
       : selectedTicket
-    if (!targetTicket) return false
+    if (!targetTicket) {
+      const message = `伝票 (ID: ${payload.ticketId || '未指定'}) が見つかりません。`
+      setError(message)
+      setStaffMessage(message)
+      return false
+    }
     if (payload.receivedAmount < payload.finalAmount) {
       const message = '預かり金額が会計金額以上になるように入力してください。'
       setError(message)

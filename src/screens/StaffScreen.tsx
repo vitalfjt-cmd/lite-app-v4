@@ -560,125 +560,136 @@ export function StaffScreen({
       return
     }
 
-    const targetTickets = [
-      selectedSummary,
-      ...liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId))
-    ]
+    try {
+      const targetTickets = [
+        selectedSummary,
+        ...liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId))
+      ]
 
-    const totalSubtotal = targetTickets.reduce((sum, t) => sum + t.subtotal, 0)
+      const totalSubtotal = targetTickets.reduce((sum, t) => sum + t.subtotal, 0)
 
-    // Calculate final bill amount and discount per ticket
-    const ticketBills = targetTickets.map((t, idx) => {
-      if (idx === targetTickets.length - 1) {
-        const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
-          const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
-          return sum + Math.round(finalBilledAmount * ratio)
-        }, 0)
-        return finalBilledAmount - sumPrevious
-      } else {
-        const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
-        return Math.round(finalBilledAmount * ratio)
+      // Calculate final bill amount and discount per ticket
+      const ticketBills = targetTickets.map((t, idx) => {
+        if (idx === targetTickets.length - 1) {
+          const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
+            const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
+            return sum + Math.round(finalBilledAmount * ratio)
+          }, 0)
+          return finalBilledAmount - sumPrevious
+        } else {
+          const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
+          return Math.round(finalBilledAmount * ratio)
+        }
+      })
+
+      const ticketDiscounts = targetTickets.map((t, idx) => {
+        if (idx === targetTickets.length - 1) {
+          const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
+            const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
+            return sum + Math.round(totalDiscount * ratio)
+          }, 0)
+          return totalDiscount - sumPrevious
+        } else {
+          const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
+          return Math.round(totalDiscount * ratio)
+        }
+      })
+
+      const remainingPayments = payments.map(p => ({
+        method: p.method,
+        amount: p.amount,
+        received: p.received,
+        change: p.change
+      }))
+
+      const ticketPaymentEntries: Array<{
+        ticketId: string
+        entries: Array<{
+          paymentType: PaymentKind
+          discountAmount: number
+          finalAmount: number
+          receivedAmount: number
+        }>
+      }> = targetTickets.map((t) => ({
+        ticketId: t.ticketId,
+        entries: []
+      }))
+
+      for (let i = 0; i < targetTickets.length; i++) {
+        let needed = ticketBills[i]
+        let discountApplied = ticketDiscounts[i]
+        const entries = ticketPaymentEntries[i].entries
+
+        if (needed === 0) {
+          entries.push({
+            paymentType: 'CASH',
+            discountAmount: discountApplied,
+            finalAmount: 0,
+            receivedAmount: 0
+          })
+          continue
+        }
+
+        for (const p of remainingPayments) {
+          if (needed <= 0) break
+          if (p.amount <= 0) continue
+
+          const takeAmount = Math.min(needed, p.amount)
+          const ratio = p.amount > 0 ? (takeAmount / p.amount) : 0
+          const takeReceived = Math.max(takeAmount, Math.round(p.received * ratio))
+
+          entries.push({
+            paymentType: (METHOD_MAP[p.method] || 'CASH') as PaymentKind,
+            discountAmount: discountApplied,
+            finalAmount: takeAmount,
+            receivedAmount: takeReceived,
+          })
+
+          p.amount -= takeAmount
+          p.received -= takeReceived
+          needed -= takeAmount
+          discountApplied = 0
+        }
       }
-    })
 
-    const ticketDiscounts = targetTickets.map((t, idx) => {
-      if (idx === targetTickets.length - 1) {
-        const sumPrevious = targetTickets.slice(0, -1).reduce((sum, _, i) => {
-          const ratio = totalSubtotal > 0 ? (targetTickets[i].subtotal / totalSubtotal) : 0
-          return sum + Math.round(totalDiscount * ratio)
-        }, 0)
-        return totalDiscount - sumPrevious
-      } else {
-        const ratio = totalSubtotal > 0 ? (t.subtotal / totalSubtotal) : 0
-        return Math.round(totalDiscount * ratio)
-      }
-    })
-
-    const remainingPayments = payments.map(p => ({
-      method: p.method,
-      amount: p.amount,
-      received: p.received,
-      change: p.change
-    }))
-
-    const ticketPaymentEntries: Array<{
-      ticketId: string
-      entries: Array<{
-        paymentType: PaymentKind
-        discountAmount: number
-        finalAmount: number
-        receivedAmount: number
-      }>
-    }> = targetTickets.map((t) => ({
-      ticketId: t.ticketId,
-      entries: []
-    }))
-
-    for (let i = 0; i < targetTickets.length; i++) {
-      let needed = ticketBills[i]
-      let discountApplied = ticketDiscounts[i]
-      const entries = ticketPaymentEntries[i].entries
-
-      if (needed === 0) {
-        entries.push({
-          paymentType: 'CASH',
-          discountAmount: discountApplied,
-          finalAmount: 0,
-          receivedAmount: 0
-        })
-        continue
+      // Save payment entries sequentially
+      for (const ticketPayment of ticketPaymentEntries) {
+        for (const entry of ticketPayment.entries) {
+          const saved = await onSavePaymentEntry({
+            ticketId: ticketPayment.ticketId,
+            paymentType: entry.paymentType,
+            discountAmount: entry.discountAmount,
+            couponAmount: 0,
+            voucherAmount: 0,
+            finalAmount: entry.finalAmount,
+            receivedAmount: entry.receivedAmount,
+          })
+          if (!saved) {
+            alert('支払い情報の保存に失敗しました。画面上のエラーメッセージを確認してください。')
+            return
+          }
+        }
       }
 
-      for (const p of remainingPayments) {
-        if (needed <= 0) break
-        if (p.amount <= 0) continue
-
-        const takeAmount = Math.min(needed, p.amount)
-        const ratio = p.amount > 0 ? (takeAmount / p.amount) : 0
-        const takeReceived = Math.max(takeAmount, Math.round(p.received * ratio))
-
-        entries.push({
-          paymentType: (METHOD_MAP[p.method] || 'CASH') as PaymentKind,
-          discountAmount: discountApplied,
-          finalAmount: takeAmount,
-          receivedAmount: takeReceived,
-        })
-
-        p.amount -= takeAmount
-        p.received -= takeReceived
-        needed -= takeAmount
-        discountApplied = 0
+      // Close all tickets
+      for (const t of targetTickets) {
+        const closed = await onCloseTicket(t.ticketId)
+        if (!closed) {
+          alert('会計の確定に失敗しました。再度お試しください。')
+          return
+        }
       }
+
+      setFinalizedSummary(combinedSummary)
+      setFinalizedLines(combinedLines)
+      setFinalizedPayments(payments)
+      setFinalizedDiscountAmount(discountAmount)
+      setFinalizedDiscountRate(discountRate)
+      setPaymentFinalized(true)
+    } catch (err) {
+      console.error('commitPaymentToDB failed:', err)
+      alert('エラーが発生しました: ' + (err instanceof Error ? err.message : String(err)))
     }
-
-    // Save payment entries sequentially
-    for (const ticketPayment of ticketPaymentEntries) {
-      for (const entry of ticketPayment.entries) {
-        const saved = await onSavePaymentEntry({
-          ticketId: ticketPayment.ticketId,
-          paymentType: entry.paymentType,
-          discountAmount: entry.discountAmount,
-          couponAmount: 0,
-          voucherAmount: 0,
-          finalAmount: entry.finalAmount,
-          receivedAmount: entry.receivedAmount,
-        })
-        if (!saved) return
-      }
-    }
-
-    // Close all tickets
-    for (const t of targetTickets) {
-      const closed = await onCloseTicket(t.ticketId)
-      if (!closed) return
-    }
-
-    setFinalizedSummary(combinedSummary)
-    setFinalizedLines(combinedLines)
-    setFinalizedPayments(payments)
-    setFinalizedDiscountAmount(discountAmount)
-    setFinalizedDiscountRate(discountRate)
-    setPaymentFinalized(true)
   }
 
   /* =======================================
