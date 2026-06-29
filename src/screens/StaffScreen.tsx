@@ -181,6 +181,7 @@ export function StaffScreen({
   const [paidLineQtys, setPaidLineQtys] = useState<Record<string, number>>({})
 
   const [targetPaymentAmount, setTargetPaymentAmount] = useState<number | null>(null)
+  const [currentPersonLabel, setCurrentPersonLabel] = useState<string | null>(null)
   const [pendingPaymentItems, setPendingPaymentItems] = useState<Array<{ name: string; qty: number; subtotal: number }>>([])
 
   // Combined ticket IDs state for 伝票加算
@@ -298,6 +299,7 @@ export function StaffScreen({
     setSplitCount(2)
     setCalculatingLineQtys({})
     setTargetPaymentAmount(null)
+    setCurrentPersonLabel(null)
     setPendingPaymentItems([])
     setPaymentFinalized(false)
     setShowPaymentModal(false)  // ← 新規伝票起票/チケット切替時に会計画面を閉じる
@@ -380,10 +382,27 @@ export function StaffScreen({
 
   const currentItemizedTotal = Object.entries(calculatingLineQtys).reduce((sum, [id, qty]) => sum + (qty * getItemUnitPrice(id)), 0)
 
+  const getNextPersonNumber = (paymentsList: typeof payments) => {
+    let maxNum = 0
+    for (const p of paymentsList) {
+      if (p.label) {
+        const match = p.label.match(/\((\d+)人目\)/)
+        if (match) {
+          const num = parseInt(match[1], 10)
+          if (num > maxNum) maxNum = num
+        }
+      }
+    }
+    return maxNum + 1
+  }
+
   const processItemizedCalculation = () => {
     if (currentItemizedTotal <= 0) return
     setCurrentPaymentInput(String(currentItemizedTotal))
     setTargetPaymentAmount(currentItemizedTotal)
+
+    const personNum = getNextPersonNumber(payments)
+    setCurrentPersonLabel(`個別会計 (${personNum}人目)`)
 
     const items: Array<{ name: string; qty: number; subtotal: number }> = []
     for (const [id, qty] of Object.entries(calculatingLineQtys)) {
@@ -423,10 +442,20 @@ export function StaffScreen({
 
     let billedAmt = inputVal
     let receivedAmt = inputVal
+    let nextTargetAmt: number | null = null
+    let nextPersonLabel = currentPersonLabel
 
     if (targetPaymentAmount !== null) {
-      billedAmt = Math.min(targetPaymentAmount, remainingTotal)
-      receivedAmt = Math.max(inputVal, billedAmt)
+      if (inputVal < targetPaymentAmount) {
+        billedAmt = inputVal
+        receivedAmt = inputVal
+        nextTargetAmt = targetPaymentAmount - inputVal
+      } else {
+        billedAmt = Math.min(targetPaymentAmount, remainingTotal)
+        receivedAmt = Math.max(inputVal, billedAmt)
+        nextTargetAmt = null
+        nextPersonLabel = null
+      }
     } else {
       if (inputVal > remainingTotal) {
         billedAmt = remainingTotal
@@ -436,51 +465,63 @@ export function StaffScreen({
 
     const changeAmt = Math.max(0, receivedAmt - billedAmt)
 
-    const isItemizedHistory = payments.some(p => p.label && p.label.includes('個別会計'))
-    const isSplitHistory = payments.some(p => p.label && p.label.includes('割勘分'))
-    const activeCalcMode = calcMode !== 'normal' ? calcMode : 
-                           isItemizedHistory ? 'itemized' :
-                           isSplitHistory ? 'split' : 'normal'
-
     let label = ''
     let items: Array<{ name: string; qty: number; subtotal: number }> = []
-    if (pendingPaymentItems.length > 0) {
-      items = [...pendingPaymentItems]
-      setPendingPaymentItems([])
-      label = `個別会計 (${payments.length + 1}人目)`
-    } else if (activeCalcMode === 'itemized') {
-      const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
-      for (const line of combinedLines) {
-        const name = line.item_name_snapshot
-        const unitPrice = line.quantity > 0 ? Math.round(line.line_subtotal / line.quantity) : 0
-        if (!remainingMap[name]) {
-          remainingMap[name] = { qty: 0, unitPrice }
-        }
-        remainingMap[name].qty += line.quantity
+
+    if (currentPersonLabel !== null) {
+      label = currentPersonLabel
+      if (pendingPaymentItems.length > 0) {
+        items = [...pendingPaymentItems]
+        setPendingPaymentItems([])
       }
-      for (const p of payments) {
-        if (p.items) {
-          for (const item of p.items) {
-            if (remainingMap[item.name]) {
-              remainingMap[item.name].qty = Math.max(0, remainingMap[item.name].qty - item.qty)
+    } else {
+      const isItemizedHistory = payments.some(p => p.label && p.label.includes('個別会計'))
+      const isSplitHistory = payments.some(p => p.label && p.label.includes('割勘分'))
+      const activeCalcMode = calcMode !== 'normal' ? calcMode : 
+                             isItemizedHistory ? 'itemized' :
+                             isSplitHistory ? 'split' : 'normal'
+
+      if (pendingPaymentItems.length > 0) {
+        items = [...pendingPaymentItems]
+        setPendingPaymentItems([])
+        const personNum = getNextPersonNumber(payments)
+        label = `個別会計 (${personNum}人目)`
+      } else if (activeCalcMode === 'itemized') {
+        const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
+        for (const line of combinedLines) {
+          const name = line.item_name_snapshot
+          const unitPrice = line.quantity > 0 ? Math.round(line.line_subtotal / line.quantity) : 0
+          if (!remainingMap[name]) {
+            remainingMap[name] = { qty: 0, unitPrice }
+          }
+          remainingMap[name].qty += line.quantity
+        }
+        for (const p of payments) {
+          if (p.items) {
+            for (const item of p.items) {
+              if (remainingMap[item.name]) {
+                remainingMap[item.name].qty = Math.max(0, remainingMap[item.name].qty - item.qty)
+              }
             }
           }
         }
-      }
-      for (const [name, info] of Object.entries(remainingMap)) {
-        if (info.qty > 0) {
-          items.push({
-            name,
-            qty: info.qty,
-            subtotal: info.qty * info.unitPrice
-          })
+        for (const [name, info] of Object.entries(remainingMap)) {
+          if (info.qty > 0) {
+            items.push({
+              name,
+              qty: info.qty,
+              subtotal: info.qty * info.unitPrice
+            })
+          }
         }
+        const personNum = getNextPersonNumber(payments)
+        label = `個別会計 (${personNum}人目)`
+      } else if (targetPaymentAmount !== null || activeCalcMode === 'split') {
+        const personNum = getNextPersonNumber(payments)
+        label = `割勘分 (${personNum}人目)`
+      } else {
+        label = ''
       }
-      label = `個別会計 (${payments.length + 1}人目)`
-    } else if (targetPaymentAmount !== null || activeCalcMode === 'split') {
-      label = `割勘分 (${payments.length + 1}人目)`
-    } else {
-      label = ''
     }
 
     setPayments(prev => [
@@ -496,7 +537,8 @@ export function StaffScreen({
       }
     ])
     setCurrentPaymentInput('')
-    setTargetPaymentAmount(null)
+    setTargetPaymentAmount(nextTargetAmt)
+    setCurrentPersonLabel(nextPersonLabel)
   }
   
   const applyDiscountAmount = () => {
@@ -721,6 +763,8 @@ export function StaffScreen({
           }}
           targetPaymentAmount={targetPaymentAmount}
           setTargetPaymentAmount={setTargetPaymentAmount}
+          currentPersonLabel={currentPersonLabel}
+          setCurrentPersonLabel={setCurrentPersonLabel}
           setPendingPaymentItems={setPendingPaymentItems as any}
           liveTicketSummaries={liveTicketSummaries}
           combinedTicketIds={combinedTicketIds}
