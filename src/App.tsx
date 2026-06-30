@@ -480,6 +480,19 @@ export default function App() {
 
 
   function moveTo(nextView: AppView, tab?: string) {
+    if (nextView === 'customer' || nextView === 'cust-tablet') {
+      if (view === 'staff' || view === 'handy') {
+        if (liveTicketSummaries.length === 0) {
+          alert('伝票が存在しません。')
+          return
+        }
+        if (!selectedTicketId) {
+          alert('伝票を選択してください。')
+          return
+        }
+      }
+    }
+
     // Both customer views (mobile and tablet) open in a new tab when there is store context available
     if (nextView === 'customer' && view !== 'customer') {
       const targetUrl = selectedCustomerUrl ?? buildCustomerUrl(window.location, publicStoreSlug, publicQrToken)
