@@ -126,8 +126,55 @@ export function StaffPaymentView({
   onRemoveCombinedTicket,
   staffMessage,
 }: StaffPaymentViewProps) {
-  const [activePrintPaymentId, setActivePrintPaymentId] = React.useState<number | null>(null)
-  const activePrintPayment = activePrintPaymentId ? payments.find(p => p.id === activePrintPaymentId) : null
+  const groupedPayments = React.useMemo(() => {
+    const groups: Array<{
+      id: string
+      label: string
+      payments: typeof payments
+      amount: number
+      received: number
+      change: number
+      items: Array<{ name: string; qty: number; subtotal: number }>
+    }> = []
+
+    for (const p of payments) {
+      const label = p.label || ''
+      let g = groups.find(x => x.label === label)
+      if (!g) {
+        g = {
+          id: p.label || String(p.id),
+          label,
+          payments: [],
+          amount: 0,
+          received: 0,
+          change: 0,
+          items: []
+        }
+        groups.push(g)
+      }
+      g.payments.push(p)
+      g.amount += p.amount
+      g.received += p.received
+      g.change += p.change
+      if (p.items) {
+        for (const item of p.items) {
+          const existingItem = g.items.find(x => x.name === item.name)
+          if (existingItem) {
+            existingItem.qty += item.qty
+            existingItem.subtotal += item.subtotal
+          } else {
+            g.items.push({ ...item })
+          }
+        }
+      }
+    }
+    return groups
+  }, [payments])
+
+  const hasSplitPayments = payments.some(p => p.label !== '')
+
+  const [activePrintGroupId, setActivePrintGroupId] = React.useState<string | null>(null)
+  const activePrintGroup = activePrintGroupId ? groupedPayments.find(g => g.id === activePrintGroupId) : null
   const [isFocused, setIsFocused] = React.useState(true)
   const inputRef = React.useRef<HTMLInputElement | null>(null)
 
@@ -149,7 +196,7 @@ export function StaffPaymentView({
     )
   }, [liveTicketSummaries, selectedSummary.ticketId, combinedTicketIds])
 
-  const renderReceiptPaper = (p: typeof activePrintPayment, hasPageBreak: boolean) => {
+  const renderReceiptPaper = (g: typeof activePrintGroup, hasPageBreak: boolean) => {
     return (
       <div 
         className="receipt-paper" 
@@ -175,44 +222,26 @@ export function StaffPaymentView({
           )}
           <h3 className="receipt-brand">{storeName}</h3>
           <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
-          {p && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e7f5ff', padding: '4px', borderRadius: '4px', color: '#1c7ed6' }}>{p.label}</p>}
+          {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e7f5ff', padding: '4px', borderRadius: '4px', color: '#1c7ed6' }}>{g.label}</p>}
           <div className="receipt-divider"></div>
         </div>
 
         {/* ---- スクロール可能な注文明細 ---- */}
         <div style={{ flex: 1, padding: '0 20px', overflowY: 'auto' }}>
-          {p ? (
-            p.items && p.items.length > 0 ? (
-              p.items.map((item, idx) => (
+          {g ? (
+            g.items && g.items.length > 0 ? (
+              g.items.map((item, idx) => (
                 <div key={idx} className="receipt-item-row">
                   <span className="receipt-item-name">{item.name}</span>
                   <span className="receipt-item-qty">x{item.qty}</span>
                   <span className="receipt-item-price">{yen(item.subtotal)}</span>
                 </div>
               ))
-            ) : (calcMode === 'split' || (p && p.label && p.label.includes('割勘'))) ? (
-              Object.values(
-                selectedLines.reduce((acc, line) => {
-                  const name = line.item_name_snapshot
-                  if (!acc[name]) {
-                    acc[name] = { id: name, item_name_snapshot: name, quantity: 0, line_subtotal: 0 }
-                  }
-                  acc[name].quantity += line.quantity
-                  acc[name].line_subtotal += line.line_subtotal
-                  return acc
-                }, {} as Record<string, { id: string; item_name_snapshot: string; quantity: number; line_subtotal: number }>),
-              ).map((l: any) => (
-                <div key={l.id} className="receipt-item-row">
-                  <span className="receipt-item-name">{l.item_name_snapshot}</span>
-                  <span className="receipt-item-qty">x{l.quantity}</span>
-                  <span className="receipt-item-price">{yen(l.line_subtotal)}</span>
-                </div>
-              ))
             ) : (
               <div className="receipt-item-row">
-                <span className="receipt-item-name">{p.label || 'ご飲食代'}</span>
+                <span className="receipt-item-name">{g.label || 'ご飲食代'}</span>
                 <span className="receipt-item-qty">x1</span>
-                <span className="receipt-item-price">{yen(p.amount)}</span>
+                <span className="receipt-item-price">{yen(g.amount)}</span>
               </div>
             )
           ) : (
@@ -238,7 +267,7 @@ export function StaffPaymentView({
 
         {/* ---- 固定フッター：会計金額エリア ---- */}
         <div style={{ padding: '0 20px 16px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd' }}>
-          {!p && discountRate > 0 && (
+          {!g && discountRate > 0 && (
             <div className="receipt-deposit-group" style={{ color: '#ff5a5f', padding: '0', background: 'transparent', margin: '0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '1.2rem' }}>
                 <span>割引 ({discountRate}%)</span>
@@ -246,7 +275,7 @@ export function StaffPaymentView({
               </div>
             </div>
           )}
-          {!p && discountAmount > 0 && (
+          {!g && discountAmount > 0 && (
             <div className="receipt-deposit-group" style={{ color: '#ff5a5f', padding: '0', background: 'transparent', margin: '0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '1.2rem' }}>
                 <span>値引</span>
@@ -254,24 +283,42 @@ export function StaffPaymentView({
               </div>
             </div>
           )}
-          {!p && (discountRate > 0 || discountAmount > 0) && <div className="receipt-divider"></div>}
+          {!g && (discountRate > 0 || discountAmount > 0) && <div className="receipt-divider"></div>}
           <div className="receipt-grand-total">
             <span>ご請求額</span>
-            <span className="total-amount" style={{ color: (p ? 0 : remainingTotal) === 0 ? '#333' : '#ff5a5f' }}>
-              {yen(p ? p.amount : finalBilledAmount)}
+            <span className="total-amount" style={{ color: (g ? 0 : remainingTotal) === 0 ? '#333' : '#ff5a5f' }}>
+              {yen(g ? g.amount : finalBilledAmount)}
             </span>
           </div>
           <div className="receipt-deposit-group" style={{ marginTop: '16px' }}>
-            {p ? (
+            {g ? (
               <>
-                <div className="deposit-line">
-                  <span>お預かり ({p.method})</span>
-                  <span className="deposit-amount">{yen(p.received)}</span>
-                </div>
-                {p.change > 0 && (
-                  <div className="deposit-line change">
-                    <span>お釣り</span>
-                    <span className="change-amount">{yen(p.change)}</span>
+                {g.payments.map((pm, idx) => (
+                  <div key={idx} className="deposit-line-group" style={{ marginBottom: '8px' }}>
+                    <div className="deposit-line" style={{ fontWeight: 'normal' }}>
+                      <span>お預かり ({pm.method})</span>
+                      <span className="deposit-amount">{yen(pm.received)}</span>
+                    </div>
+                    {pm.change > 0 && (
+                      <div className="deposit-line change" style={{ fontSize: '0.85rem', color: '#888' }}>
+                        <span>お釣り</span>
+                        <span className="change-amount">{yen(pm.change)}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {g.payments.length > 1 && (
+                  <div style={{ borderTop: '1px solid #ccc', paddingTop: '8px', marginTop: '8px' }}>
+                    <div className="deposit-line" style={{ fontWeight: 'bold' }}>
+                      <span>お預かり合計</span>
+                      <span className="deposit-amount">{yen(g.received)}</span>
+                    </div>
+                    {g.change > 0 && (
+                      <div className="deposit-line change" style={{ fontWeight: 'bold' }}>
+                        <span>お釣り合計</span>
+                        <span className="change-amount">{yen(g.change)}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
@@ -377,10 +424,10 @@ export function StaffPaymentView({
 
       <div className="payment-full-layout">
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
-          {activePrintPayment ? (
-            renderReceiptPaper(activePrintPayment, false)
-          ) : (payments.length > 1 && payments.some(p => p.label !== '')) ? (
-            payments.map((p, idx) => renderReceiptPaper(p, idx < payments.length - 1))
+          {activePrintGroup ? (
+            renderReceiptPaper(activePrintGroup, false)
+          ) : hasSplitPayments ? (
+            groupedPayments.filter(g => g.label !== '').map((g, idx, arr) => renderReceiptPaper(g, idx < arr.length - 1))
           ) : (
             renderReceiptPaper(null, false)
           )}
@@ -391,34 +438,34 @@ export function StaffPaymentView({
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', height: '100%', gap: '24px', padding: '40px 20px', overflowY: 'auto' }}>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%', maxWidth: '400px', justifyContent: 'center' }}>
                 <button
-                  onClick={() => setActivePrintPaymentId(null)}
+                  onClick={() => setActivePrintGroupId(null)}
                   style={{
                     padding: '8px 16px',
                     borderRadius: '8px',
                     border: '1px solid #ced4da',
-                    background: activePrintPaymentId === null ? '#4dabf7' : '#f1f3f5',
-                    color: activePrintPaymentId === null ? 'white' : '#495057',
+                    background: activePrintGroupId === null ? '#4dabf7' : '#f1f3f5',
+                    color: activePrintGroupId === null ? 'white' : '#495057',
                     fontWeight: 'bold',
                     cursor: 'pointer'
                   }}
                 >
                   全体 (一括)
                 </button>
-                {payments.some(p => p.label !== '') && payments.map((p, idx) => (
+                {hasSplitPayments && groupedPayments.filter(g => g.label !== '').map((g, idx) => (
                   <button
-                    key={p.id}
-                    onClick={() => setActivePrintPaymentId(p.id)}
+                    key={g.id}
+                    onClick={() => setActivePrintGroupId(g.id)}
                     style={{
                       padding: '8px 16px',
                       borderRadius: '8px',
                       border: '1px solid #ced4da',
-                      background: activePrintPaymentId === p.id ? '#4dabf7' : '#f1f3f5',
-                      color: activePrintPaymentId === p.id ? 'white' : '#495057',
+                      background: activePrintGroupId === g.id ? '#4dabf7' : '#f1f3f5',
+                      color: activePrintGroupId === g.id ? 'white' : '#495057',
                       fontWeight: 'bold',
                       cursor: 'pointer'
                     }}
                   >
-                    {p.label || `${idx + 1}人目 (${p.method})`}
+                    {g.label || `${idx + 1}人目`}
                   </button>
                 ))}
               </div>
@@ -438,19 +485,37 @@ export function StaffPaymentView({
                     <span>伝票: {selectedSummary.ticketNo}</span>
                   </div>
                   <div style={{ fontWeight: 'bold', fontSize: '1.4rem', textAlign: 'center', margin: '16px 0', color: '#333' }}>
-                    {activePrintPayment ? `${activePrintPayment.label || '一部お支払い'}` : '合計'}: {yen(activePrintPayment ? activePrintPayment.amount : finalBilledAmount)}
+                    {activePrintGroup ? `${activePrintGroup.label}` : '合計'}: {yen(activePrintGroup ? activePrintGroup.amount : finalBilledAmount)}
                   </div>
                   <div style={{ fontSize: '0.9rem', color: '#666' }}>
-                    {activePrintPayment ? (
+                    {activePrintGroup ? (
                       <>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                          <span>お支払い方法 ({activePrintPayment.method})</span>
-                          <span>{yen(activePrintPayment.received)}</span>
-                        </div>
-                        {activePrintPayment.change > 0 && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', paddingTop: '8px', borderTop: '1px solid #f1f3f5', fontWeight: 'bold', color: '#333' }}>
-                            <span>お釣り</span>
-                            <span>{yen(activePrintPayment.change)}</span>
+                        {activePrintGroup.payments.map((pm, idx) => (
+                          <div key={idx} style={{ marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                              <span>お支払い方法 ({pm.method})</span>
+                              <span>{yen(pm.received)}</span>
+                            </div>
+                            {pm.change > 0 && (
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', paddingLeft: '12px', fontSize: '0.85rem', color: '#888' }}>
+                                <span>お釣り</span>
+                                <span>{yen(pm.change)}</span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {activePrintGroup.payments.length > 1 && (
+                          <div style={{ borderTop: '1px solid #f1f3f5', marginTop: '8px', paddingTop: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: '#333' }}>
+                              <span>お預かり合計</span>
+                              <span>{yen(activePrintGroup.received)}</span>
+                            </div>
+                            {activePrintGroup.change > 0 && (
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', fontWeight: 'bold', color: '#333' }}>
+                                <span>お釣り合計</span>
+                                <span>{yen(activePrintGroup.change)}</span>
+                              </div>
+                            )}
                           </div>
                         )}
                       </>
