@@ -538,7 +538,7 @@ export function StaffScreen({
     ])
     setCurrentPaymentInput('')
     setTargetPaymentAmount(nextTargetAmt)
-    setCurrentPersonLabel(nextPersonLabel)
+    setCurrentPersonLabel(nextTargetAmt !== null ? label : nextPersonLabel)
   }
   
   const applyDiscountAmount = () => {
