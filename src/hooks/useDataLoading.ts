@@ -1,4 +1,4 @@
-import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem } from '../types'
+import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem , AdminPaymentMethod } from '../types'
 import { fetchStaffPrototypeSession, fetchStaffPrototypeBootstrap, fetchStaffTicketList, fetchAdminPrototypeBootstrap, staffReadStoreSlugOverride, staffReadApiEnabled } from '../lib/staffReadApi'
 import { fetchPublicMenu } from '../lib/publicCustomerApi'
 import { formatError, syncCustomerTicketInUrl, readCustomerAccessParams } from '../lib/appUtils'
@@ -21,6 +21,7 @@ export type DataLoadingSetters = {
   setLiveBookSubcategoryItems: (items: LiveBookSubcategoryItem[]) => void
   setLiveItems: (items: LiveMenuItem[]) => void
   setLiveStaffUsers: (users: LiveStaffUser[]) => void
+  setLivePaymentMethods: (methods: AdminPaymentMethod[]) => void
   setNewTicketMenuBookId: (updater: string | ((current: string) => string)) => void
   setAdminMenuBookId: (updater: string | ((current: string) => string)) => void
   setAdminPlacementMenuBookId: (updater: string | ((current: string) => string)) => void
@@ -52,7 +53,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
   const {
     setLoadBusy, setError, setProfile, setLiveStore, setLiveTickets, setLiveLines, setLivePaymentEntries,
     setLiveTables, setLiveMenuBooks, setLiveMenuBookItems, setLiveCategories, setLiveSubcategories,
-    setLiveBookCategories, setLiveBookCategorySubcategories, setLiveBookSubcategoryItems, setLiveItems, setLiveStaffUsers,
+    setLiveBookCategories, setLiveBookCategorySubcategories, setLiveBookSubcategoryItems, setLiveItems, setLiveStaffUsers, setLivePaymentMethods,
     setNewTicketMenuBookId, setAdminMenuBookId, setAdminPlacementMenuBookId, setAdminCategoryParentId,
     setAdminItemCategoryId, setAdminPlacementTopCategoryId, setAdminPlacementCategoryId, setAdminPlacementItemId,
     setAdminStoreName, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
@@ -72,6 +73,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
       setLiveStore(bootstrap.store)
       setLiveTables(bootstrap.tables)
       setLiveMenuBooks(bootstrap.menu_books)
+      setLivePaymentMethods(bootstrap.payment_methods)
       setNewTicketMenuBookId((current) =>
         current && bootstrap.menu_books.some((menuBook) => menuBook.id === current)
           ? current
@@ -167,6 +169,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
         password_configured: staffUser.password_configured,
       })),
     )
+    setLivePaymentMethods(bootstrap.payment_methods)
     setNewTicketMenuBookId((current) =>
       typeof current === 'function' ? (current as any)(bootstrap.menu_books) : // Fallback if it's not a function
       current && bootstrap.menu_books.some((menuBook) => menuBook.id === current)

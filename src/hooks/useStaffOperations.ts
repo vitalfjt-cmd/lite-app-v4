@@ -239,7 +239,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
 
   const savePaymentEntry = async (payload: {
     ticketId?: string
-    paymentType: 'CASH' | 'CARD' | 'OTHER'
+    paymentType: string
     discountAmount: number
     couponAmount: number
     voucherAmount: number

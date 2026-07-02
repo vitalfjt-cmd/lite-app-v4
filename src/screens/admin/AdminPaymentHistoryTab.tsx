@@ -107,10 +107,13 @@ export function AdminPaymentHistoryTab({ storeSlug, disabled, yen, setError }: P
                   </tr>
                 ) : (
                   payments.map((p, idx) => {
-                    let typeLabel = p.payment_type
-                    if (p.payment_type === 'CASH') typeLabel = '現金'
-                    else if (p.payment_type === 'CARD') typeLabel = 'クレジットカード'
-                    else if (p.payment_type === 'OTHER') typeLabel = 'その他'
+                    const typeLabel = p.payment_type_label || (
+                      p.payment_type === 'CASH' ? '現金' :
+                      p.payment_type === 'CARD' ? 'クレジットカード' :
+                      p.payment_type === 'OTHER' ? 'その他' : p.payment_type
+                    )
+                    const isCash = p.payment_type.toLowerCase().includes('cash') || p.payment_type === 'CASH'
+                    const isCard = p.payment_type.toLowerCase().includes('card') || p.payment_type === 'CARD'
 
                     return (
                       <tr key={idx} style={{ borderBottom: '1px solid #f1f3f5' }}>
@@ -122,8 +125,8 @@ export function AdminPaymentHistoryTab({ storeSlug, disabled, yen, setError }: P
                             borderRadius: '4px',
                             fontSize: '0.85rem',
                             fontWeight: 'bold',
-                            background: p.payment_type === 'CASH' ? '#e3fafc' : p.payment_type === 'CARD' ? '#edf2ff' : '#f3f0ff',
-                            color: p.payment_type === 'CASH' ? '#0b7285' : p.payment_type === 'CARD' ? '#364fc7' : '#5f3dc4',
+                            background: isCash ? '#e3fafc' : isCard ? '#edf2ff' : '#f3f0ff',
+                            color: isCash ? '#0b7285' : isCard ? '#364fc7' : '#5f3dc4',
                           }}>
                             {typeLabel}
                           </span>

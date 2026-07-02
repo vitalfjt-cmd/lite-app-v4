@@ -101,4 +101,11 @@ export type AdminStaffUserRow = {
   password_configured?: boolean
 }
 
-export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory'
+export type AdminPaymentMethod = {
+  id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+}
+
+export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods'

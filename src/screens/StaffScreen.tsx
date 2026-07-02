@@ -4,9 +4,9 @@ import type { KeyboardEventHandler } from 'react'
 import { DirectActionView } from './staff/DirectActionView'
 import { StaffPaymentView } from './staff/StaffPaymentView'
 import { StaffHandyView } from './staff/StaffHandyView'
-import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem } from '../types'
+import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod } from '../types'
 
-type PaymentKind = 'CASH' | 'CARD' | 'OTHER'
+type PaymentKind = string
 type TicketFilter = 'new' | 'progress' | 'served' | 'all'
 
 type StaffScreenProps = {
@@ -37,6 +37,7 @@ type StaffScreenProps = {
   liveMenuBooks: LiveMenuBook[]
   newTicketMenuBookId: string
   selectedCustomerUrl: string | null
+  livePaymentMethods: AdminPaymentMethod[]
   yen: (value: number) => string
   kdsStatusLabel: (status: LiveLine['kds_status'] | 'NEW' | 'COOKING' | 'SERVED') => string
   messageTone: (message: string | null) => 'success' | 'error'
@@ -52,7 +53,7 @@ type StaffScreenProps = {
   onCreateTicket: (tableRefId: string, menuBookId: string, customerCount: number | null) => Promise<boolean>
   onSavePaymentEntry: (payload: {
     ticketId?: string
-    paymentType: PaymentKind
+    paymentType: string
     discountAmount: number
     couponAmount: number
     voucherAmount: number
@@ -104,6 +105,7 @@ export function StaffScreen({
   liveMenuBooks,
   newTicketMenuBookId,
   selectedCustomerUrl,
+  livePaymentMethods,
   yen,
   kdsStatusLabel,
   messageTone,
@@ -605,7 +607,7 @@ export function StaffScreen({
       const ticketPaymentEntries: Array<{
         ticketId: string
         entries: Array<{
-          paymentType: PaymentKind
+          paymentType: string
           discountAmount: number
           finalAmount: number
           receivedAmount: number
@@ -639,7 +641,7 @@ export function StaffScreen({
           const takeReceived = Math.max(takeAmount, Math.round(p.received * ratio))
 
           entries.push({
-            paymentType: (METHOD_MAP[p.method] || 'CASH') as PaymentKind,
+            paymentType: p.method,
             discountAmount: discountApplied,
             finalAmount: takeAmount,
             receivedAmount: takeReceived,
@@ -780,6 +782,7 @@ export function StaffScreen({
           setPendingPaymentItems={setPendingPaymentItems as any}
           liveTicketSummaries={liveTicketSummaries}
           combinedTicketIds={combinedTicketIds}
+        livePaymentMethods={livePaymentMethods}
           onAddCombinedTicket={(id) => setCombinedTicketIds((prev) => [...prev, id])}
           onRemoveCombinedTicket={(id) => setCombinedTicketIds((prev) => prev.filter((x) => x !== id))}
         />

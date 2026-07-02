@@ -21,7 +21,9 @@ import { AdminSalesHistoryTab } from './admin/AdminSalesHistoryTab'
 import { AdminPaymentHistoryTab } from './admin/AdminPaymentHistoryTab'
 import { AdminAccountingHistoryTab } from './admin/AdminAccountingHistoryTab'
 import { AdminProductSalesHistoryTab } from './admin/AdminProductSalesHistoryTab'
-import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminTab } from './admin/types'
+import { AdminPaymentMethodsTab } from './admin/AdminPaymentMethodsTab'
+import { AdminPaymentMethodModal } from './admin/AdminPaymentMethodModal'
+import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminTab } from './admin/types'
 
 
 const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
@@ -38,9 +40,10 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'store', label: '店舗', caption: '店舗設定' },
   { id: 'tables', label: 'テーブル', caption: '席・QR管理' },
   { id: 'staff', label: 'スタッフ', caption: '認証・権限管理' },
+  { id: 'paymentMethods', label: '決済種別', caption: 'マスタ・表示順設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -62,6 +65,11 @@ type Props = {
   livePlacements: AdminPlacementRow[]
   liveTables: AdminTableRow[]
   liveStaffUsers: AdminStaffUserRow[]
+  livePaymentMethods: AdminPaymentMethod[]
+  adminPaymentMethodName: string
+  adminPaymentMethodSortOrder: string
+  adminPaymentMethodIsActive: boolean
+  editingPaymentMethodId: string | null
   adminMenuBookName: string
   adminMenuBookCode: string
   adminMenuBookDescription: string
@@ -119,6 +127,13 @@ type Props = {
   editingStaffUserId: string | null
   yen: (value: number) => string
   messageTone: (message: string | null) => 'success' | 'error'
+  onPaymentMethodNameChange: (value: string) => void
+  onPaymentMethodSortOrderChange: (value: string) => void
+  onPaymentMethodIsActiveChange: (value: boolean) => void
+  onSavePaymentMethod: () => Promise<boolean>
+  onCancelPaymentMethodEdit: () => void
+  onEditPaymentMethod: (id: string) => void
+  onDeletePaymentMethod: (id: string) => void
   onMenuBookNameChange: (value: string) => void
   onMenuBookCodeChange: (value: string) => void
   onMenuBookDescriptionChange: (value: string) => void
@@ -246,7 +261,8 @@ export function AdminScreen(props: Props) {
   const [subcategoryModalOpen, setSubcategoryModalOpen] = useState(false)
   const [tableModalOpen, setTableModalOpen] = useState(false)
   const [tableQrModalTableId, setTableQrModalTableId] = useState<string | null>(null)
-  const [staffModalOpen, setStaffModalOpen] = useState(false)
+  const [staffModalOpen, setStaffModalOpen] = useState(false);
+  const [paymentMethodModalOpen, setPaymentMethodModalOpen] = useState(false);
   const [placementModalOpen, setPlacementModalOpen] = useState(false)
   const [placementCategoryModalOpen, setPlacementCategoryModalOpen] = useState(false)
   const [placementSubcategoryModalOpen, setPlacementSubcategoryModalOpen] = useState(false)
@@ -497,6 +513,22 @@ export function AdminScreen(props: Props) {
             />
           ) : null}
 
+          {activeTab === 'paymentMethods' ? (
+            <AdminPaymentMethodsTab
+              livePaymentMethods={props.livePaymentMethods}
+              disabled={disabled}
+              onEditPaymentMethod={(id) => {
+                props.onEditPaymentMethod(id)
+                setPaymentMethodModalOpen(true)
+              }}
+              onDeletePaymentMethod={props.onDeletePaymentMethod}
+              onOpenModal={() => {
+                props.onCancelPaymentMethodEdit()
+                setPaymentMethodModalOpen(true)
+              }}
+            />
+          ) : null}
+
           {activeTab === 'sales' ? (
             <AdminSalesTab
               storeSlug={props.adminStoreSlug}
@@ -681,6 +713,24 @@ export function AdminScreen(props: Props) {
             onStaffRoleTypeChange={props.onStaffRoleTypeChange}
             onStaffIsActiveChange={props.onStaffIsActiveChange}
             onSaveStaffUser={props.onSaveStaffUser}
+            checkBox={checkBox}
+          />
+
+          <AdminPaymentMethodModal
+            isOpen={activeTab === 'paymentMethods' && paymentMethodModalOpen}
+            editingPaymentMethodId={props.editingPaymentMethodId}
+            adminPaymentMethodName={props.adminPaymentMethodName}
+            adminPaymentMethodSortOrder={props.adminPaymentMethodSortOrder}
+            adminPaymentMethodIsActive={props.adminPaymentMethodIsActive}
+            disabled={disabled}
+            onClose={() => {
+              setPaymentMethodModalOpen(false)
+              props.onCancelPaymentMethodEdit()
+            }}
+            onPaymentMethodNameChange={props.onPaymentMethodNameChange}
+            onPaymentMethodSortOrderChange={props.onPaymentMethodSortOrderChange}
+            onPaymentMethodIsActiveChange={props.onPaymentMethodIsActiveChange}
+            onSavePaymentMethod={props.onSavePaymentMethod}
             checkBox={checkBox}
           />
 

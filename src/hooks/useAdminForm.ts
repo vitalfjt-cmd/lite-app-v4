@@ -55,6 +55,11 @@ export function useAdminForm() {
   const [adminTableSortOrder, setAdminTableSortOrder] = useState('10')
   const [adminTableIsActive, setAdminTableIsActive] = useState(true)
 
+  const [editingPaymentMethodId, setEditingPaymentMethodId] = useState<string | null>(null)
+  const [adminPaymentMethodName, setAdminPaymentMethodName] = useState('')
+  const [adminPaymentMethodSortOrder, setAdminPaymentMethodSortOrder] = useState('10')
+  const [adminPaymentMethodIsActive, setAdminPaymentMethodIsActive] = useState(true)
+
   const [editingStaffUserId, setEditingStaffUserId] = useState<string | null>(null)
   const [adminStaffEmail, setAdminStaffEmail] = useState('')
   const [adminStaffPassword, setAdminStaffPassword] = useState('')
@@ -124,6 +129,13 @@ export function useAdminForm() {
     setAdminTableIsActive(true)
   }
 
+  const resetPaymentMethod = () => {
+    setEditingPaymentMethodId(null)
+    setAdminPaymentMethodName('')
+    setAdminPaymentMethodSortOrder('10')
+    setAdminPaymentMethodIsActive(true)
+  }
+
   const resetStaffUser = () => {
     setEditingStaffUserId(null)
     setAdminStaffEmail('')
@@ -191,6 +203,13 @@ export function useAdminForm() {
     setAdminTableIsActive(tableRef.is_active)
   }
 
+  const beginEditPaymentMethod = (pm: any) => {
+    setEditingPaymentMethodId(pm.id)
+    setAdminPaymentMethodName(pm.name)
+    setAdminPaymentMethodSortOrder(String(pm.sort_order ?? 0))
+    setAdminPaymentMethodIsActive(pm.is_active)
+  }
+
   const startEditStaffUser = (staffUser: any) => {
     setEditingStaffUserId(staffUser.id)
     setAdminStaffPassword('')
@@ -254,6 +273,12 @@ export function useAdminForm() {
     adminTableIsActive, setAdminTableIsActive,
     resetTable,
 
+    editingPaymentMethodId, setEditingPaymentMethodId,
+    adminPaymentMethodName, setAdminPaymentMethodName,
+    adminPaymentMethodSortOrder, setAdminPaymentMethodSortOrder,
+    adminPaymentMethodIsActive, setAdminPaymentMethodIsActive,
+    resetPaymentMethod,
+
     editingStaffUserId, setEditingStaffUserId,
     adminStaffEmail, setAdminStaffEmail,
     adminStaffPassword, setAdminStaffPassword,
@@ -276,6 +301,7 @@ export function useAdminForm() {
     startEditMenuItem,
     startEditPlacement,
     startEditTable,
+    beginEditPaymentMethod,
     startEditStaffUser,
   }
 }

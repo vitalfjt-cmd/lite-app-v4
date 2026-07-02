@@ -59,13 +59,15 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
     let otherAmount = 0
 
     for (const tx of transactions) {
-      totalAmount += tx.amount
-      if (tx.payment_type === 'CASH') {
-        cashAmount += tx.amount
-      } else if (tx.payment_type === 'CARD') {
-        cardAmount += tx.amount
+      totalAmount += tx.amount;
+      const isCash = tx.payment_type.toLowerCase().includes('cash') || tx.payment_type === 'CASH';
+      const isCard = tx.payment_type.toLowerCase().includes('card') || tx.payment_type === 'CARD';
+      if (isCash) {
+        cashAmount += tx.amount;
+      } else if (isCard) {
+        cardAmount += tx.amount;
       } else {
-        otherAmount += tx.amount
+        otherAmount += tx.amount;
       }
     }
 
@@ -175,10 +177,13 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
                   </tr>
                 ) : (
                   transactions.map((tx, idx) => {
-                    let typeLabel = tx.payment_type
-                    if (tx.payment_type === 'CASH') typeLabel = '現金'
-                    else if (tx.payment_type === 'CARD') typeLabel = 'クレジットカード'
-                    else if (tx.payment_type === 'OTHER') typeLabel = 'その他'
+                    const typeLabel = tx.payment_type_label || (
+                      tx.payment_type === 'CASH' ? '現金' :
+                      tx.payment_type === 'CARD' ? 'クレジットカード' :
+                      tx.payment_type === 'OTHER' ? 'その他' : tx.payment_type
+                    )
+                    const isCash = tx.payment_type.toLowerCase().includes('cash') || tx.payment_type === 'CASH'
+                    const isCard = tx.payment_type.toLowerCase().includes('card') || tx.payment_type === 'CARD'
 
                     return (
                       <tr key={idx} style={{ borderBottom: '1px solid #f1f3f5' }}>
@@ -192,8 +197,8 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
                             borderRadius: '4px',
                             fontSize: '0.85rem',
                             fontWeight: 'bold',
-                            background: tx.payment_type === 'CASH' ? '#e3fafc' : tx.payment_type === 'CARD' ? '#edf2ff' : '#f3f0ff',
-                            color: tx.payment_type === 'CASH' ? '#0b7285' : tx.payment_type === 'CARD' ? '#364fc7' : '#5f3dc4',
+                            background: isCash ? '#e3fafc' : isCard ? '#edf2ff' : '#f3f0ff',
+                            color: isCash ? '#0b7285' : isCard ? '#364fc7' : '#5f3dc4',
                           }}>
                             {typeLabel}
                           </span>

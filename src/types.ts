@@ -124,7 +124,8 @@ export type LivePaymentEntry = {
   id: string
   order_ticket_id: string
   payment_seq: number
-  payment_type: 'CASH' | 'CARD' | 'OTHER'
+  payment_type: string
+  payment_type_label?: string | null
   discount_amount: number
   coupon_amount: number
   voucher_amount: number
@@ -174,3 +175,10 @@ export type StaffPrototypeItem = {
   subcategoryId: string
 }
 export type ActiveStoreSummary = { name: string; tableName: string; ticketNo: string }
+
+export type AdminPaymentMethod = {
+  id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+}

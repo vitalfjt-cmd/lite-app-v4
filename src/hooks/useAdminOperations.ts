@@ -19,6 +19,8 @@ import {
   deleteAdminPrototypeBookCategory,
   deleteAdminPrototypeBookCategorySubcategory,
   deleteAdminPrototypePlacement,
+  saveAdminPrototypePaymentMethod,
+  deleteAdminPrototypePaymentMethod,
   staffReadApiEnabled,
   staffReadStoreSlugOverride
 } from '../lib/staffReadApi'
@@ -185,6 +187,56 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
       setAdminMessage(message)
       window.alert(message)
       return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const savePaymentMethod = async () => {
+    if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminPaymentMethodName.trim()) return false
+    setMutationBusy('admin-payment-method')
+    setAdminMessage(null)
+    try {
+      const nextSortOrder = Number.parseInt(adminForm.adminPaymentMethodSortOrder || '0', 10)
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await saveAdminPrototypePaymentMethod(storeSlug, {
+          paymentMethodId: adminForm.editingPaymentMethodId ?? undefined,
+          name: adminForm.adminPaymentMethodName.trim(),
+          sortOrder: Number.isFinite(nextSortOrder) ? nextSortOrder : 0,
+          isActive: adminForm.adminPaymentMethodIsActive,
+        })
+        await refreshAdminData()
+      }
+      adminForm.resetPaymentMethod()
+      setAdminMessage(adminForm.editingPaymentMethodId ? '決済種別を更新しました。' : '決済種別を追加しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      setAdminMessage(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const deletePaymentMethod = async (id: string) => {
+    if (!profile || profile.role_type !== 'ADMIN') return
+    if (!window.confirm('この決済種別を削除しますか？')) return
+    setMutationBusy('admin-payment-method')
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await deleteAdminPrototypePaymentMethod(storeSlug, id)
+        await refreshAdminData()
+      }
+      setAdminMessage('決済種別を削除しました。')
+    } catch (err) {
+      window.alert(formatError(err))
     } finally {
       setMutationBusy(null)
     }
@@ -711,6 +763,8 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     deleteMenuItem,
     deleteTable,
     deleteStaffUser,
+    savePaymentMethod,
+    deletePaymentMethod,
     deleteBookCategory,
     deleteBookCategorySubcategory,
     deletePlacement,

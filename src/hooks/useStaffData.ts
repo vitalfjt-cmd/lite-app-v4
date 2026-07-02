@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import type { LiveTicket, LiveLine, LivePaymentEntry, LiveStore, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveStaffUser, TicketSummaryView, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LiveMenuBookItem, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem } from '../types'
+import type { LiveTicket, LiveLine, LivePaymentEntry, LiveStore, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveStaffUser, TicketSummaryView, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LiveMenuBookItem, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, AdminPaymentMethod } from '../types'
 import { ticketStatusFromLines } from '../lib/staffUtils'
 
 export function useStaffData() {
@@ -16,7 +16,8 @@ export function useStaffData() {
   const [liveBookCategorySubcategories, setLiveBookCategorySubcategories] = useState<LiveBookCategorySubcategory[]>([])
   const [liveBookSubcategoryItems, setLiveBookSubcategoryItems] = useState<LiveBookSubcategoryItem[]>([])
   const [liveStaffUsers, setLiveStaffUsers] = useState<LiveStaffUser[]>([])
-  const [liveItems, setLiveItems] = useState<LiveMenuItem[]>([])
+  const [liveItems, setLiveItems] = useState<LiveMenuItem[]>([]);
+  const [livePaymentMethods, setLivePaymentMethods] = useState<AdminPaymentMethod[]>([]);
 
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [staffDirectAction, setStaffDirectAction] = useState<'HANDY' | 'PAYMENT' | null>(null)
@@ -145,6 +146,7 @@ export function useStaffData() {
     liveBookSubcategoryItems, setLiveBookSubcategoryItems,
     liveStaffUsers, setLiveStaffUsers,
     liveItems, setLiveItems,
+    livePaymentMethods, setLivePaymentMethods,
     selectedTicketId, setSelectedTicketId,
     staffDirectAction, setStaffDirectAction,
     staffHandyTopCategories: staffHandyTopCategoriesMemo, setStaffHandyTopCategories,
