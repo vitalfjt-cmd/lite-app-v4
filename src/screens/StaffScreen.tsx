@@ -48,7 +48,7 @@ type StaffScreenProps = {
   onCancelLine: (lineId: string) => void
   onHandyItemChange: (value: string) => void
   onHandyQtyChange: (value: string) => void
-  onCreateHandyOrder: (itemId?: string, qty?: string) => void
+  onCreateHandyOrder: (itemId?: string, qty?: string, toppings?: string[]) => void
   onNewTicketMenuBookChange: (value: string) => void
   onCreateTicket: (tableRefId: string, menuBookId: string, customerCount: number | null) => Promise<boolean>
   onSavePaymentEntry: (payload: {
@@ -144,7 +144,7 @@ export function StaffScreen({
   // Handy Data (Shopping Cart Style)
   const [handyTopCategoryId, setHandyTopCategoryId] = useState<string | null>(null)
   const [handySubCategoryId, setHandySubCategoryId] = useState<string | null>(null)
-  const [handyCart, setHandyCart] = useState<Array<{id:string, name:string, price:number, qty:number}>>([])
+  const [handyCart, setHandyCart] = useState<Array<{ id: string; cartKey: string; name: string; price: number; qty: number; toppings: { id: string; name: string; price: number }[]; toppingIds: string[] }>>([])
 
   // Payment Data
   const [currentPaymentInput, setCurrentPaymentInput] = useState('')
@@ -329,27 +329,52 @@ export function StaffScreen({
   }
 
   /* Handy Cart Handlers */
-  const handleAddHandyItem = (item: StaffPrototypeItem) => {
+  const handleAddHandyItem = (item: StaffPrototypeItem, toppingIds?: string[]) => {
+    const key = toppingIds ? `${item.id}:${toppingIds.sort().join(',')}` : `${item.id}:`
     setHandyCart(prev => {
-      const existing = prev.find(i => i.id === item.id)
-      if (existing) return prev.map(i => i.id === item.id ? { ...i, qty: i.qty + 1 } : i)
-      return [...prev, { id: item.id, name: item.name, price: item.price, qty: 1 }]
+      const existing = prev.find(i => i.cartKey === key)
+      if (existing) return prev.map(i => i.cartKey === key ? { ...i, qty: i.qty + 1 } : i)
+      
+      const activeToppings = toppingIds ? toppingIds.map(tid => {
+        const tItem = item.toppings?.find(t => t.id === tid)
+        return {
+          id: tid,
+          name: tItem?.name ?? 'トッピング',
+          price: tItem?.price ?? 0
+        }
+      }) : []
+      
+      const toppingPriceSum = activeToppings.reduce((sum, t) => sum + t.price, 0)
+      const unitPrice = item.price + toppingPriceSum
+
+      return [...prev, {
+        id: item.id,
+        cartKey: key,
+        name: item.name,
+        price: unitPrice,
+        qty: 1,
+        toppings: activeToppings,
+        toppingIds: toppingIds || []
+      }]
     })
   }
-  const updateHandyQty = (id: string, delta: number) => {
+  const updateHandyQty = (cartKey: string, delta: number) => {
     setHandyCart(prev => prev.map(i => {
-      if (i.id === id) return { ...i, qty: i.qty + delta }
+      if (i.cartKey === cartKey) return { ...i, qty: i.qty + delta }
       return i
     }).filter(i => i.qty > 0))
   }
   const submitHandyCartToKitchen = async () => {
     if (handyCart.length === 0) return;
     
-    const summary = handyCart.map(i => `${i.name} x ${i.qty}`).join('\n')
+    const summary = handyCart.map(i => {
+      const toppingStr = i.toppings.length > 0 ? ` ＋ ${i.toppings.map(t => t.name).join(' ＋ ')}` : ''
+      return `${i.name}${toppingStr} x ${i.qty}`
+    }).join('\n')
     if (!window.confirm(`以下の内容で厨房に送信しますか？\n\n${summary}`)) return
 
     for (const item of handyCart) {
-      await onCreateHandyOrder(item.id, String(item.qty))
+      await onCreateHandyOrder(item.id, String(item.qty), item.toppingIds)
     }
     setHandyCart([])
     setShowHandyModal(false)
@@ -904,8 +929,15 @@ export function StaffScreen({
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
                   {selectedLines.map(line => (
-                    <div key={line.id} className="line-row">
-                      <span className="line-name">{line.item_name_snapshot}</span>
+                    <div key={line.id} className="line-row" style={{ height: 'auto', minHeight: '60px', padding: '12px 16px' }}>
+                      <span className="line-name">
+                        <div style={{ fontWeight: 'bold' }}>{line.item_name_snapshot}</div>
+                        {line.toppings && line.toppings.length > 0 && (
+                          <div style={{ fontSize: '0.85rem', color: '#aaa', marginTop: '4px' }}>
+                            {line.toppings.map((t) => ` ＋ ${t.name}`).join(' ')}
+                          </div>
+                        )}
+                      </span>
                       <span className="line-qty">
                         <div className="stepper compact" style={{gap:'4px'}}>
                           <button onClick={() => onChangeLineQuantity(line.id, -1)}>-</button>

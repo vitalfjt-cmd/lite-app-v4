@@ -13,9 +13,11 @@ type Props = {
   adminItemSortOrder: string
   adminItemIsActive: boolean
   adminItemIsSoldOut: boolean
+  adminItemToppingIds: string[]
   itemImageUploadBusy: boolean
   disabled: boolean
   itemCategoryOptions: { id: string; name: string }[]
+  allMenuItems: AdminMenuItem[]
   onClose: () => void
   onItemCategoryChange: (value: string) => void
   onItemCodeChange: (value: string) => void
@@ -28,6 +30,7 @@ type Props = {
   onItemSortOrderChange: (value: string) => void
   onItemIsActiveChange: (value: boolean) => void
   onItemIsSoldOutChange: (value: boolean) => void
+  onItemToppingIdsChange: (value: string[]) => void
   onCreateMenuItem: () => Promise<boolean>
   checkBox: (checked: boolean, onChange: (next: boolean) => void, disabled?: boolean) => React.ReactNode
 }
@@ -106,6 +109,39 @@ export function AdminItemModal(props: Props) {
           <label>表示順<input type="number" value={props.adminItemSortOrder} onChange={(event) => props.onItemSortOrderChange(event.target.value)} disabled={disabled} /></label>
           <label>有効{props.checkBox(props.adminItemIsActive, props.onItemIsActiveChange, disabled)}</label>
           <label>売切{props.checkBox(props.adminItemIsSoldOut, props.onItemIsSoldOutChange, disabled)}</label>
+          <div className="admin-topping-select-section" style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
+            <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>トッピング・オプション設定</span>
+            <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '12px', background: '#f9f9f9' }}>
+              {props.allMenuItems
+                .filter(item => item.id !== props.editingMenuItemId && item.is_active)
+                .map(item => {
+                  const isChecked = props.adminItemToppingIds.includes(item.id)
+                  return (
+                    <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', color: '#333' }}>
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            props.onItemToppingIdsChange([...props.adminItemToppingIds, item.id])
+                          } else {
+                            props.onItemToppingIdsChange(props.adminItemToppingIds.filter(id => id !== item.id))
+                          }
+                        }}
+                        disabled={disabled}
+                      />
+                      <div>
+                        <span style={{ fontWeight: 600 }}>{item.name}</span>
+                        <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '8px' }}>(¥{item.price})</span>
+                      </div>
+                    </label>
+                  )
+                })}
+              {props.allMenuItems.filter(item => item.id !== props.editingMenuItemId && item.is_active).length === 0 && (
+                <div style={{ color: '#999', fontSize: '0.9em', textAlign: 'center', padding: '12px 0' }}>他の有効な商品が見つかりません。</div>
+              )}
+            </div>
+          </div>
           <div className="button-row">
             <button
               className="primary-button"

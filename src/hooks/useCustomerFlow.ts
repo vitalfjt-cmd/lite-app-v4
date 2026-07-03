@@ -65,6 +65,7 @@ export function useCustomerFlow(view: AppView) {
           price: item.price,
           soldOut: item.is_sold_out,
           imageUrl: item.image_url ?? null,
+          toppings: item.toppings ?? [],
         }))
     }
     return []
@@ -89,16 +90,34 @@ export function useCustomerFlow(view: AppView) {
   const cartItems = useMemo(() => {
     return Object.entries(cart)
       .filter(([_, qty]) => qty > 0)
-      .map(([id, qty]) => {
-        const item = customerMenuItems.find((m) => m.id === id)
+      .map(([cartKey, qty]) => {
+        const [itemId, toppingIdsStr] = cartKey.split(':')
+        const toppingIds = toppingIdsStr ? toppingIdsStr.split(',') : []
+        const item = customerMenuItems.find((m) => m.id === itemId)
+        
+        const activeToppings = toppingIds.map(tid => {
+          const tItem = item?.toppings?.find(t => t.id === tid)
+          return {
+            id: tid,
+            name: tItem?.name ?? 'トッピング',
+            price: tItem?.price ?? 0
+          }
+        })
+        
+        const toppingPriceSum = activeToppings.reduce((sum, t) => sum + t.price, 0)
+        const unitPrice = (item?.price ?? 0) + toppingPriceSum
+
         return {
-          id,
+          id: itemId,
+          cartKey,
           qty,
           name: item?.name ?? 'Unknown Item',
-          price: item?.price ?? 0,
+          price: unitPrice,
           lead: item?.lead ?? '',
           soldOut: item?.soldOut ?? false,
           imageUrl: item?.imageUrl ?? null,
+          toppings: activeToppings,
+          toppingIds,
         }
       })
   }, [cart, customerMenuItems])
@@ -176,18 +195,21 @@ export function useCustomerFlow(view: AppView) {
         publicStoreSlug,
         publicQrToken,
         effectivePublicTicketToken,
-        cartItems.map((item) => ({ menu_item_id: item.id, quantity: item.qty })),
+        cartItems.map((item) => ({ menu_item_id: item.id, quantity: item.qty, toppings: item.toppingIds })),
       )
       setTicketReceipt(
         createLocalTicketReceipt(
           created.ticket_no,
           created.ordered_at,
-          cartItems.map((item) => ({
-            id: item.id,
-            itemName: item.name,
-            qty: item.qty,
-            subtotal: item.qty * item.price,
-          })),
+          cartItems.map((item) => {
+            const toppingStr = item.toppings.length > 0 ? ` ＋ ${item.toppings.map(t => t.name).join(' ＋ ')}` : ''
+            return {
+              id: item.id,
+              itemName: `${item.name}${toppingStr}`,
+              qty: item.qty,
+              subtotal: item.qty * item.price,
+            }
+          }),
         ),
       )
       if (created.customer_access_token) {

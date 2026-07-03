@@ -2,6 +2,7 @@ type CustomerOrderDraft = {
   menu_item_id: string
   quantity: number
   note?: string
+  toppings?: string[]
 }
 
 const customerApiOrigin = import.meta.env.VITE_CUSTOMER_API_ORIGIN?.trim() || ''
@@ -70,6 +71,7 @@ export function fetchPublicMenu(storeSlug: string, qrToken: string, ticketToken?
       image_url?: string | null
       sort_order: number
       description_override?: string | null
+      toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
     }[]
   }>({
     action: 'menu',
@@ -110,6 +112,7 @@ export function fetchPublicTicket(storeSlug: string, qrToken: string, ticketToke
         kds_status: string
         customer_note: string | null
         created_at: string
+        toppings?: { id: string; name: string; price: number }[]
       }[]
     }
   }>({

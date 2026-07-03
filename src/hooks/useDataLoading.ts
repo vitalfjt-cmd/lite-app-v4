@@ -103,6 +103,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
           kds_status: line.kds_status,
           customer_note: line.customer_note,
           created_at: line.created_at,
+          toppings: line.toppings || [],
         })),
       )
 

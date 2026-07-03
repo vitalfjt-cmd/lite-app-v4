@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
+import { ToppingModal } from '../../components/ToppingModal'
 import { TicketSummaryView, LiveLine, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem } from '../../types'
 
 type StaffHandyViewProps = {
   selectedSummary: TicketSummaryView
   selectedLines: LiveLine[]
-  handyCart: Array<{ id: string; name: string; price: number; qty: number }>
+  handyCart: Array<{ id: string; cartKey: string; name: string; price: number; qty: number; toppings: { id: string; name: string; price: number }[]; toppingIds: string[] }>
   handyTopCategories: StaffPrototypeTopCategory[]
   visibleHandySubCategories: StaffPrototypeSubCategory[]
   visibleHandyItems: StaffPrototypeItem[]
@@ -15,8 +16,8 @@ type StaffHandyViewProps = {
   setShowHandyModal: (val: boolean) => void
   setHandyTopCategoryId: (val: string | null) => void
   setHandySubCategoryId: (val: string | null) => void
-  handleAddHandyItem: (item: StaffPrototypeItem) => void
-  updateHandyQty: (id: string, delta: number) => void
+  handleAddHandyItem: (item: StaffPrototypeItem, toppingIds?: string[]) => void
+  updateHandyQty: (cartKey: string, delta: number) => void
   submitHandyCartToKitchen: () => Promise<void>
 }
 
@@ -39,6 +40,8 @@ export function StaffHandyView({
   submitHandyCartToKitchen,
 }: StaffHandyViewProps) {
   const [showSlip, setShowSlip] = useState(false)
+  const [toppingModalOpen, setToppingModalOpen] = useState(false)
+  const [activeToppingItem, setActiveToppingItem] = useState<StaffPrototypeItem | null>(null)
   const handyTotal = handyCart.reduce((sum, item) => sum + item.price * item.qty, 0)
   const handyCount = handyCart.reduce((sum, item) => sum + item.qty, 0)
 
@@ -79,7 +82,14 @@ export function StaffHandyView({
                 <button
                   key={item.id}
                   className={`handy-item-btn ${qtyInCart > 0 ? 'has-in-cart' : ''}`}
-                  onClick={() => handleAddHandyItem(item)}
+                  onClick={() => {
+                    if (item.toppings && item.toppings.length > 0) {
+                      setActiveToppingItem(item)
+                      setToppingModalOpen(true)
+                    } else {
+                      handleAddHandyItem(item)
+                    }
+                  }}
                 >
                   <span className="h-item-name">{item.name}</span>
                   <span className="h-item-price">{yen(item.price)}</span>
@@ -110,20 +120,27 @@ export function StaffHandyView({
               </div>
             ) : (
               handyCart.map((item) => (
-                <div key={item.id} className="slip-line unsent">
-                  <div className="slip-line-info">
-                    <span className="badge" style={{ background: '#ff5a5f', color: 'white' }}>
-                      新規追加
-                    </span>
-                    <span className="name">{item.name}</span>
+                <div key={item.cartKey} className="slip-line unsent">
+                  <div className="slip-line-info" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <span className="badge" style={{ background: '#ff5a5f', color: 'white' }}>
+                        新規追加
+                      </span>
+                      <span className="name">{item.name}</span>
+                    </div>
+                    {item.toppings && item.toppings.length > 0 && (
+                      <div style={{ fontSize: '0.85rem', color: '#888', marginLeft: '60px' }}>
+                        {item.toppings.map((t) => ` ＋ ${t.name}`).join(' ')}
+                      </div>
+                    )}
                   </div>
                   <div className="slip-line-actions">
                     <div className="stepper">
-                      <button onClick={() => updateHandyQty(item.id, -1)}>-</button>
+                      <button onClick={() => updateHandyQty(item.cartKey, -1)}>-</button>
                       <span>{item.qty}</span>
-                      <button onClick={() => updateHandyQty(item.id, 1)}>+</button>
+                      <button onClick={() => updateHandyQty(item.cartKey, 1)}>+</button>
                     </div>
-                    <button className="del-btn" onClick={() => updateHandyQty(item.id, -item.qty)}>
+                    <button className="del-btn" onClick={() => updateHandyQty(item.cartKey, -item.qty)}>
                       ✕
                     </button>
                   </div>
@@ -139,6 +156,21 @@ export function StaffHandyView({
           </div>
         </aside>
       </div>
+
+      {activeToppingItem && (
+        <ToppingModal
+          isOpen={toppingModalOpen}
+          onClose={() => {
+            setToppingModalOpen(false)
+            setActiveToppingItem(null)
+          }}
+          itemName={activeToppingItem.name}
+          toppings={activeToppingItem.toppings || []}
+          onConfirm={(selectedToppingIds) => {
+            handleAddHandyItem(activeToppingItem, selectedToppingIds)
+          }}
+        />
+      )}
 
       <button className="mobile-cart-toggle mobile-only" onClick={() => setShowSlip(true)}>
         🛒

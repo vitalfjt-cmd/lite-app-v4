@@ -98,6 +98,7 @@ type Props = {
   adminItemSortOrder: string
   adminItemIsActive: boolean
   adminItemIsSoldOut: boolean
+  adminItemToppingIds: string[]
   editingMenuItemId: string | null
   adminPlacementMenuBookId: string
   adminPlacementTopCategoryId: string
@@ -166,6 +167,7 @@ type Props = {
   onItemSortOrderChange: (value: string) => void
   onItemIsActiveChange: (value: boolean) => void
   onItemIsSoldOutChange: (value: boolean) => void
+  onItemToppingIdsChange: (value: string[]) => void
   onCreateMenuItem: () => Promise<boolean>
   onCancelMenuItemEdit: () => void
   onPlacementMenuBookChange: (value: string) => void
@@ -587,9 +589,11 @@ export function AdminScreen(props: Props) {
             adminItemSortOrder={props.adminItemSortOrder}
             adminItemIsActive={props.adminItemIsActive}
             adminItemIsSoldOut={props.adminItemIsSoldOut}
+            adminItemToppingIds={props.adminItemToppingIds}
             itemImageUploadBusy={props.itemImageUploadBusy}
             disabled={disabled}
             itemCategoryOptions={itemCategoryOptions}
+            allMenuItems={props.liveMenuItems}
             onClose={() => {
               setItemModalOpen(false)
               props.onCancelMenuItemEdit()
@@ -605,6 +609,7 @@ export function AdminScreen(props: Props) {
             onItemSortOrderChange={props.onItemSortOrderChange}
             onItemIsActiveChange={props.onItemIsActiveChange}
             onItemIsSoldOutChange={props.onItemIsSoldOutChange}
+            onItemToppingIdsChange={props.onItemToppingIdsChange}
             onCreateMenuItem={props.onCreateMenuItem}
             checkBox={checkBox}
           />

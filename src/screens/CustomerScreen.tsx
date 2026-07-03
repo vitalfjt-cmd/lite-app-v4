@@ -1,8 +1,23 @@
+import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { ToppingModal } from '../components/ToppingModal'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
-type CustomerMenuItem = { id: string; name: string; lead?: string; price: number; soldOut: boolean; imageUrl?: string | null }
-type CartItem = CustomerMenuItem & { qty: number }
+type CustomerMenuItem = {
+  id: string
+  name: string
+  lead?: string
+  price: number
+  soldOut: boolean
+  imageUrl?: string | null
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+}
+type CartItem = Omit<CustomerMenuItem, 'toppings'> & {
+  qty: number
+  cartKey: string
+  toppings: { id: string; name: string; price: number }[]
+  toppingIds: string[]
+}
 type TicketReceipt = {
   ticketNo: string
   orderedAt: string
@@ -40,8 +55,8 @@ type CustomerScreenProps = {
   onSelectTopCategory: (id: string) => void
   onSelectCategory: (id: string) => void
   onFocusItem: (id: string) => void
-  onDecrementItem: (id: string) => void
-  onIncrementItem: (id: string) => void
+  onDecrementItem: (cartKey: string) => void
+  onIncrementItem: (cartKey: string, toppingIds?: string[]) => void
   onReloadMenu: () => void
   onOpenMyOrder: () => void
   onOpenConfirm: () => void
@@ -92,6 +107,8 @@ export function CustomerScreen({
   onSubmitOrder,
   onRefreshTicket,
 }: CustomerScreenProps) {
+  const [toppingModalOpen, setToppingModalOpen] = useState(false)
+  const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
   
   if (customerStep === 'confirm') {
     return (
@@ -112,15 +129,20 @@ export function CustomerScreen({
             
             <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
               {cartItems.map((item) => (
-                <div key={item.id} style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px dashed #eee', paddingBottom:'16px'}}>
+                <div key={item.cartKey} style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px dashed #eee', paddingBottom:'16px'}}>
                   <div>
                     <h4 style={{margin:0, fontSize:'1.1rem'}}>{item.name}</h4>
+                    {item.toppings && item.toppings.length > 0 && (
+                      <div style={{fontSize:'0.85rem', color:'#666', marginTop:'4px'}}>
+                        {item.toppings.map((t) => `＋ ${t.name}`).join(' ')}
+                      </div>
+                    )}
                     <span style={{color:'#ff5a5f', fontWeight:'bold', fontSize:'1.1rem'}}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{width: '120px', margin:0}}>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.id)}>-</button>
+                    <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.cartKey)}>-</button>
                     <span>{item.qty}</span>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.id)}>+</button>
+                    <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.cartKey)}>+</button>
                   </div>
                 </div>
               ))}
@@ -280,7 +302,7 @@ export function CustomerScreen({
         ) : null}
 
         {visibleCustomerItems.map((item) => {
-          const qty = cart[item.id] || 0;
+          const qty = cartItems.filter((cItem) => cItem.id === item.id).reduce((sum, cItem) => sum + cItem.qty, 0);
           return (
             <article key={item.id} className={`menu-card ${item.soldOut ? 'sold-out' : ''}`}>
               <div 
@@ -298,15 +320,20 @@ export function CustomerScreen({
                   <strong className="item-price">{yen(item.price)}</strong>
                   {!item.soldOut && (
                     <div className="actions">
-                      {qty > 0 ? (
-                        <div className="stepper active">
-                          <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.id)}>-</button>
-                          <span>{qty}</span>
-                          <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.id)}>+</button>
-                        </div>
-                      ) : (
-                        <button className="add-btn" disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.id)}>追加</button>
-                      )}
+                      <button 
+                        className="add-btn" 
+                        disabled={!customerOrderingEnabled} 
+                        onClick={() => {
+                          if (item.toppings && item.toppings.length > 0) {
+                            setActiveToppingItem(item)
+                            setToppingModalOpen(true)
+                          } else {
+                            onIncrementItem(item.id)
+                          }
+                        }}
+                      >
+                        追加
+                      </button>
                     </div>
                   )}
                 </div>
@@ -330,6 +357,21 @@ export function CustomerScreen({
           <span className="cart-action-text">注文確認へ →</span>
         </button>
       </div>
+
+      {activeToppingItem && (
+        <ToppingModal
+          isOpen={toppingModalOpen}
+          onClose={() => {
+            setToppingModalOpen(false)
+            setActiveToppingItem(null)
+          }}
+          itemName={activeToppingItem.name}
+          toppings={activeToppingItem.toppings || []}
+          onConfirm={(selectedToppingIds) => {
+            onIncrementItem(activeToppingItem.id, selectedToppingIds)
+          }}
+        />
+      )}
     </div>
   );
 }

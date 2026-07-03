@@ -153,7 +153,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setStaffMessage(null)
   }
 
-  const createHandyOrder = async (overrideItemId?: string, overrideQty?: string) => {
+  const createHandyOrder = async (overrideItemId?: string, overrideQty?: string, toppings?: string[]) => {
     const targetItemId = overrideItemId || handyItemId
     const targetQty = overrideQty || handyQty
     if (!profile || !selectedTicket || !targetItemId) return
@@ -167,7 +167,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       if (staffReadApiEnabled) {
         const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
-        const added = await addStaffPrototypeOrder(storeSlug, selectedTicket.id, menuItem.id, quantity)
+        const added = await addStaffPrototypeOrder(storeSlug, selectedTicket.id, menuItem.id, quantity, toppings)
         setLiveLines((current) => [
           ...current,
           {

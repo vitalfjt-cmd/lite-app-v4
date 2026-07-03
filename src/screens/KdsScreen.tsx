@@ -10,6 +10,7 @@ type KdsQueueItem = {
   createdAt: string
   subcategoryName?: string
   subcategorySortOrder?: number
+  toppings?: { id: string; name: string; price: number }[]
 }
 
 type KdsScreenProps = {
@@ -172,7 +173,14 @@ export function KdsScreen({
                               onClick={() => onAdvanceStatus(item.id)}
                             >
                               <div className="checkbox-ring"></div>
-                              <span className="item-name">{item.itemName}</span>
+                              <span className="item-name">
+                                {item.itemName}
+                                {item.toppings && item.toppings.length > 0 && (
+                                  <div style={{ fontSize: '0.85em', opacity: 0.8, marginTop: '4px' }}>
+                                    {item.toppings.map(t => ` ＋ ${t.name}`).join(' ')}
+                                  </div>
+                                )}
+                              </span>
                               <strong className="item-qty">x{item.qty}</strong>
                             </button>
                           )

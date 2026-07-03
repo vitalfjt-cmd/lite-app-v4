@@ -4954,3 +4954,175 @@ h1 {
   max-height: calc(100vh - 160px); /* Adjust to leave header and footer visible */
 }
 
+
+/* Topping / Premium Option CSS Styling */
+.topping-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.topping-modal-content {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  color: #333;
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.topping-modal-header h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111;
+}
+
+.topping-modal-header p {
+  margin: 0 0 24px 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.topping-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.topping-option-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid transparent;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topping-option-item:hover:not(.sold-out) {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #ffd43b;
+}
+
+.topping-option-item.selected {
+  background: #fff9db;
+  border-color: #fcc419;
+}
+
+.topping-option-item.sold-out {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f1f3f5;
+}
+
+.topping-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.topping-name {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.topping-price {
+  color: #ff5a5f;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.topping-sold-out-badge {
+  background: #868e96;
+  color: white;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.topping-checkbox {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid #ced4da;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  color: transparent;
+  font-weight: 900;
+  background: white;
+}
+
+.topping-option-item.selected .topping-checkbox {
+  border-color: #fcc419;
+  background: #fcc419;
+  color: white;
+}
+
+.topping-modal-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.topping-modal-actions button {
+  flex: 1;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.topping-btn-cancel {
+  background: transparent;
+  border: 1px solid #ced4da;
+  color: #495057;
+}
+
+.topping-btn-cancel:hover {
+  background: #f1f3f5;
+}
+
+.topping-btn-confirm {
+  background: #fcc419;
+  border: none;
+  color: #333;
+}
+
+.topping-btn-confirm:hover {
+  background: #fab005;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

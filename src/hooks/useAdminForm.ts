@@ -39,6 +39,7 @@ export function useAdminForm() {
   const [adminItemSortOrder, setAdminItemSortOrder] = useState('10')
   const [adminItemIsActive, setAdminItemIsActive] = useState(true)
   const [adminItemIsSoldOut, setAdminItemIsSoldOut] = useState(false)
+  const [adminItemToppingIds, setAdminItemToppingIds] = useState<string[]>([])
 
   const [editingPlacementId, setEditingPlacementId] = useState<string | null>(null)
   const [adminPlacementMenuBookId, setAdminPlacementMenuBookId] = useState('')
@@ -95,7 +96,7 @@ export function useAdminForm() {
   const resetSubCategory = () =>
     resetAdminSubCategoryForm(setEditingSubCategoryId, setAdminSubCategoryName, setAdminSubCategorySortOrder, setAdminCategoryParentId)
 
-  const resetItem = () =>
+  const resetItem = () => {
     resetAdminItemForm(
       setEditingMenuItemId,
       setAdminItemCategoryId,
@@ -108,6 +109,8 @@ export function useAdminForm() {
       setAdminItemIsActive,
       setAdminItemIsSoldOut,
     )
+    setAdminItemToppingIds([])
+  }
 
   const resetPlacement = () =>
     resetAdminPlacementForm(
@@ -182,6 +185,7 @@ export function useAdminForm() {
     setAdminItemSortOrder(String(item.sort_order))
     setAdminItemIsActive(item.is_active)
     setAdminItemIsSoldOut(item.is_sold_out)
+    setAdminItemToppingIds(item.toppings?.map((t: any) => t.id) || [])
   }
 
   const startEditPlacement = (placement: any) => {
@@ -254,6 +258,7 @@ export function useAdminForm() {
     adminItemSortOrder, setAdminItemSortOrder,
     adminItemIsActive, setAdminItemIsActive,
     adminItemIsSoldOut, setAdminItemIsSoldOut,
+    adminItemToppingIds, setAdminItemToppingIds,
     resetItem,
 
     editingPlacementId, setEditingPlacementId,

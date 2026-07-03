@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { ToppingModal } from '../components/ToppingModal'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -8,8 +9,14 @@ type CustomerMenuItem = {
   price: number
   soldOut: boolean
   imageUrl?: string | null
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
-type CartItem = CustomerMenuItem & { qty: number }
+type CartItem = Omit<CustomerMenuItem, 'toppings'> & {
+  qty: number
+  cartKey: string
+  toppings: { id: string; name: string; price: number }[]
+  toppingIds: string[]
+}
 
 type TicketReceipt = {
   ticketNo: string
@@ -42,8 +49,8 @@ type CustomerTabletScreenProps = {
   yen: (value: number) => string
   onSelectTopCategory: (id: string) => void
   onSelectCategory: (id: string) => void
-  onDecrementItem: (id: string) => void
-  onIncrementItem: (id: string) => void
+  onDecrementItem: (cartKey: string) => void
+  onIncrementItem: (cartKey: string, toppingIds?: string[]) => void
   onOpenConfirm: () => void
   onBackToMenu: () => void
   onSubmitOrder: () => void
@@ -88,6 +95,8 @@ export function CustomerTabletScreen({
 
   const [showQrModal, setShowQrModal] = useState(false)
   const [showHistoryModal, setShowHistoryModal] = useState(false)
+  const [toppingModalOpen, setToppingModalOpen] = useState(false)
+  const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
   
   const scrollHorizontally = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -162,13 +171,20 @@ export function CustomerTabletScreen({
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {cartItems.map((item) => (
-                <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #eee', paddingBottom: '24px' }}>
+                <div key={item.cartKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #eee', paddingBottom: '24px' }}>
                   <div>
                     <h4 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{item.name}</h4>
+                    {item.toppings && item.toppings.length > 0 && (
+                      <div style={{ fontSize: '1.1rem', color: '#666', marginTop: '6px' }}>
+                        {item.toppings.map((t) => `＋ ${t.name}`).join(' ')}
+                      </div>
+                    )}
                     <span style={{ color: '#ff5a5f', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
                   </div>
-                  <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#555', padding: '8px 16px', background: '#f8f9fa', borderRadius: '8px' }}>
-                    {item.qty}点
+                  <div className="stepper active" style={{ width: '150px', margin: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                    <span style={{ fontSize: '1.5rem', minWidth: '30px', textAlign: 'center', fontWeight: 'bold' }}>{item.qty}</span>
+                    <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                   </div>
                 </div>
               ))}
@@ -337,7 +353,7 @@ export function CustomerTabletScreen({
             </div>
           ) : (
             visibleCustomerItems.map((item) => {
-              const qty = cart[item.id] ?? 0
+              const qty = cartItems.filter((cItem) => cItem.id === item.id).reduce((sum, cItem) => sum + cItem.qty, 0);
               return (
                 <article
                   key={item.id}
@@ -374,31 +390,20 @@ export function CustomerTabletScreen({
 
                     {!item.soldOut && (
                       <div className="tablet-actions">
-                        {qty > 0 ? (
-                          <div className="tablet-stepper">
-                            <button
-                              disabled={!customerOrderingEnabled}
-                              onClick={() => onDecrementItem(item.id)}
-                            >
-                              -
-                            </button>
-                            <span>{qty}</span>
-                            <button
-                              disabled={!customerOrderingEnabled}
-                              onClick={() => onIncrementItem(item.id)}
-                            >
-                              +
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            className="tablet-add-btn"
-                            disabled={!customerOrderingEnabled}
-                            onClick={() => onIncrementItem(item.id)}
-                          >
-                            注文リストへ追加
-                          </button>
-                        )}
+                        <button
+                          className="tablet-add-btn"
+                          disabled={!customerOrderingEnabled}
+                          onClick={() => {
+                            if (item.toppings && item.toppings.length > 0) {
+                              setActiveToppingItem(item)
+                              setToppingModalOpen(true)
+                            } else {
+                              onIncrementItem(item.id)
+                            }
+                          }}
+                        >
+                          注文リストへ追加
+                        </button>
                       </div>
                     )}
                   </div>
@@ -578,6 +583,20 @@ export function CustomerTabletScreen({
             </div>
           </div>
         </div>
+      )}
+      {activeToppingItem && (
+        <ToppingModal
+          isOpen={toppingModalOpen}
+          onClose={() => {
+            setToppingModalOpen(false)
+            setActiveToppingItem(null)
+          }}
+          itemName={activeToppingItem.name}
+          toppings={activeToppingItem.toppings || []}
+          onConfirm={(selectedToppingIds) => {
+            onIncrementItem(activeToppingItem.id, selectedToppingIds)
+          }}
+        />
       )}
     </div>
   )

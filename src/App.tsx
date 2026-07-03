@@ -426,6 +426,7 @@ export default function App() {
           createdAt: line.created_at,
           subcategoryName: subcategory?.name ?? 'その他',
           subcategorySortOrder: subcategory?.sort_order ?? 9999,
+          toppings: line.toppings,
         }
       })
   }, [activeLiveTickets, liveLines, liveTables, liveItems, liveSubcategories, liveBookSubcategoryItems, session])
@@ -645,13 +646,20 @@ export default function App() {
             onSelectTopCategory={setSelectedCustomerTopCategoryId}
             onSelectCategory={setSelectedCustomerCategoryId}
             onFocusItem={setCustomerFocusedItemId}
-            onDecrementItem={(itemId) => {
-              setCustomerFocusedItemId(itemId)
-              setCart((current) => ({ ...current, [itemId]: Math.max((current[itemId] ?? 0) - 1, 0) }))
+            onDecrementItem={(cartKey) => {
+              setCart((current) => {
+                const nextQty = Math.max((current[cartKey] ?? 0) - 1, 0)
+                if (nextQty === 0) {
+                  const copy = { ...current }
+                  delete copy[cartKey]
+                  return copy
+                }
+                return { ...current, [cartKey]: nextQty }
+              })
             }}
-            onIncrementItem={(itemId) => {
-              setCustomerFocusedItemId(itemId)
-              setCart((current) => ({ ...current, [itemId]: (current[itemId] ?? 0) + 1 }))
+            onIncrementItem={(cartKey, toppingIds) => {
+              const key = toppingIds ? `${cartKey}:${toppingIds.sort().join(',')}` : cartKey
+              setCart((current) => ({ ...current, [key]: (current[key] ?? 0) + 1 }))
             }}
             onReloadMenu={() => void loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess)}
             onOpenMyOrder={() => {
@@ -684,11 +692,20 @@ export default function App() {
             yen={yen}
             onSelectTopCategory={setSelectedCustomerTopCategoryId}
             onSelectCategory={setSelectedCustomerCategoryId}
-            onDecrementItem={(itemId) => {
-              setCart((current) => ({ ...current, [itemId]: Math.max((current[itemId] ?? 0) - 1, 0) }))
+            onDecrementItem={(cartKey) => {
+              setCart((current) => {
+                const nextQty = Math.max((current[cartKey] ?? 0) - 1, 0)
+                if (nextQty === 0) {
+                  const copy = { ...current }
+                  delete copy[cartKey]
+                  return copy
+                }
+                return { ...current, [cartKey]: nextQty }
+              })
             }}
-            onIncrementItem={(itemId) => {
-              setCart((current) => ({ ...current, [itemId]: (current[itemId] ?? 0) + 1 }))
+            onIncrementItem={(cartKey, toppingIds) => {
+              const key = toppingIds ? `${cartKey}:${toppingIds.sort().join(',')}` : cartKey
+              setCart((current) => ({ ...current, [key]: (current[key] ?? 0) + 1 }))
             }}
             customerStep={customerStep}
             customerMessage={customerMessage}
@@ -747,7 +764,7 @@ export default function App() {
             onCancelLine={(lineId) => void cancelLine(lineId)}
             onHandyItemChange={setHandyItemId}
             onHandyQtyChange={setHandyQty}
-            onCreateHandyOrder={(itemId, qty) => void createHandyOrder(itemId, qty)}
+            onCreateHandyOrder={(itemId, qty, toppings) => void createHandyOrder(itemId, qty, toppings)}
             onNewTicketMenuBookChange={setNewTicketMenuBookId}
             onCreateTicket={(tableRefId, menuBookId, customerCount) => createStaffTicket(tableRefId, menuBookId, customerCount)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
@@ -835,6 +852,7 @@ export default function App() {
             adminItemSortOrder={adminForm.adminItemSortOrder}
             adminItemIsActive={adminForm.adminItemIsActive}
             adminItemIsSoldOut={adminForm.adminItemIsSoldOut}
+            adminItemToppingIds={adminForm.adminItemToppingIds}
             itemImageUploadBusy={adminForm.itemImageUploadBusy}
             editingMenuItemId={adminForm.editingMenuItemId}
             adminPlacementMenuBookId={adminForm.adminPlacementMenuBookId}
@@ -953,6 +971,7 @@ export default function App() {
             onItemSortOrderChange={adminForm.setAdminItemSortOrder}
             onItemIsActiveChange={adminForm.setAdminItemIsActive}
             onItemIsSoldOutChange={adminForm.setAdminItemIsSoldOut}
+            onItemToppingIdsChange={adminForm.setAdminItemToppingIds}
             onUploadItemImage={(file) => adminOps.uploadMenuItemImage(file)}
             onClearItemImage={() => adminOps.clearMenuItemImage()}
             onCreateMenuItem={() => adminOps.createMenuItem()}

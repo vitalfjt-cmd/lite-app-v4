@@ -328,6 +328,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           sortOrder: sortOrder,
           isActive: adminForm.adminItemIsActive,
           isSoldOut: adminForm.adminItemIsSoldOut,
+          toppingIds: adminForm.adminItemToppingIds,
         })
         await refreshAdminData()
       }
@@ -497,6 +498,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           isSoldOut: nextValue,
           sortOrder: item.sort_order,
           isActive: item.is_active,
+          toppingIds: item.toppings?.map((t: any) => t.id),
         })
         await refreshAdminData()
       }

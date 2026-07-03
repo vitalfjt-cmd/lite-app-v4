@@ -30,6 +30,7 @@ export type AdminMenuItem = {
   sort_order: number
   is_active: boolean
   is_sold_out: boolean
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 
 export type AdminPlacementRow = {

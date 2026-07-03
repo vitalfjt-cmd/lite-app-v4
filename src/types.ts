@@ -12,6 +12,7 @@ export type MenuItem = {
   price: number
   soldOut?: boolean
   lead?: string
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 
 export type TicketLine = {
@@ -20,6 +21,7 @@ export type TicketLine = {
   qty: number
   status: 'NEW' | 'COOKING' | 'SERVED'
   note?: string
+  toppings?: { id: string; name: string; price: number }[]
 }
 
 export type TicketSummary = {
@@ -63,6 +65,7 @@ export type LiveBookCategorySubcategory = {
   menu_subcategory_id: string
   sort_order: number
   is_active: boolean
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 export type LiveBookCategory = {
   id: string
@@ -70,6 +73,7 @@ export type LiveBookCategory = {
   menu_category_id: string
   sort_order: number
   is_active: boolean
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 export type LiveBookSubcategoryItem = {
   id: string
@@ -94,6 +98,7 @@ export type LiveMenuItem = {
   image_url?: string | null
   sort_order: number
   is_active: boolean
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 export type LiveStore = {
   id: string
@@ -159,10 +164,11 @@ export type LiveLine = {
   kds_status: 'NEW' | 'COOKING' | 'SERVED' | 'CANCELLED' | string
   customer_note: string | null
   created_at: string
+  toppings?: { id: string; name: string; price: number }[]
 }
 export type LiveStaffUser = StaffProfile
 export type CustomerCategory = { id: string; name: string; parentId?: string | null }
-export type CustomerMenuItem = { id: string; categoryId: string; name: string; price: number; soldOut: boolean; lead?: string; imageUrl?: string | null }
+export type CustomerMenuItem = { id: string; categoryId: string; name: string; price: number; soldOut: boolean; lead?: string; imageUrl?: string | null; toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[] }
 
 export type StaffPrototypeTopCategory = { id: string; name: string }
 export type StaffPrototypeSubCategory = { id: string; name: string; parentId: string; sortOrder: number }
@@ -173,6 +179,7 @@ export type StaffPrototypeItem = {
   isActive: boolean
   isSoldOut: boolean
   subcategoryId: string
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
 export type ActiveStoreSummary = { name: string; tableName: string; ticketNo: string }
 
@@ -181,4 +188,5 @@ export type AdminPaymentMethod = {
   name: string
   sort_order: number
   is_active: boolean
+  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
