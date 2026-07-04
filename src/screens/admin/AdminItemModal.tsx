@@ -40,6 +40,24 @@ export function AdminItemModal(props: Props) {
 
   const { disabled } = props
 
+  const [filterCategoryId, setFilterCategoryId] = React.useState<string>('')
+  const [filterKeyword, setFilterKeyword] = React.useState<string>('')
+
+  const filteredItems = React.useMemo(() => {
+    return props.allMenuItems.filter(item => {
+      if (item.id === props.editingMenuItemId) return false
+      if (!item.is_active) return false
+      if (filterCategoryId && item.category_id !== filterCategoryId) return false
+      if (filterKeyword) {
+        const keyword = filterKeyword.toLowerCase()
+        const matchName = item.name.toLowerCase().includes(keyword)
+        const matchCode = item.code ? item.code.toLowerCase().includes(keyword) : false
+        if (!matchName && !matchCode) return false
+      }
+      return true
+    })
+  }, [props.allMenuItems, props.editingMenuItemId, filterCategoryId, filterKeyword])
+
   return (
     <div className="payment-modal-backdrop">
       <section className="panel admin-modal-panel">
@@ -111,34 +129,54 @@ export function AdminItemModal(props: Props) {
           <label>売切{props.checkBox(props.adminItemIsSoldOut, props.onItemIsSoldOutChange, disabled)}</label>
           <div className="admin-topping-select-section" style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
             <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>トッピング・オプション設定</span>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <select
+                value={filterCategoryId}
+                onChange={(e) => setFilterCategoryId(e.target.value)}
+                style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', background: 'white' }}
+                disabled={disabled}
+              >
+                <option value="">すべてのグループ</option>
+                {props.itemCategoryOptions.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+              <input
+                type="text"
+                placeholder="商品名・コードで検索..."
+                value={filterKeyword}
+                onChange={(e) => setFilterKeyword(e.target.value)}
+                style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', background: 'white' }}
+                disabled={disabled}
+              />
+            </div>
             <div style={{ maxHeight: '180px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '8px', padding: '12px', background: '#f9f9f9' }}>
-              {props.allMenuItems
-                .filter(item => item.id !== props.editingMenuItemId && item.is_active)
-                .map(item => {
-                  const isChecked = props.adminItemToppingIds.includes(item.id)
-                  return (
-                    <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', color: '#333' }}>
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            props.onItemToppingIdsChange([...props.adminItemToppingIds, item.id])
-                          } else {
-                            props.onItemToppingIdsChange(props.adminItemToppingIds.filter(id => id !== item.id))
-                          }
-                        }}
-                        disabled={disabled}
-                      />
-                      <div>
-                        <span style={{ fontWeight: 600 }}>{item.name}</span>
-                        <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '8px' }}>(¥{item.price})</span>
-                      </div>
-                    </label>
-                  )
-                })}
-              {props.allMenuItems.filter(item => item.id !== props.editingMenuItemId && item.is_active).length === 0 && (
-                <div style={{ color: '#999', fontSize: '0.9em', textAlign: 'center', padding: '12px 0' }}>他の有効な商品が見つかりません。</div>
+              {filteredItems.map(item => {
+                const isChecked = props.adminItemToppingIds.includes(item.id)
+                return (
+                  <label key={item.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 0', cursor: 'pointer', borderBottom: '1px solid #f0f0f0', color: '#333' }}>
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          props.onItemToppingIdsChange([...props.adminItemToppingIds, item.id])
+                        } else {
+                          props.onItemToppingIdsChange(props.adminItemToppingIds.filter(id => id !== item.id))
+                        }
+                      }}
+                      disabled={disabled}
+                    />
+                    <div>
+                      <span style={{ fontWeight: 600 }}>{item.name}</span>
+                      {item.code && <span style={{ fontSize: '0.8em', color: '#888', marginLeft: '6px' }}>[{item.code}]</span>}
+                      <span style={{ fontSize: '0.85em', color: '#666', marginLeft: '8px' }}>(¥{item.price})</span>
+                    </div>
+                  </label>
+                )
+              })}
+              {filteredItems.length === 0 && (
+                <div style={{ color: '#999', fontSize: '0.9em', textAlign: 'center', padding: '12px 0' }}>該当する商品が見つかりません。</div>
               )}
             </div>
           </div>
