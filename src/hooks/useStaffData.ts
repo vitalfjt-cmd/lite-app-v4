@@ -103,7 +103,8 @@ export function useStaffData() {
           isActive: item.is_active,
           isSoldOut: item.is_sold_out,
           subcategoryId: relation.menu_subcategory_id,
-        }
+          toppings: item.toppings,
+        } as StaffPrototypeItem
       })
       .filter(
         (item): item is StaffPrototypeItem =>

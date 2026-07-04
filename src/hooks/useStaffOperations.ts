@@ -179,6 +179,14 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
             kds_status: 'NEW',
             customer_note: null,
             created_at: new Date().toISOString(),
+            toppings: toppings ? toppings.map(tid => {
+              const tItem = (menuItem as any).toppings?.find((t: any) => t.id === tid)
+              return {
+                id: tid,
+                name: tItem?.name ?? 'トッピング',
+                price: tItem?.price ?? 0
+              }
+            }) : [],
           },
         ])
       }
