@@ -1454,7 +1454,7 @@ h1 {
   }
 
   .admin-layout {
-    grid-template-columns: 280px minmax(0, 1fr);
+    grid-template-columns: 1fr;
     align-items: stretch;
   }
 

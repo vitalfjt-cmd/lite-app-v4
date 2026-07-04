@@ -250,13 +250,6 @@ export function AdminScreen(props: Props) {
     }
   }, [props.mode, props.activeTab])
 
-  const tabs = useMemo(() => {
-    if (props.mode === 'sales') {
-      return ADMIN_TABS.filter((t) => t.id === 'sales' || t.id === 'salesHistory' || t.id === 'paymentHistory' || t.id === 'accountingHistory' || t.id === 'productSalesHistory')
-    } else {
-      return ADMIN_TABS.filter((t) => t.id !== 'sales' && t.id !== 'salesHistory' && t.id !== 'paymentHistory' && t.id !== 'accountingHistory' && t.id !== 'productSalesHistory')
-    }
-  }, [props.mode])
   const [menuBookModalOpen, setMenuBookModalOpen] = useState(false)
   const [itemModalOpen, setItemModalOpen] = useState(false)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
@@ -329,22 +322,6 @@ export function AdminScreen(props: Props) {
       </header>
 
       <div className="admin-layout">
-        <aside className="panel admin-side-panel">
-          <div className="admin-side-nav">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`admin-nav-button admin-nav-button-${tab.id} ${activeTab === tab.id ? 'active' : ''}`}
-                disabled={!tabEnabled(tab.id)}
-                onClick={() => handleTabChange(tab.id)}
-                type="button"
-              >
-                <strong>{tab.label}</strong>
-              </button>
-            ))}
-          </div>
-        </aside>
-
         <div className="admin-main">
           {activeTab === 'menuBooks' ? (
             <AdminMenuBooksTab
