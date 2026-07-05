@@ -334,6 +334,16 @@ function getIcon(view: AppView, active: boolean) {
           <line x1="14" y1="26" x2="22" y2="26" stroke={active ? "#cc5de8" : "#868e96"} strokeWidth="2" strokeLinecap="round" />
         </svg>
       )
+    case 'seats':
+      return (
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="12" y="12" width="16" height="16" rx="2" fill={active ? "#1c7ed6" : "#ffffff"} stroke="#333333" strokeWidth="2" />
+          <circle cx="20" cy="7" r="3" fill={active ? "#74c0fc" : "#ced4da"} stroke="#333333" strokeWidth="1.5" />
+          <circle cx="20" cy="33" r="3" fill={active ? "#74c0fc" : "#ced4da"} stroke="#333333" strokeWidth="1.5" />
+          <circle cx="7" cy="20" r="3" fill={active ? "#74c0fc" : "#ced4da"} stroke="#333333" strokeWidth="1.5" />
+          <circle cx="33" cy="20" r="3" fill={active ? "#74c0fc" : "#ced4da"} stroke="#333333" strokeWidth="1.5" />
+        </svg>
+      )
     default:
       return (
         <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">

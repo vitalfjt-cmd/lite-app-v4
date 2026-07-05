@@ -24,6 +24,7 @@ import { CustomerScreen } from './screens/CustomerScreen'
 import { CustomerTabletScreen } from './screens/CustomerTabletScreen'
 import { KdsScreen } from './screens/KdsScreen'
 import { StaffScreen } from './screens/StaffScreen'
+import { SeatsScreen } from './screens/SeatsScreen'
 import { LoginScreen } from './screens/LoginScreen'
 import type {
   ActiveStoreSummary,
@@ -774,6 +775,24 @@ export default function App() {
             directAction={staffDirectAction}
             onClearDirectAction={() => setStaffDirectAction(null)}
             liveLines={liveLines}
+          />
+        ) : null}
+        {view === 'seats' ? (
+          <SeatsScreen
+            liveTables={liveTables}
+            liveTicketSummaries={liveTicketSummaries}
+            yen={yen}
+            onSelectTable={(tableLabel) => {
+              const ticket = liveTicketSummaries.find(t => t.tableName === tableLabel)
+              if (ticket) {
+                setSelectedTicketId(ticket.ticketId)
+              } else {
+                setSelectedTicketId(null)
+              }
+              moveTo('staff')
+            }}
+            onOpenLauncher={() => setIsLauncherOpen(true)}
+            storeName={liveStore?.name ?? activeStore.name}
           />
         ) : null}
         {view === 'kds' ? (
