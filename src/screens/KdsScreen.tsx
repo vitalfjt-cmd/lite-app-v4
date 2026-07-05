@@ -10,6 +10,7 @@ type KdsQueueItem = {
   createdAt: string
   subcategoryName?: string
   subcategorySortOrder?: number
+  itemSortOrder?: number
   toppings?: { id: string; name: string; price: number }[]
 }
 
@@ -163,7 +164,7 @@ export function KdsScreen({
                     <div key={subcat.name} className="kds-subcategory-group">
                       <div className="kds-subcategory-title">{subcat.name}</div>
                       <div className="kds-subcategory-items">
-                        {subcat.items.map(item => {
+                        {[...subcat.items].sort((a, b) => (a.itemSortOrder ?? 9999) - (b.itemSortOrder ?? 9999)).map(item => {
                           const isDone = item.status === 'COOKING';
                           return (
                             <button 

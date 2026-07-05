@@ -427,6 +427,7 @@ export default function App() {
           createdAt: line.created_at,
           subcategoryName: subcategory?.name ?? 'その他',
           subcategorySortOrder: subcategory?.sort_order ?? 9999,
+          itemSortOrder: relation?.sort_order ?? item?.sort_order ?? 9999,
           toppings: line.toppings,
         }
       })
