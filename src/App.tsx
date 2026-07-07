@@ -771,7 +771,7 @@ export default function App() {
             onCreateTicket={(tableRefId, menuBookId, customerCount) => createStaffTicket(tableRefId, menuBookId, customerCount)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             onSavePaymentEntry={(payload) => savePaymentEntry(payload)}
-            onCloseTicket={async (ticketId?: string) => { await settleTicket(ticketId); return true }}
+            onCloseTicket={async (ticketId?: string) => { return await settleTicket(ticketId) }}
             onAbortPayment={logPaymentAbort}
             directAction={staffDirectAction}
             onClearDirectAction={() => setStaffDirectAction(null)}

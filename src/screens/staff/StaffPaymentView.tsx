@@ -37,7 +37,7 @@ type StaffPaymentViewProps = {
   setDiscountRate: React.Dispatch<React.SetStateAction<number>>
   setPaymentFinalized: React.Dispatch<React.SetStateAction<boolean>>
   onSavePaymentEntry: (payload: any) => Promise<boolean>
-  onCloseTicket: () => Promise<boolean>
+  onCloseTicket: (ticketId?: string) => Promise<string | null>
   handleNumpadPayment: (num: string) => void
   addPaymentMethod: (methodStr: string) => void
   applyDiscountAmount: () => void
@@ -224,6 +224,7 @@ export function StaffPaymentView({
           )}
           <h3 className="receipt-brand">{storeName}</h3>
           <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
+          {selectedSummary.receiptNo && <p className="receipt-meta">レシート番号: {selectedSummary.receiptNo}</p>}
           {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e7f5ff', padding: '4px', borderRadius: '4px', color: '#1c7ed6' }}>{g.label}</p>}
           <div className="receipt-divider"></div>
         </div>
@@ -486,6 +487,12 @@ export function StaffPaymentView({
                     <span>卓番: {selectedSummary.tableName}</span>
                     <span>伝票: {selectedSummary.ticketNo}</span>
                   </div>
+                  {selectedSummary.receiptNo && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#555' }}>
+                      <span>レシート番号:</span>
+                      <span style={{ fontFamily: 'monospace' }}>{selectedSummary.receiptNo}</span>
+                    </div>
+                  )}
                   <div style={{ fontWeight: 'bold', fontSize: '1.4rem', textAlign: 'center', margin: '16px 0', color: '#333' }}>
                     {activePrintGroup ? `${activePrintGroup.label}` : '合計'}: {yen(activePrintGroup ? activePrintGroup.amount : finalBilledAmount)}
                   </div>

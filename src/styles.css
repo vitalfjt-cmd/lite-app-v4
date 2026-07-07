@@ -4655,6 +4655,37 @@ h1 {
    EPSON TM-T88Ⅳ (80mm) Receipt Printing
    ========================================= */
 @media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .admin-header,
+  .admin-tab-head {
+    display: none !important;
+  }
+
+  .receipt-reissue-grid {
+    display: block !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .admin-shell,
+  .admin-layout,
+  .admin-main,
+  .admin-tab-content {
+    display: block !important;
+    width: 80mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
   /* 80mm連続用紙サイズ設定（余白0） */
   @page {
     size: 80mm auto;

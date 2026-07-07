@@ -313,11 +313,11 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
-  const settleTicket = async (ticketId?: string): Promise<boolean> => {
+  const settleTicket = async (ticketId?: string): Promise<string | null> => {
     const targetTicket = ticketId
       ? liveTickets.find((t) => t.id === ticketId)
       : selectedTicket
-    if (!targetTicket) return false
+    if (!targetTicket) return null
     const closingTicketId = targetTicket.id
     setMutationBusy('close-ticket')
     setStaffMessage(null)
@@ -325,15 +325,15 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     try {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       if (!storeSlug) throw new Error('staff_store_slug_missing')
-      await closeStaffPrototypeTicket(storeSlug, targetTicket.id, targetTicket.ticket_no)
-      setLiveTickets((current) => current.map((ticket) => (ticket.id === closingTicketId ? { ...ticket, status: 'CLOSED' } : ticket)))
+      const closed = await closeStaffPrototypeTicket(storeSlug, targetTicket.id, targetTicket.ticket_no)
+      setLiveTickets((current) => current.map((ticket) => (ticket.id === closingTicketId ? { ...ticket, status: 'CLOSED', receipt_no: closed.ticket.receipt_no } : ticket)))
       setStaffMessage(null)
-      return true
+      return closed.ticket.receipt_no || null
     } catch (err) {
       const message = messageFromStaffApiError(err)
       setError(message)
       setStaffMessage(message)
-      return false
+      return null
     } finally {
       setMutationBusy(null)
     }

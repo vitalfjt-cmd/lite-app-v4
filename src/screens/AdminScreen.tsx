@@ -23,6 +23,7 @@ import { AdminAccountingHistoryTab } from './admin/AdminAccountingHistoryTab'
 import { AdminProductSalesHistoryTab } from './admin/AdminProductSalesHistoryTab'
 import { AdminPaymentMethodsTab } from './admin/AdminPaymentMethodsTab'
 import { AdminPaymentMethodModal } from './admin/AdminPaymentMethodModal'
+import { AdminReceiptReissueTab } from './admin/AdminReceiptReissueTab'
 import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminTab } from './admin/types'
 
 
@@ -37,13 +38,14 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'paymentHistory', label: '会計種別データ照会', caption: '期間指定での決済別売上照会' },
   { id: 'accountingHistory', label: '会計データ照会', caption: '日付指定での会計データ照会' },
   { id: 'productSalesHistory', label: '商品注文データ照会', caption: '期間指定での商品別注文数照会' },
+  { id: 'receiptReissue', label: 'レシート再発行', caption: '指定した日付のレシートの再発行・印刷' },
   { id: 'store', label: '店舗', caption: '店舗設定' },
   { id: 'tables', label: 'テーブル', caption: '席・QR管理' },
   { id: 'staff', label: 'スタッフ', caption: '認証・権限管理' },
   { id: 'paymentMethods', label: '決済種別', caption: 'マスタ・表示順設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -547,6 +549,15 @@ export function AdminScreen(props: Props) {
 
           {activeTab === 'productSalesHistory' ? (
             <AdminProductSalesHistoryTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
+              setError={(msg) => msg ? alert(msg) : null}
+            />
+          ) : null}
+
+          {activeTab === 'receiptReissue' ? (
+            <AdminReceiptReissueTab
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}

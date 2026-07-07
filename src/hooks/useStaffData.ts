@@ -50,6 +50,7 @@ export function useStaffData() {
       status: ticketStatusFromLines(activeLines),
       customerUrl: selectedTicket.customer_access_token || null,
       customerCount: selectedTicket.customer_count,
+      receiptNo: selectedTicket.receipt_no || null,
     }
   }, [selectedTicket, activeLines])
 
@@ -128,6 +129,7 @@ export function useStaffData() {
           status: ticketStatusFromLines(lines),
           customerUrl: t.customer_access_token || null,
           customerCount: t.customer_count,
+          receiptNo: t.receipt_no || null,
         }
       })
   }, [activeLiveTickets, liveLines])

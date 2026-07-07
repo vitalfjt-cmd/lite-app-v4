@@ -10,6 +10,7 @@ type StaffTicketSummaryResponse = {
   lineCount: number
   customerCount?: number | null
   status: 'NEW' | 'COOKING' | 'SERVED'
+  receiptNo?: string | null
   lines: StaffTicketLineResponse[]
   cancelled_lines: StaffTicketLineResponse[]
   payment_entries: {
@@ -819,6 +820,7 @@ export function closeStaffPrototypeTicket(storeSlug: string, ticketId: string, t
       ticket_no: string
       status: 'CLOSED'
       closed_at: string
+      receipt_no?: string | null
     }
   }>({
     action: 'close-ticket',

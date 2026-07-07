@@ -90,6 +90,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
         customer_count: ticket.customerCount,
         ordered_at: ticket.orderedAt,
         status: 'OPEN',
+        receipt_no: ticket.receiptNo || (ticket as any).receipt_no || null,
       }))
 
       const nextLines: LiveLine[] = listResponse.tickets.flatMap((ticket) =>

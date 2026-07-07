@@ -109,4 +109,4 @@ export type AdminPaymentMethod = {
   is_active: boolean
 }
 
-export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods'
+export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue'

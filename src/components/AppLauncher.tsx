@@ -45,6 +45,7 @@ const SALES_SUB_MENU_ITEMS = [
   { id: 'paymentHistory', label: '会計種別データ参照' },
   { id: 'accountingHistory', label: '会計データ参照' },
   { id: 'productSalesHistory', label: '商品注文データ参照' },
+  { id: 'receiptReissue', label: 'レシート再発行' },
 ]
 
 function CaretIcon({ expanded }: { expanded: boolean }) {
