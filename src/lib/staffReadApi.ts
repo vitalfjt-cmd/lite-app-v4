@@ -1012,6 +1012,7 @@ export function getStaffAccountingTransactions(storeSlug: string, startDate: str
     transactions: {
       business_date: string
       paid_at: string
+      ordered_at: string
       receipt_no: string
       payment_type: string
       amount: number

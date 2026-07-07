@@ -92,6 +92,19 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
     }
   }
 
+  const getDwellTime = (orderedAt: string, paidAt: string) => {
+    if (!orderedAt || !paidAt) return '-'
+    const diffMs = new Date(paidAt).getTime() - new Date(orderedAt).getTime()
+    if (diffMs < 0) return '-'
+    const diffMins = Math.floor(diffMs / 1000 / 60)
+    const hours = Math.floor(diffMins / 60)
+    const mins = diffMins % 60
+    if (hours > 0) {
+      return `${hours}時間${mins}分`
+    }
+    return `${mins}分`
+  }
+
   return (
     <div className="admin-tab-content" style={{ maxHeight: '100%', height: '100%', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
       <div className="admin-tab-head">
@@ -165,13 +178,14 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
                   <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>会計時刻(asia-tokyo)</th>
                   <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>レシート番号</th>
                   <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>会計種別</th>
+                  <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>滞留時間</th>
                   <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>金額</th>
                 </tr>
               </thead>
               <tbody>
                 {transactions.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ padding: '24px', textAlign: 'center', color: '#adb5bd' }}>
+                    <td colSpan={6} style={{ padding: '24px', textAlign: 'center', color: '#adb5bd' }}>
                       指定された期間の会計データはありません。
                     </td>
                   </tr>
@@ -203,6 +217,7 @@ export function AdminAccountingHistoryTab({ storeSlug, disabled, yen, setError }
                             {typeLabel}
                           </span>
                         </td>
+                        <td style={{ padding: '12px 8px', color: '#212529' }}>{getDwellTime(tx.ordered_at, tx.paid_at)}</td>
                         <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#212529' }}>{yen(tx.amount)}</td>
                       </tr>
                     )
