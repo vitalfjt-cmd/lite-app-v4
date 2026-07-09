@@ -6,16 +6,17 @@ type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
   id: string
   name: string
+  name_en?: string | null
   lead?: string
   price: number
   soldOut: boolean
   imageUrl?: string | null
-  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+  toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
 }
 type CartItem = Omit<CustomerMenuItem, 'toppings'> & {
   qty: number
   cartKey: string
-  toppings: { id: string; name: string; price: number }[]
+  toppings: { id: string; name: string; name_en?: string | null; price: number }[]
   toppingIds: string[]
 }
 type TicketReceipt = {
@@ -109,32 +110,39 @@ export function CustomerScreen({
 }: CustomerScreenProps) {
   const [toppingModalOpen, setToppingModalOpen] = useState(false)
   const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
+  const [lang, setLang] = useState<'ja' | 'en'>('ja')
+
+  const hasEnglishNames = visibleCustomerItems.some((item) => item.name_en)
+
+  const getItemName = (item: { name: string; name_en?: string | null }) => {
+    return (lang === 'en' && item.name_en) ? item.name_en : item.name
+  }
   
   if (customerStep === 'confirm') {
     return (
       <div className="customer-app">
         <header className="customer-header">
           <div className="header-meta">
-            <h1>注文内容の確認</h1>
-            <span className="table-badge">卓番: {activeTableName}</span>
+            <h1>{lang === 'en' ? 'Confirm Order' : '注文内容の確認'}</h1>
+            <span className="table-badge">{lang === 'en' ? 'Table' : '卓番'}: {activeTableName}</span>
           </div>
-          <button className="customer-header-btn" onClick={onBackToMenu}>戻る</button>
+          <button className="customer-header-btn" onClick={onBackToMenu}>{lang === 'en' ? 'Back' : '戻る'}</button>
         </header>
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center'}}>{customerMessage}</p> : null}
 
         <main className="menu-grid" style={{paddingTop: '24px'}}>
           <div style={{background:'white', borderRadius:'16px', padding:'24px', boxShadow:'0 4px 12px rgba(0,0,0,0.05)'}}>
-            {cartItems.length === 0 ? <p style={{textAlign:'center', color:'#888'}}>まだ商品が選ばれていません。</p> : null}
+            {cartItems.length === 0 ? <p style={{textAlign:'center', color:'#888'}}>{lang === 'en' ? 'No items selected.' : 'まだ商品が選ばれていません。'}</p> : null}
             
             <div style={{display:'flex', flexDirection:'column', gap:'16px'}}>
               {cartItems.map((item) => (
                 <div key={item.cartKey} style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px dashed #eee', paddingBottom:'16px'}}>
                   <div>
-                    <h4 style={{margin:0, fontSize:'1.1rem'}}>{item.name}</h4>
+                    <h4 style={{margin:0, fontSize:'1.1rem'}}>{getItemName(item)}</h4>
                     {item.toppings && item.toppings.length > 0 && (
                       <div style={{fontSize:'0.85rem', color:'#666', marginTop:'4px'}}>
-                        {item.toppings.map((t) => `＋ ${t.name}`).join(' ')}
+                        {item.toppings.map((t) => `＋ ${(lang === 'en' && t.name_en) ? t.name_en : t.name}`).join(' ')}
                       </div>
                     )}
                     <span style={{color:'#ff5a5f', fontWeight:'bold', fontSize:'1.1rem'}}>{yen(item.price)}</span>
@@ -226,11 +234,27 @@ export function CustomerScreen({
       <div style={{ position: 'sticky', top: 0, zIndex: 20 }}>
         <header className="customer-header">
           <div className="header-meta">
-            <span className="table-badge">卓番: {activeTableName}</span>
+            <span className="table-badge">{lang === 'en' ? 'Table' : '卓番'}: {activeTableName}</span>
+            {hasEnglishNames && (
+              <button
+                onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
+                style={{
+                  padding: '4px 8px',
+                  fontSize: '0.85rem',
+                  background: '#f0f3f5',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginLeft: '8px',
+                }}
+              >
+                {lang === 'ja' ? 'English' : '日本語'}
+              </button>
+            )}
           </div>
           {customerCanViewMyOrder && (
             <button className="customer-header-btn" onClick={onOpenMyOrder}>
-              注文履歴
+              {lang === 'en' ? 'History' : '注文履歴'}
             </button>
           )}
         </header>
@@ -297,7 +321,7 @@ export function CustomerScreen({
 
         {visibleCustomerItems.length === 0 && publicMenuReady ? (
           <div style={{textAlign:'center', padding:'40px 20px', color:'#888'}}>
-            <strong>このカテゴリの商品はまだありません。</strong>
+            <strong>{lang === 'en' ? 'No items in this category.' : 'このカテゴリの商品はまだありません。'}</strong>
           </div>
         ) : null}
 
@@ -309,12 +333,12 @@ export function CustomerScreen({
                 className="card-image" 
                 style={item.imageUrl ? { backgroundImage: `url(${item.imageUrl})` } : { background: '#f0f0f0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'3rem', color:'#ccc' }}
               >
-                {!item.imageUrl && itemInitial(item.name)}
+                {!item.imageUrl && itemInitial(getItemName(item))}
                 {qty > 0 && <span className="qty-badge">{qty}</span>}
-                {item.soldOut && <div className="sold-out-overlay">売切</div>}
+                {item.soldOut && <div className="sold-out-overlay">{lang === 'en' ? 'Sold Out' : '売切'}</div>}
               </div>
               <div className="card-content">
-                <h3 className="item-name">{item.name}</h3>
+                <h3 className="item-name">{getItemName(item)}</h3>
                 <p className="item-lead">{item.lead}</p>
                 <div className="card-bottom">
                   <strong className="item-price">{yen(item.price)}</strong>
@@ -332,7 +356,7 @@ export function CustomerScreen({
                           }
                         }}
                       >
-                        追加
+                        {lang === 'en' ? 'Add' : '追加'}
                       </button>
                     </div>
                   )}
@@ -351,10 +375,10 @@ export function CustomerScreen({
           disabled={!customerOrderingEnabled || cartCount === 0 || customerBusy}
         >
           <div className="cart-meta">
-            <span className="cart-count">カートに {cartCount} 点</span>
+            <span className="cart-count">{lang === 'en' ? `${cartCount} items in cart` : `カートに ${cartCount} 点`}</span>
             <span className="cart-subtotal">{yen(cartSubtotal)}</span>
           </div>
-          <span className="cart-action-text">注文確認へ →</span>
+          <span className="cart-action-text">{lang === 'en' ? 'To order confirmation →' : '注文確認へ →'}</span>
         </button>
       </div>
 
@@ -365,11 +389,12 @@ export function CustomerScreen({
             setToppingModalOpen(false)
             setActiveToppingItem(null)
           }}
-          itemName={activeToppingItem.name}
+          itemName={getItemName(activeToppingItem)}
           toppings={activeToppingItem.toppings || []}
           onConfirm={(selectedToppingIds) => {
             onIncrementItem(activeToppingItem.id, selectedToppingIds)
           }}
+          lang={lang}
         />
       )}
     </div>

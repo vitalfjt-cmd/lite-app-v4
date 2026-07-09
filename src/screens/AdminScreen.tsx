@@ -93,6 +93,7 @@ type Props = {
   adminItemCategoryId: string
   adminItemCode: string
   adminItemName: string
+  adminItemNameEn: string
   adminItemPrice: string
   adminItemTaxType: 'INCLUDED' | 'EXCLUDED' | 'NONE'
   adminItemImageUrl: string
@@ -161,6 +162,7 @@ type Props = {
   onItemCategoryChange: (value: string) => void
   onItemCodeChange: (value: string) => void
   onItemNameChange: (value: string) => void
+  onItemNameEnChange: (value: string) => void
   onItemPriceChange: (value: string) => void
   onItemTaxTypeChange: (value: 'INCLUDED' | 'EXCLUDED' | 'NONE') => void
   onItemImageUrlChange: (value: string) => void
@@ -571,6 +573,7 @@ export function AdminScreen(props: Props) {
             adminItemCategoryId={props.adminItemCategoryId}
             adminItemCode={props.adminItemCode}
             adminItemName={props.adminItemName}
+            adminItemNameEn={props.adminItemNameEn}
             adminItemPrice={props.adminItemPrice}
             adminItemTaxType={props.adminItemTaxType}
             adminItemImageUrl={props.adminItemImageUrl}
@@ -589,6 +592,7 @@ export function AdminScreen(props: Props) {
             onItemCategoryChange={props.onItemCategoryChange}
             onItemCodeChange={props.onItemCodeChange}
             onItemNameChange={props.onItemNameChange}
+            onItemNameEnChange={props.onItemNameEnChange}
             onItemPriceChange={props.onItemPriceChange}
             onItemTaxTypeChange={props.onItemTaxTypeChange}
             onItemImageUrlChange={props.onItemImageUrlChange}

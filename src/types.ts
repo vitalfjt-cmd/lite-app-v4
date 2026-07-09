@@ -92,13 +92,14 @@ export type LiveMenuItem = {
   category_id: string
   parent_category_id?: string | null
   name: string
+  name_en?: string | null
   price: number
   tax_type?: 'INCLUDED' | 'EXCLUDED' | 'NONE'
   is_sold_out: boolean
   image_url?: string | null
   sort_order: number
   is_active: boolean
-  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+  toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
 }
 export type LiveStore = {
   id: string
@@ -170,7 +171,7 @@ export type LiveLine = {
 }
 export type LiveStaffUser = StaffProfile
 export type CustomerCategory = { id: string; name: string; parentId?: string | null }
-export type CustomerMenuItem = { id: string; categoryId: string; name: string; price: number; soldOut: boolean; lead?: string; imageUrl?: string | null; toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[] }
+export type CustomerMenuItem = { id: string; categoryId: string; name: string; name_en?: string | null; price: number; soldOut: boolean; lead?: string; imageUrl?: string | null; toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[] }
 
 export type StaffPrototypeTopCategory = { id: string; name: string }
 export type StaffPrototypeSubCategory = { id: string; name: string; parentId: string; sortOrder: number }

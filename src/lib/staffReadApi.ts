@@ -592,6 +592,7 @@ export function saveAdminPrototypeItem(
     code?: string | null
     categoryId: string
     name: string
+    nameEn?: string | null
     price: number
     taxType: 'INCLUDED' | 'EXCLUDED' | 'NONE'
     isSoldOut: boolean
@@ -607,13 +608,14 @@ export function saveAdminPrototypeItem(
       code: string | null
       category_id: string
       name: string
+      name_en: string | null
       price: number
       tax_type: 'INCLUDED' | 'EXCLUDED' | 'NONE'
       is_sold_out: boolean
       image_url: string | null
       sort_order: number
       is_active: boolean
-      toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+      toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
     }
   }>({
     action: 'admin-save-item',

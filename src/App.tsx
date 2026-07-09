@@ -866,6 +866,7 @@ export default function App() {
             adminItemCategoryId={adminForm.adminItemCategoryId}
             adminItemCode={adminForm.adminItemCode}
             adminItemName={adminForm.adminItemName}
+            adminItemNameEn={adminForm.adminItemNameEn}
             adminItemPrice={adminForm.adminItemPrice}
             adminItemTaxType={adminForm.adminItemTaxType}
             adminItemImageUrl={adminForm.adminItemImageUrl}
@@ -985,6 +986,7 @@ export default function App() {
             onItemCategoryChange={adminForm.setAdminItemCategoryId}
             onItemCodeChange={adminForm.setAdminItemCode}
             onItemNameChange={adminForm.setAdminItemName}
+            onItemNameEnChange={adminForm.setAdminItemNameEn}
             onItemPriceChange={adminForm.setAdminItemPrice}
             onItemTaxTypeChange={adminForm.setAdminItemTaxType}
             onItemImageUrlChange={adminForm.setAdminItemImageUrl}

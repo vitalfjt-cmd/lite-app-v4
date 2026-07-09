@@ -7,6 +7,7 @@ type Props = {
   adminItemCategoryId: string
   adminItemCode: string
   adminItemName: string
+  adminItemNameEn: string
   adminItemPrice: string
   adminItemTaxType: 'INCLUDED' | 'EXCLUDED' | 'NONE'
   adminItemImageUrl: string
@@ -22,6 +23,7 @@ type Props = {
   onItemCategoryChange: (value: string) => void
   onItemCodeChange: (value: string) => void
   onItemNameChange: (value: string) => void
+  onItemNameEnChange: (value: string) => void
   onItemPriceChange: (value: string) => void
   onItemTaxTypeChange: (value: 'INCLUDED' | 'EXCLUDED' | 'NONE') => void
   onItemImageUrlChange: (value: string) => void
@@ -86,6 +88,7 @@ export function AdminItemModal(props: Props) {
           </label>
           <label>メニューコード<input value={props.adminItemCode} onChange={(event) => props.onItemCodeChange(event.target.value)} disabled={disabled} /></label>
           <label>メニュー名<input value={props.adminItemName} onChange={(event) => props.onItemNameChange(event.target.value)} disabled={disabled} /></label>
+          <label>英語表記<input value={props.adminItemNameEn} onChange={(event) => props.onItemNameEnChange(event.target.value)} disabled={disabled} /></label>
           <label>価格<input type="number" value={props.adminItemPrice} onChange={(event) => props.onItemPriceChange(event.target.value)} disabled={disabled} /></label>
           <label>
             税区分

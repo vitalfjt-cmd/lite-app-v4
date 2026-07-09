@@ -33,6 +33,7 @@ export function useAdminForm() {
   const [adminItemCategoryId, setAdminItemCategoryId] = useState('')
   const [adminItemCode, setAdminItemCode] = useState('')
   const [adminItemName, setAdminItemName] = useState('')
+  const [adminItemNameEn, setAdminItemNameEn] = useState('')
   const [adminItemPrice, setAdminItemPrice] = useState('500')
   const [adminItemTaxType, setAdminItemTaxType] = useState<'INCLUDED' | 'EXCLUDED' | 'NONE'>('INCLUDED')
   const [adminItemImageUrl, setAdminItemImageUrl] = useState('')
@@ -109,6 +110,7 @@ export function useAdminForm() {
       setAdminItemIsActive,
       setAdminItemIsSoldOut,
     )
+    setAdminItemNameEn('')
     setAdminItemToppingIds([])
   }
 
@@ -179,6 +181,7 @@ export function useAdminForm() {
     setAdminItemCode(item.code ?? '')
     setAdminItemCategoryId(item.category_id)
     setAdminItemName(item.name)
+    setAdminItemNameEn(item.name_en ?? '')
     setAdminItemPrice(String(item.price))
     setAdminItemTaxType(item.tax_type ?? 'INCLUDED')
     setAdminItemImageUrl(item.image_url ?? '')
@@ -252,6 +255,7 @@ export function useAdminForm() {
     adminItemCategoryId, setAdminItemCategoryId,
     adminItemCode, setAdminItemCode,
     adminItemName, setAdminItemName,
+    adminItemNameEn, setAdminItemNameEn,
     adminItemPrice, setAdminItemPrice,
     adminItemTaxType, setAdminItemTaxType,
     adminItemImageUrl, setAdminItemImageUrl,

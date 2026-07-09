@@ -5,16 +5,17 @@ type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
   id: string
   name: string
+  name_en?: string | null
   lead?: string
   price: number
   soldOut: boolean
   imageUrl?: string | null
-  toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+  toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
 }
 type CartItem = Omit<CustomerMenuItem, 'toppings'> & {
   qty: number
   cartKey: string
-  toppings: { id: string; name: string; price: number }[]
+  toppings: { id: string; name: string; name_en?: string | null; price: number }[]
   toppingIds: string[]
 }
 
@@ -97,6 +98,13 @@ export function CustomerTabletScreen({
   const [showHistoryModal, setShowHistoryModal] = useState(false)
   const [toppingModalOpen, setToppingModalOpen] = useState(false)
   const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
+  const [lang, setLang] = useState<'ja' | 'en'>('ja')
+
+  const hasEnglishNames = visibleCustomerItems.some((item) => item.name_en)
+
+  const getItemName = (item: { name: string; name_en?: string | null }) => {
+    return (lang === 'en' && item.name_en) ? item.name_en : item.name
+  }
   
   const scrollHorizontally = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -166,17 +174,17 @@ export function CustomerTabletScreen({
         <main className="tablet-main" style={{ padding: '32px', justifyContent: 'center', alignItems: 'flex-start', overflowY: 'auto' }}>
           <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto', background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
             {cartItems.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#888', fontSize: '1.2rem' }}>まだ商品が選ばれていません。</p>
+              <p style={{ textAlign: 'center', color: '#888', fontSize: '1.2rem' }}>{lang === 'en' ? 'No items selected.' : 'まだ商品が選ばれていません。'}</p>
             ) : null}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {cartItems.map((item) => (
                 <div key={item.cartKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px dashed #eee', paddingBottom: '24px' }}>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{item.name}</h4>
+                    <h4 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>{getItemName(item)}</h4>
                     {item.toppings && item.toppings.length > 0 && (
                       <div style={{ fontSize: '1.1rem', color: '#666', marginTop: '6px' }}>
-                        {item.toppings.map((t) => `＋ ${t.name}`).join(' ')}
+                        {item.toppings.map((t) => `＋ ${(lang === 'en' && t.name_en) ? t.name_en : t.name}`).join(' ')}
                       </div>
                     )}
                     <span style={{ color: '#ff5a5f', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
@@ -243,6 +251,22 @@ export function CustomerTabletScreen({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 64px', borderBottom: '1px solid #eee' }}>
           <div className="tablet-meta" style={{ marginBottom: 0 }}>
             <h1 style={{ margin: 0 }}>{activeStoreName || '焼肉 UCD'}</h1>
+            {hasEnglishNames && (
+              <button
+                onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
+                style={{
+                  padding: '8px 16px',
+                  fontSize: '1rem',
+                  background: '#f0f3f5',
+                  border: '1px solid #ccc',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  marginLeft: '16px',
+                }}
+              >
+                {lang === 'ja' ? 'English' : '日本語'}
+              </button>
+            )}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {activeTicketNo && (
@@ -349,7 +373,7 @@ export function CustomerTabletScreen({
                 padding: '60px',
               }}
             >
-              このカテゴリのメニューはありません
+              {lang === 'en' ? 'No items in this category' : 'このカテゴリのメニューはありません'}
             </div>
           ) : (
             visibleCustomerItems.map((item) => {
@@ -374,16 +398,16 @@ export function CustomerTabletScreen({
                   >
                     {!item.imageUrl && (
                       <span style={{ fontSize: '3rem', color: '#c8a87a' }}>
-                        {item.name.slice(0, 1)}
+                        {getItemName(item).slice(0, 1).toUpperCase()}
                       </span>
                     )}
                     {qty > 0 && <span className="tablet-qty-badge">{qty}</span>}
-                    {item.soldOut && <div className="tablet-sold-out-overlay">売切</div>}
+                    {item.soldOut && <div className="tablet-sold-out-overlay">{lang === 'en' ? 'Sold Out' : '売切'}</div>}
                   </div>
 
                   <div className="tablet-card-content">
                     <div className="tablet-card-text">
-                      <h3 className="tablet-item-name">{item.name}</h3>
+                      <h3 className="tablet-item-name">{getItemName(item)}</h3>
                       {item.lead && <p className="tablet-item-lead">{item.lead}</p>}
                       <strong className="tablet-item-price">{yen(item.price)}</strong>
                     </div>
@@ -591,11 +615,12 @@ export function CustomerTabletScreen({
             setToppingModalOpen(false)
             setActiveToppingItem(null)
           }}
-          itemName={activeToppingItem.name}
+          itemName={getItemName(activeToppingItem)}
           toppings={activeToppingItem.toppings || []}
           onConfirm={(selectedToppingIds) => {
             onIncrementItem(activeToppingItem.id, selectedToppingIds)
           }}
+          lang={lang}
         />
       )}
     </div>

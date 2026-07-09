@@ -62,6 +62,7 @@ export function useCustomerFlow(view: AppView) {
           id: item.id,
           categoryId: composeScopedCategoryId(item.parent_category_id ?? null, item.category_id),
           name: item.name,
+          name_en: item.name_en ?? null,
           price: item.price,
           soldOut: item.is_sold_out,
           imageUrl: item.image_url ?? null,

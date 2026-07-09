@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 interface Topping {
   id: string
   name: string
+  name_en?: string | null
   price: number
   is_sold_out: boolean
 }
@@ -13,6 +14,7 @@ interface ToppingModalProps {
   itemName: string
   toppings: Topping[]
   onConfirm: (selectedToppingIds: string[]) => void
+  lang?: 'ja' | 'en'
 }
 
 export const ToppingModal: React.FC<ToppingModalProps> = ({
@@ -21,6 +23,7 @@ export const ToppingModal: React.FC<ToppingModalProps> = ({
   itemName,
   toppings,
   onConfirm,
+  lang = 'ja',
 }) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
@@ -48,7 +51,7 @@ export const ToppingModal: React.FC<ToppingModalProps> = ({
       <div className="topping-modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="topping-modal-header">
           <h3>{itemName}</h3>
-          <p>オプションを選択してください</p>
+          <p>{lang === 'en' ? 'Select options' : 'オプションを選択してください'}</p>
         </div>
         <div className="topping-options-list">
           {toppings.map((topping) => {
@@ -62,7 +65,7 @@ export const ToppingModal: React.FC<ToppingModalProps> = ({
                 onClick={() => !topping.is_sold_out && handleToggle(topping.id)}
               >
                 <div className="topping-info">
-                  <span className="topping-name">{topping.name}</span>
+                  <span className="topping-name">{(lang === 'en' && topping.name_en) ? topping.name_en : topping.name}</span>
                   <span className="topping-price">
                     {topping.is_sold_out
                       ? ''
@@ -71,7 +74,7 @@ export const ToppingModal: React.FC<ToppingModalProps> = ({
                         : '無料'}
                   </span>
                   {topping.is_sold_out && (
-                    <span className="topping-sold-out-badge">売り切れ</span>
+                    <span className="topping-sold-out-badge">{lang === 'en' ? 'Sold Out' : '売り切れ'}</span>
                   )}
                 </div>
                 <div className="topping-checkbox">
@@ -83,10 +86,12 @@ export const ToppingModal: React.FC<ToppingModalProps> = ({
         </div>
         <div className="topping-modal-actions">
           <button className="topping-btn-cancel" onClick={handleClose}>
-            キャンセル
+            {lang === 'en' ? 'Cancel' : 'キャンセル'}
           </button>
           <button className="topping-btn-confirm" onClick={handleConfirm}>
-            {selectedIds.length > 0 ? 'オプション付きで追加' : 'オプションなしで追加'}
+            {lang === 'en'
+              ? (selectedIds.length > 0 ? 'Add with options' : 'Add without options')
+              : (selectedIds.length > 0 ? 'オプション付きで追加' : 'オプションなしで追加')}
           </button>
         </div>
       </div>
