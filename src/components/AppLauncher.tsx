@@ -45,6 +45,8 @@ const SALES_SUB_MENU_ITEMS = [
   { id: 'paymentHistory', label: '会計種別データ参照' },
   { id: 'accountingHistory', label: '会計データ参照' },
   { id: 'productSalesHistory', label: '商品注文データ参照' },
+  { id: 'categorySales', label: 'カテゴリ別売上' },
+  { id: 'subcategorySales', label: 'サブカテゴリ別売上' },
   { id: 'receiptReissue', label: 'レシート再発行' },
 ]
 

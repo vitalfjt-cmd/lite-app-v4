@@ -34,6 +34,8 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'items', label: 'メニュー', caption: '商品マスタ' },
   { id: 'placements', label: 'メニューブック構成', caption: '掲載カテゴリ・商品紐付け' },
   { id: 'sales', label: 'レジ締め・売上状況', caption: '営業日・本日売上' },
+  { id: 'categorySales', label: 'カテゴリ別売上', caption: '現在の営業日のカテゴリ別売上' },
+  { id: 'subcategorySales', label: 'サブカテゴリ別売上', caption: '現在の営業日のサブカテゴリ別売上' },
   { id: 'salesHistory', label: '売上データ照会', caption: '期間指定での売上・客数照会' },
   { id: 'paymentHistory', label: '会計種別データ照会', caption: '期間指定での決済別売上照会' },
   { id: 'accountingHistory', label: '会計データ照会', caption: '日付指定での会計データ照会' },
@@ -45,7 +47,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'paymentMethods', label: '決済種別', caption: 'マスタ・表示順設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -512,13 +514,15 @@ export function AdminScreen(props: Props) {
             />
           ) : null}
 
-          {activeTab === 'sales' ? (
+          {activeTab === 'sales' || activeTab === 'categorySales' || activeTab === 'subcategorySales' ? (
             <AdminSalesTab
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}
               setAdminMessage={(msg) => msg ? alert(msg) : null}
               setError={(msg) => msg ? alert(msg) : null}
+              initialSubTab={activeTab === 'categorySales' ? 'category' : activeTab === 'subcategorySales' ? 'subcategory' : 'status'}
+              hideHeaders={activeTab === 'categorySales' || activeTab === 'subcategorySales'}
             />
           ) : null}
 

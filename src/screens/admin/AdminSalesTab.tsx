@@ -7,13 +7,15 @@ type Props = {
   yen: (value: number) => string
   setAdminMessage: (msg: string | null) => void
   setError: (msg: string | null) => void
+  initialSubTab?: 'status' | 'void' | 'summary' | 'hourly' | 'items' | 'category' | 'subcategory'
+  hideHeaders?: boolean
 }
 
-export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setError }: Props) {
+export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setError, initialSubTab, hideHeaders }: Props) {
   const [report, setReport] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [businessDateStr, setBusinessDateStr] = useState<string>('')
-  const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items' | 'category' | 'subcategory'>('status')
+  const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items' | 'category' | 'subcategory'>(initialSubTab || 'status')
   
   const [voidReceiptNo, setVoidReceiptNo] = useState('')
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')
@@ -205,39 +207,49 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     <div className="admin-tab-content" style={{ maxHeight: '100%', height: '100%', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
       <div className="admin-tab-head">
         <div>
-          <h2>売上管理・レジ締め</h2>
-          <p className="caption">現在の営業日の売上状況や、開店・閉店の操作を行います。</p>
+          <h2>
+            {activeSubTab === 'category' ? 'カテゴリ別売上' 
+             : activeSubTab === 'subcategory' ? 'サブカテゴリ別売上' 
+             : '売上管理・レジ締め'}
+          </h2>
+          <p className="caption">
+            {activeSubTab === 'category' ? '現在の営業日のカテゴリ別売上状況を表示します。' 
+             : activeSubTab === 'subcategory' ? '現在の営業日のサブカテゴリ別売上状況を表示します。' 
+             : '現在の営業日の売上状況や、開店・閉店の操作を行います。'}
+          </p>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #dee2e6', paddingBottom: '12px', flexWrap: 'wrap' }}>
-        {[
-          { id: 'status', label: '営業状況' },
-          { id: 'void', label: 'VOID・会計変更' },
-          { id: 'summary', label: '売上サマリー' },
-          { id: 'hourly', label: '時間帯別売上' },
-          { id: 'items', label: '商品別注文数' },
-          { id: 'category', label: 'カテゴリ別売上' },
-          { id: 'subcategory', label: 'サブカテゴリ別売上' }
-        ].map(t => (
-          <button
-            key={t.id}
-            onClick={() => setActiveSubTab(t.id as any)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '1px solid #dee2e6',
-              background: activeSubTab === t.id ? '#228be6' : 'white',
-              color: activeSubTab === t.id ? 'white' : '#495057',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
+      {!hideHeaders && (
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #dee2e6', paddingBottom: '12px', flexWrap: 'wrap' }}>
+          {[
+            { id: 'status', label: '営業状況' },
+            { id: 'void', label: 'VOID・会計変更' },
+            { id: 'summary', label: '売上サマリー' },
+            { id: 'hourly', label: '時間帯別売上' },
+            { id: 'items', label: '商品別注文数' },
+            { id: 'category', label: 'カテゴリ別売上' },
+            { id: 'subcategory', label: 'サブカテゴリ別売上' }
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setActiveSubTab(t.id as any)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: '1px solid #dee2e6',
+                background: activeSubTab === t.id ? '#228be6' : 'white',
+                color: activeSubTab === t.id ? 'white' : '#495057',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {activeSubTab === 'status' && (
         <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
