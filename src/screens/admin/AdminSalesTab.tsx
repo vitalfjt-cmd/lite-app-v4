@@ -13,7 +13,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   const [report, setReport] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [businessDateStr, setBusinessDateStr] = useState<string>('')
-  const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items'>('status')
+  const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items' | 'category' | 'subcategory'>('status')
   
   const [voidReceiptNo, setVoidReceiptNo] = useState('')
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')
@@ -216,7 +216,9 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
           { id: 'void', label: 'VOID・会計変更' },
           { id: 'summary', label: '売上サマリー' },
           { id: 'hourly', label: '時間帯別売上' },
-          { id: 'items', label: '商品別注文数' }
+          { id: 'items', label: '商品別注文数' },
+          { id: 'category', label: 'カテゴリ別売上' },
+          { id: 'subcategory', label: 'サブカテゴリ別売上' }
         ].map(t => (
           <button
             key={t.id}
@@ -651,6 +653,80 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                     <tr key={itemName}>
                       <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{itemName}</td>
                       <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{qty}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
+            レポートがありません。開店してください。
+          </div>
+        )
+      )}
+
+      {activeSubTab === 'category' && (
+        report ? (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>カテゴリ別売上</h3>
+            <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8f9fa' }}>
+                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>カテゴリ名</th>
+                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>売上</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(!report.category_sales || Object.entries(report.category_sales).length === 0) && (
+                    <tr>
+                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                    </tr>
+                  )}
+                  {report.category_sales && Object.entries(report.category_sales)
+                    .sort((a: any, b: any) => b[1] - a[1])
+                    .map(([name, amount]: [string, any]) => (
+                    <tr key={name}>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{name}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px', color: '#868e96' }}>
+            レポートがありません。開店してください。
+          </div>
+        )
+      )}
+
+      {activeSubTab === 'subcategory' && (
+        report ? (
+          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>サブカテゴリ別売上</h3>
+            <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+                <thead>
+                  <tr style={{ background: '#f8f9fa' }}>
+                    <th style={{ padding: '8px', textAlign: 'left', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>サブカテゴリ名</th>
+                    <th style={{ padding: '8px', textAlign: 'right', borderBottom: '2px solid #f1f3f5', color: '#868e96', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>売上</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(!report.subcategory_sales || Object.entries(report.subcategory_sales).length === 0) && (
+                    <tr>
+                      <td colSpan={2} style={{ padding: '16px', textAlign: 'center', color: '#adb5bd' }}>データなし</td>
+                    </tr>
+                  )}
+                  {report.subcategory_sales && Object.entries(report.subcategory_sales)
+                    .sort((a: any, b: any) => b[1] - a[1])
+                    .map(([name, amount]: [string, any]) => (
+                    <tr key={name}>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', color: '#495057' }}>{name}</td>
+                      <td style={{ padding: '8px', borderBottom: '1px solid #f1f3f5', textAlign: 'right', fontWeight: 'bold' }}>{yen(amount)}</td>
                     </tr>
                   ))}
                 </tbody>
