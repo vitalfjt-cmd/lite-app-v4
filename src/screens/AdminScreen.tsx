@@ -24,6 +24,8 @@ import { AdminProductSalesHistoryTab } from './admin/AdminProductSalesHistoryTab
 import { AdminPaymentMethodsTab } from './admin/AdminPaymentMethodsTab'
 import { AdminPaymentMethodModal } from './admin/AdminPaymentMethodModal'
 import { AdminReceiptReissueTab } from './admin/AdminReceiptReissueTab'
+import { AdminCategorySalesTab } from './admin/AdminCategorySalesTab'
+import { AdminSubcategorySalesTab } from './admin/AdminSubcategorySalesTab'
 import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminTab } from './admin/types'
 
 
@@ -514,15 +516,31 @@ export function AdminScreen(props: Props) {
             />
           ) : null}
 
-          {activeTab === 'sales' || activeTab === 'categorySales' || activeTab === 'subcategorySales' ? (
+          {activeTab === 'sales' ? (
             <AdminSalesTab
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}
               setAdminMessage={(msg) => msg ? alert(msg) : null}
               setError={(msg) => msg ? alert(msg) : null}
-              initialSubTab={activeTab === 'categorySales' ? 'category' : activeTab === 'subcategorySales' ? 'subcategory' : 'status'}
-              hideHeaders={activeTab === 'categorySales' || activeTab === 'subcategorySales'}
+            />
+          ) : null}
+
+          {activeTab === 'categorySales' ? (
+            <AdminCategorySalesTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
+              setError={(msg) => msg ? alert(msg) : null}
+            />
+          ) : null}
+
+          {activeTab === 'subcategorySales' ? (
+            <AdminSubcategorySalesTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
+              setError={(msg) => msg ? alert(msg) : null}
             />
           ) : null}
 

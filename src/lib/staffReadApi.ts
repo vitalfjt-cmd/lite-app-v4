@@ -1042,6 +1042,36 @@ export function getStaffProductSalesHistory(storeSlug: string, startDate: string
   })
 }
 
+export function getStaffCategorySalesHistory(storeSlug: string, startDate: string, endDate: string) {
+  return invoke<{
+    items: {
+      business_date: string
+      category_name: string
+      amount: number
+    }[]
+  }>({
+    action: 'get-category-sales-history',
+    storeSlug,
+    startDate,
+    endDate,
+  })
+}
+
+export function getStaffSubcategorySalesHistory(storeSlug: string, startDate: string, endDate: string) {
+  return invoke<{
+    items: {
+      business_date: string
+      subcategory_name: string
+      amount: number
+    }[]
+  }>({
+    action: 'get-subcategory-sales-history',
+    storeSlug,
+    startDate,
+    endDate,
+  })
+}
+
 export function staffAuditLog(storeSlug: string, actionType: string, targetTicketId?: string | null, detailsJson?: string | null) {
   return invoke<{ ok: true }>({
     action: 'audit-log',
