@@ -7,6 +7,7 @@ import {
   cancelStaffPrototypeLine,
   updateStaffPrototypeLineStatus,
   addStaffPrototypeOrder,
+  addStaffPrototypeOrders,
   createStaffPrototypeTicket,
   addStaffPrototypePaymentEntry,
   closeStaffPrototypeTicket,
@@ -199,6 +200,52 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
+  const createHandyOrders = async (items: Array<{ itemId: string; qty: number; toppings?: string[] }>) => {
+    if (!profile || !selectedTicket || items.length === 0) return
+    setMutationBusy('handy-order')
+    setStaffMessage(null)
+    setError(null)
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        
+        const apiItems = items.map(item => ({
+          menuItemId: item.itemId,
+          quantity: item.qty,
+          toppings: item.toppings
+        }))
+
+        const added = await addStaffPrototypeOrders(storeSlug, selectedTicket.id, apiItems)
+        
+        const newLines = added.lines.map(line => {
+          return {
+            id: line.id,
+            order_ticket_id: selectedTicket.id,
+            item_name_snapshot: line.item_name_snapshot,
+            quantity: line.quantity,
+            line_subtotal: line.line_subtotal,
+            kds_status: 'NEW' as const,
+            customer_note: null,
+            created_at: new Date().toISOString(),
+            toppings: line.toppings || [],
+          }
+        })
+
+        setLiveLines((current) => [
+          ...current,
+          ...newLines,
+        ])
+      }
+      setHandyQty('1')
+      setStaffMessage('Staff orders added.')
+    } catch (err) {
+      setError(formatError(err))
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   const createStaffTicket = async (tableRefId: string, menuBookId: string, customerCount: number | null = null): Promise<boolean> => {
     if (!profile) {
       const message = 'スタッフ情報の読み込みが完了していません。再読み込み後にもう一度お試しください。'
@@ -357,6 +404,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     cancelLine,
     advanceLineStatus,
     createHandyOrder,
+    createHandyOrders,
     createStaffTicket,
     savePaymentEntry,
     settleTicket,

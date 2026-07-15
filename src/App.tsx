@@ -212,7 +212,7 @@ export default function App() {
 
   const {
     changeLineQuantity, submitLineQuantityUpdate, cancelLine, advanceLineStatus,
-    createHandyOrder, createStaffTicket, savePaymentEntry, settleTicket, logPaymentAbort
+    createHandyOrder, createHandyOrders, createStaffTicket, savePaymentEntry, settleTicket, logPaymentAbort
   } = staffOps
 
 
@@ -767,6 +767,7 @@ export default function App() {
             onHandyItemChange={setHandyItemId}
             onHandyQtyChange={setHandyQty}
             onCreateHandyOrder={(itemId, qty, toppings) => void createHandyOrder(itemId, qty, toppings)}
+            onCreateHandyOrders={(items) => void createHandyOrders(items)}
             onNewTicketMenuBookChange={setNewTicketMenuBookId}
             onCreateTicket={(tableRefId, menuBookId, customerCount) => createStaffTicket(tableRefId, menuBookId, customerCount)}
             onOpenLauncher={() => setIsLauncherOpen(true)}

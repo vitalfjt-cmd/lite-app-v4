@@ -876,6 +876,35 @@ export function addStaffPrototypeOrder(storeSlug: string, ticketId: string, menu
   })
 }
 
+export function addStaffPrototypeOrders(
+  storeSlug: string,
+  ticketId: string,
+  items: Array<{ menuItemId: string; quantity: number; toppings?: string[] }>,
+) {
+  return invoke<{
+    store: { id: string; slug: string; name: string }
+    ticket: {
+      id: string
+      ticket_no: string
+      reference_subtotal: number
+    }
+    lines: Array<{
+      id: string
+      menu_item_id: string
+      item_name_snapshot: string
+      quantity: number
+      line_subtotal: number
+      kds_status: 'NEW'
+      toppings?: Array<{ id: string; name: string; price: number }>
+    }>
+  }>({
+    action: 'staff-add-orders',
+    storeSlug,
+    ticketId,
+    items,
+  })
+}
+
 export function updateStaffPrototypeLineQuantity(storeSlug: string, lineId: string, quantity: number) {
   return invoke<{
     store: { id: string; slug: string; name: string }
