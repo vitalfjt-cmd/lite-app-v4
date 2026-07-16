@@ -875,7 +875,29 @@ export function StaffScreen({
         </div>
       </header>
 
-      {staffMessage && <div style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', zIndex:1000}}>{staffMessage}</div>}
+      {staffMessage && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          background: '#e03131',
+          color: 'white',
+          padding: '12px 24px',
+          textAlign: 'center',
+          fontWeight: 'bold',
+          fontSize: '1rem',
+          zIndex: 9999,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px'
+        }}>
+          <span>⚠️</span>
+          <span>{staffMessage}</span>
+        </div>
+      )}
 
       <div className={`staff-layout ${mobileView === 'detail' ? 'show-detail' : 'show-list'}`}>
         <aside className="ticket-list-pane">
