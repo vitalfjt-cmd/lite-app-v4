@@ -225,7 +225,7 @@ export function StaffPaymentView({
           <h3 className="receipt-brand">{storeName}</h3>
           <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
           {selectedSummary.receiptNo && <p className="receipt-meta">レシート番号: {selectedSummary.receiptNo}</p>}
-          {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e7f5ff', padding: '4px', borderRadius: '4px', color: '#1c7ed6' }}>{g.label}</p>}
+          {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e8f5e9', padding: '4px', borderRadius: '4px', color: '#1b813e' }}>{g.label}</p>}
           <div className="receipt-divider"></div>
         </div>
 
@@ -446,7 +446,7 @@ export function StaffPaymentView({
                     padding: '8px 16px',
                     borderRadius: '8px',
                     border: '1px solid #ced4da',
-                    background: activePrintGroupId === null ? '#4dabf7' : '#f1f3f5',
+                    background: activePrintGroupId === null ? '#1b813e' : '#f1f3f5',
                     color: activePrintGroupId === null ? 'white' : '#495057',
                     fontWeight: 'bold',
                     cursor: 'pointer'
@@ -462,7 +462,7 @@ export function StaffPaymentView({
                       padding: '8px 16px',
                       borderRadius: '8px',
                       border: '1px solid #ced4da',
-                      background: activePrintGroupId === g.id ? '#4dabf7' : '#f1f3f5',
+                      background: activePrintGroupId === g.id ? '#1b813e' : '#f1f3f5',
                       color: activePrintGroupId === g.id ? 'white' : '#495057',
                       fontWeight: 'bold',
                       cursor: 'pointer'
@@ -585,14 +585,14 @@ export function StaffPaymentView({
                   width: '100%',
                   maxWidth: '400px',
                   padding: '20px',
-                  background: '#4dabf7',
+                  background: '#1b813e',
                   color: 'white',
                   borderRadius: '12px',
                   fontSize: '1.3rem',
                   fontWeight: 'bold',
                   border: 'none',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 12px rgba(77,171,247,0.3)',
+                  boxShadow: '0 4px 12px rgba(27,129,62,0.3)',
                 }}
               >
                 スタッフ画面へ戻る
@@ -694,7 +694,7 @@ export function StaffPaymentView({
                           transition: 'all 0.2s ease'
                         }}>
                           <span style={{ fontSize: '0.9rem', color: '#e9ecef' }}>
-                            {t.tableName} <span style={{ color: '#adb5bd', fontSize: '0.8rem' }}>({t.ticketNo})</span> : <strong style={{ color: '#74c0fc' }}>{yen(t.subtotal)}</strong>
+                            {t.tableName} <span style={{ color: '#adb5bd', fontSize: '0.8rem' }}>({t.ticketNo})</span> : <strong style={{ color: '#81c784' }}>{yen(t.subtotal)}</strong>
                           </span>
                           <button 
                             type="button" 
@@ -909,13 +909,13 @@ export function StaffPaymentView({
                       style={{
                         flex: 1,
                         padding: '16px 10px',
-                        background: '#e7f5ff',
-                        border: '1px solid #74c0fc',
+                        background: '#e8f5e9',
+                        border: '1px solid #a5d6a7',
                         borderRadius: '8px',
                         fontSize: '1.05rem',
                         fontWeight: 'bold',
                         cursor: 'pointer',
-                        color: '#1864ab',
+                        color: '#1b813e',
                       }}
                       onClick={() => {
                         setCalcMode('split')
@@ -928,13 +928,13 @@ export function StaffPaymentView({
                       style={{
                         flex: 1,
                         padding: '16px 10px',
-                        background: '#e7f5ff',
-                        border: '1px solid #74c0fc',
+                        background: '#e8f5e9',
+                        border: '1px solid #a5d6a7',
                         borderRadius: '8px',
                         fontSize: '1.05rem',
                         fontWeight: 'bold',
                         cursor: 'pointer',
-                        color: '#1864ab',
+                        color: '#1b813e',
                       }}
                       onClick={() => {
                         setCalcMode('itemized')
@@ -1088,7 +1088,7 @@ export function StaffPaymentView({
                 <button
                   style={{
                     width: '100%',
-                    background: '#4dabf7',
+                    background: '#1b813e',
                     color: 'white',
                     padding: '20px',
                     borderRadius: '12px',
@@ -1096,7 +1096,7 @@ export function StaffPaymentView({
                     fontWeight: 'bold',
                     border: 'none',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(77,171,247,0.3)',
+                    boxShadow: '0 4px 12px rgba(27,129,62,0.3)',
                   }}
                   onClick={() => {
                     const amt = Math.ceil(remainingTotal / splitCount);
@@ -1235,7 +1235,7 @@ export function StaffPaymentView({
                     <button
                       style={{
                         flex: 2,
-                        background: '#4dabf7',
+                        background: '#1b813e',
                         color: 'white',
                         padding: '20px',
                         borderRadius: '12px',
@@ -1244,7 +1244,7 @@ export function StaffPaymentView({
                         border: 'none',
                         cursor: currentItemizedTotal > 0 ? 'pointer' : 'default',
                         opacity: currentItemizedTotal > 0 ? 1 : 0.6,
-                        boxShadow: currentItemizedTotal > 0 ? '0 4px 12px rgba(77,171,247,0.3)' : 'none',
+                        boxShadow: currentItemizedTotal > 0 ? '0 4px 12px rgba(27,129,62,0.3)' : 'none',
                       }}
                       disabled={currentItemizedTotal <= 0}
                       onClick={() => {

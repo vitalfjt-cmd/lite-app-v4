@@ -3983,14 +3983,31 @@ h1 {
   background: #f4f6f8; color: #333; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden;
 }
 .payment-full-header {
-  background: white; padding: 16px 24px; border-bottom: 1px solid #e0e0e0;
-  display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  background: var(--s-primary);
+  color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 .header-left { display: flex; align-items: center; gap: 20px; }
-.back-btn { padding: 8px 16px; border: 1px solid #ccc; background: white; border-radius: 4px; cursor: pointer; font-weight: 600; color: #555; }
-.back-btn:hover { background: #f0f0f0; }
-.payment-title { font-size: 1.4rem; font-weight: 700; color: #222; margin: 0; }
-.payment-time { font-size: 1.2rem; color: #666; font-weight: 600; }
+.back-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+.payment-title { font-size: 1.4rem; font-weight: 700; color: #ffffff; margin: 0; }
+.payment-time { font-size: 1.2rem; color: rgba(255, 255, 255, 0.85); font-weight: 600; }
 
 .payment-full-layout {
   display: grid;
@@ -4039,13 +4056,18 @@ h1 {
   display: grid;
   grid-template-columns: 1.6fr 1fr;
   gap: 16px;
-  overflow-y: auto;
   background: #f8f9fa;
-  align-content: start;
   min-height: 0;
+  height: 100%;
 }
 
-.numpad-section { display: flex; flex-direction: column; gap: 8px; }
+.numpad-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+}
 .numpad-display {
   background: white; border: 1px solid #dee2e6; padding: 16px 20px; border-radius: 12px;
   display: flex; flex-direction: column; align-items: flex-end; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
@@ -4053,18 +4075,42 @@ h1 {
 .numpad-label { color: #868e96; font-weight: 600; margin-bottom: 2px; font-size: 0.85rem; }
 .numpad-value { font-size: 2.4rem; font-weight: bold; color: #343a40; line-height: 1.2; }
 
-.numpad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
 .numpad-large-btn {
-  background: white; border: 1px solid #dee2e6; padding: 20px 10px; border-radius: 12px;
+  background: white; border: 1px solid #dee2e6; border-radius: 12px;
   font-size: 1.8rem; font-weight: bold; cursor: pointer; color: #495057;
   box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 .numpad-large-btn:active { transform: translateY(2px); box-shadow: none; background: #f1f3f5; }
 .clear-btn { color: #fa5252; font-weight: bold; background: #fff5f5; border-color: #ffc9c9; }
 
-.payment-methods-section { display: flex; flex-direction: column; gap: 10px; }
+.payment-methods-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+}
 .section-title { font-size: 1.05rem; font-weight: bold; color: #495057; margin: 0; }
-.methods-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.methods-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  flex: 1;
+  overflow-y: auto;
+  align-content: start;
+}
 
 .method-card {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -4387,13 +4433,36 @@ h1 {
   /* Payment App Responsive */
   .payment-full-layout { display: block; overflow-y: auto; }
   .payment-receipt-pane { border-right: none; border-bottom: 1px solid #e0e0e0; min-height: 400px; }
-  .payment-action-pane.full { grid-template-columns: 1fr; gap: 24px; padding: 16px; background: white; }
+  .payment-action-pane.full {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 16px;
+    background: white;
+    overflow-y: auto;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
   
   .receipt-paper { margin: 8px; }
   .total-amount { font-size: 1.8rem; }
   
   .numpad-value { font-size: 1.6rem; }
-  .methods-grid { grid-template-columns: repeat(2, 1fr); }
+  .numpad-section, .payment-methods-section {
+    height: auto;
+  }
+  .numpad-grid {
+    grid-template-rows: auto;
+    flex: none;
+  }
+  .numpad-large-btn {
+    padding: 20px 10px;
+    height: auto;
+  }
+  .methods-grid {
+    grid-template-columns: repeat(2, 1fr);
+    flex: none;
+  }
   .method-card { padding: 16px 8px; }
 }
 
