@@ -289,6 +289,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         await saveAdminPrototypeSubcategory(storeSlug, {
           subcategoryId: adminForm.editingSubCategoryId ?? undefined,
           name: adminForm.adminSubCategoryName.trim(),
+          parentCategoryId: adminForm.adminCategoryParentId || null,
           sortOrder: nextSortOrder,
           isActive: true,
         })
