@@ -26,6 +26,7 @@ import { AdminPaymentMethodModal } from './admin/AdminPaymentMethodModal'
 import { AdminReceiptReissueTab } from './admin/AdminReceiptReissueTab'
 import { AdminCategorySalesTab } from './admin/AdminCategorySalesTab'
 import { AdminSubcategorySalesTab } from './admin/AdminSubcategorySalesTab'
+import { AdminHourlySalesHistoryTab } from './admin/AdminHourlySalesHistoryTab'
 import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminTab } from './admin/types'
 
 
@@ -39,6 +40,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'categorySales', label: 'カテゴリ別売上', caption: '現在の営業日のカテゴリ別売上' },
   { id: 'subcategorySales', label: 'サブカテゴリ別売上', caption: '現在の営業日のサブカテゴリ別売上' },
   { id: 'salesHistory', label: '売上データ照会', caption: '期間指定での売上・客数照会' },
+  { id: 'hourlySalesHistory', label: '時間帯別売上照会', caption: '期間指定での時間帯別売上照会' },
   { id: 'paymentHistory', label: '会計種別データ照会', caption: '期間指定での決済別売上照会' },
   { id: 'accountingHistory', label: '会計データ照会', caption: '日付指定での会計データ照会' },
   { id: 'productSalesHistory', label: '商品注文データ照会', caption: '期間指定での商品別注文数照会' },
@@ -49,7 +51,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'paymentMethods', label: '決済種別', caption: 'マスタ・表示順設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'hourlySalesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -573,6 +575,15 @@ export function AdminScreen(props: Props) {
 
           {activeTab === 'productSalesHistory' ? (
             <AdminProductSalesHistoryTab
+              storeSlug={props.adminStoreSlug}
+              disabled={disabled}
+              yen={props.yen}
+              setError={(msg) => msg ? alert(msg) : null}
+            />
+          ) : null}
+
+          {activeTab === 'hourlySalesHistory' ? (
+            <AdminHourlySalesHistoryTab
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}

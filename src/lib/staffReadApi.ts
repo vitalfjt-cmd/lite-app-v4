@@ -1038,6 +1038,22 @@ export function getStaffSalesHistory(storeSlug: string, startDate: string, endDa
   })
 }
 
+export function getStaffHourlySalesHistory(storeSlug: string, startDate: string, endDate: string) {
+  return invoke<{
+    items: {
+      business_date: string
+      hour: number
+      sales_amount: number
+    }[]
+  }>({
+    action: 'get-hourly-sales-history',
+    storeSlug,
+    startDate,
+    endDate,
+  })
+}
+
+
 export function getStaffAccountingTransactions(storeSlug: string, startDate: string, endDate: string) {
   return invoke<{
     transactions: {

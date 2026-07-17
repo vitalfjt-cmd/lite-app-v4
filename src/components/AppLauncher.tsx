@@ -42,6 +42,7 @@ const ADMIN_SUB_MENU_ITEMS = [
 const SALES_SUB_MENU_ITEMS = [
   { id: 'sales', label: 'レジ締め・売上状況' },
   { id: 'salesHistory', label: '売上データ参照' },
+  { id: 'hourlySalesHistory', label: '時間帯別売上参照' },
   { id: 'paymentHistory', label: '会計種別データ参照' },
   { id: 'accountingHistory', label: '会計データ参照' },
   { id: 'productSalesHistory', label: '商品注文データ参照' },
