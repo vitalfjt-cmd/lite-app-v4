@@ -4,6 +4,6 @@ import basicSsl from '@vitejs/plugin-basic-ssl';
 export default defineConfig({
     plugins: [react(), basicSsl()],
     server: {
-        host: true,
+        host: true, // LAN上の他端末（タブレット等）からアクセス可能にする
     },
 });
