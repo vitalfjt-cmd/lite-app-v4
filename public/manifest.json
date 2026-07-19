@@ -1,7 +1,7 @@
 {
   "name": "v4 タブレット注文",
   "short_name": "v4注文",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
