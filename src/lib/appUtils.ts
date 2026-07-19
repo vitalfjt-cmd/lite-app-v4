@@ -45,8 +45,8 @@ export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'h
   if (hash.startsWith('#/')) {
     const raw = hash.slice(2)
     const [hashView, hashQuery = ''] = raw.split('?')
-    if (hashView === 'customer' || hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet') {
-      url.searchParams.set('view', hashView)
+    if (hashView === 'customer' || hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'cust-table') {
+      url.searchParams.set('view', hashView === 'cust-table' ? 'cust-tablet' : hashView)
     }
 
     const hashParams = new URLSearchParams(hashQuery)
@@ -56,7 +56,39 @@ export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'h
     url.hash = ''
   }
   
+  let view = url.searchParams.get('view')
+  if (view === 'cust-table') {
+    url.searchParams.set('view', 'cust-tablet')
+    view = 'cust-tablet'
+  }
+
+  if (view === 'cust-tablet') {
+    const store = url.searchParams.get('store')
+    const qr = url.searchParams.get('qr')
+    if (store && qr) {
+      window.localStorage.setItem('pos_tablet_store', store)
+      window.localStorage.setItem('pos_tablet_qr', qr)
+    } else {
+      const savedStore = window.localStorage.getItem('pos_tablet_store')
+      const savedQr = window.localStorage.getItem('pos_tablet_qr')
+      if (savedStore && savedQr) {
+        if (!store) url.searchParams.set('store', savedStore)
+        if (!qr) url.searchParams.set('qr', savedQr)
+      }
+    }
+  }
+
   if (url.toString() !== currentLocation.href) {
+    const originalUrl = new URL(currentLocation.href)
+    const isTabletRestoring = view === 'cust-tablet' && (
+      url.searchParams.get('store') !== originalUrl.searchParams.get('store') ||
+      url.searchParams.get('qr') !== originalUrl.searchParams.get('qr') ||
+      url.searchParams.get('view') !== originalUrl.searchParams.get('view')
+    )
+    if (isTabletRestoring) {
+      window.location.replace(url.toString())
+      return
+    }
     window.history.replaceState({}, '', url)
   }
 }
@@ -77,10 +109,14 @@ export function readCustomerAccessParams(
 
 export function readViewFromHash(currentLocation: Pick<Location, 'hash' | 'search'> = window.location): AppView | null {
   const params = new URLSearchParams(currentLocation.search)
-  const queryView = params.get('view')
+  let queryView = params.get('view')
+  if (queryView === 'cust-table') {
+    queryView = 'cust-tablet'
+  }
   if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'sales' || queryView === 'customer' || queryView === 'cust-tablet') return queryView as AppView
   const hash = currentLocation.hash.replace('#/', '')
-  return hash === 'staff' || hash === 'handy' || hash === 'kds' || hash === 'admin' || hash === 'sales' || hash === 'cust-tablet' || hash === 'customer' ? hash as AppView : null
+  const hashView = hash === 'cust-table' ? 'cust-tablet' : hash
+  return hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'customer' ? hashView as AppView : null
 }
 
 export function yen(value: number): string {

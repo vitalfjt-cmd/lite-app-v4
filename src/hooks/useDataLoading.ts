@@ -1,7 +1,7 @@
 import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem , AdminPaymentMethod } from '../types'
 import { fetchStaffPrototypeSession, fetchStaffPrototypeBootstrap, fetchStaffTicketList, fetchAdminPrototypeBootstrap, staffReadStoreSlugOverride, staffReadApiEnabled } from '../lib/staffReadApi'
 import { fetchPublicMenu } from '../lib/publicCustomerApi'
-import { formatError, syncCustomerTicketInUrl, readCustomerAccessParams } from '../lib/appUtils'
+import { formatError, syncCustomerTicketInUrl, readCustomerAccessParams, readViewFromHash } from '../lib/appUtils'
 
 export type DataLoadingSetters = {
   setLoadBusy: (busy: boolean) => void
@@ -266,7 +266,11 @@ export function useDataLoading(setters: DataLoadingSetters) {
       setPublicOpenTicket(null)
       setPublicCategories([])
       setPublicItems([])
-      if (!silent) setCustomerMessage('卓情報が見つかりません。QRコードから開き直してください。')
+      if (!silent) {
+        const savedStore = window.localStorage.getItem('pos_tablet_store')
+        const savedQr = window.localStorage.getItem('pos_tablet_qr')
+        setCustomerMessage(`卓情報が見つかりません。URL: ${window.location.search || '(空)'} / キャッシュ: store=${savedStore || '(空)'}, qr=${savedQr || '(空)'}`)
+      }
       return
     }
     if (!silent) {
@@ -290,6 +294,9 @@ export function useDataLoading(setters: DataLoadingSetters) {
       )
       if (!publicTicketToken && data.current_ticket?.customer_access_token) {
         syncCustomerTicketInUrl(data.current_ticket.customer_access_token)
+        setCustomerAccess(readCustomerAccessParams())
+      } else if (readViewFromHash() === 'cust-tablet' && publicTicketToken && !data.current_ticket) {
+        syncCustomerTicketInUrl(null)
         setCustomerAccess(readCustomerAccessParams())
       }
       setPublicCategories(data.categories.map((item) => ({ ...item, is_active: true, parent_category_id: item.parent_category_id ?? null })))

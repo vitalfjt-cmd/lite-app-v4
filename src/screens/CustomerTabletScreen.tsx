@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ToppingModal } from '../components/ToppingModal'
+import { fetchStaffPrototypeBootstrap } from '../lib/staffReadApi'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -100,6 +101,27 @@ export function CustomerTabletScreen({
   const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
   const [lang, setLang] = useState<'ja' | 'en'>('ja')
 
+  // Setup states
+  const [showSetupScreen, setShowSetupScreen] = useState(() => {
+    const hasStore = new URLSearchParams(window.location.search).get('store') || window.localStorage.getItem('pos_tablet_store')
+    const hasQr = new URLSearchParams(window.location.search).get('qr') || window.localStorage.getItem('pos_tablet_qr')
+    return !hasStore || !hasQr
+  })
+  const [setupStoreSlug, setSetupStoreSlug] = useState(() => {
+    return new URLSearchParams(window.location.search).get('store') || window.localStorage.getItem('pos_tablet_store') || 'demo-bbq'
+  })
+  const [tablesList, setTablesList] = useState<{ id: string; label: string; qr_token: string }[]>([])
+  const [loadingTables, setLoadingTables] = useState(false)
+  const [setupError, setSetupError] = useState<string | null>(null)
+  const [selectedTableQr, setSelectedTableQr] = useState('')
+
+  // Passcode and tap states
+  const [showPasscodeModal, setShowPasscodeModal] = useState(false)
+  const [passcode, setPasscode] = useState('')
+  const [passcodeError, setPasscodeError] = useState('')
+  const [tapCount, setTapCount] = useState(0)
+  const [tapTimer, setTapTimer] = useState<number | null>(null)
+
   const hasEnglishNames = visibleCustomerItems.some((item) => item.name_en)
 
   const getItemName = (item: { name: string; name_en?: string | null }) => {
@@ -113,6 +135,246 @@ export function CustomerTabletScreen({
         behavior: 'smooth',
       })
     }
+  }
+
+  const handleFetchTables = async () => {
+    setLoadingTables(true)
+    setSetupError(null)
+    try {
+      const data = await fetchStaffPrototypeBootstrap(setupStoreSlug)
+      if (data && data.tables) {
+        // Only active tables
+        const activeTables = data.tables.filter((t) => t.is_active)
+        setTablesList(activeTables)
+        if (activeTables.length > 0) {
+          setSelectedTableQr(activeTables[0].qr_token)
+        } else {
+          setSetupError('この店舗には有効なテーブルがありません。')
+        }
+      } else {
+        setSetupError('テーブル情報の取得に失敗しました。')
+      }
+    } catch (err: any) {
+      setSetupError(`エラー: ${err.message || String(err)}`)
+    } finally {
+      setLoadingTables(false)
+    }
+  }
+
+  const handleSaveSetup = () => {
+    if (!setupStoreSlug) {
+      setSetupError('店舗IDを入力してください。')
+      return
+    }
+    if (!selectedTableQr) {
+      setSetupError('テーブルを選択してください。')
+      return
+    }
+    
+    // Save to localStorage
+    window.localStorage.setItem('pos_tablet_store', setupStoreSlug)
+    window.localStorage.setItem('pos_tablet_qr', selectedTableQr)
+    
+    // Redirect to clean url with store & qr params
+    const url = new URL(window.location.href)
+    url.searchParams.set('view', 'cust-tablet')
+    url.searchParams.set('store', setupStoreSlug)
+    url.searchParams.set('qr', selectedTableQr)
+    url.searchParams.delete('ticket')
+    
+    window.location.replace(url.toString())
+  }
+
+  const handleTableBadgeClick = () => {
+    setTapCount((prev) => {
+      const next = prev + 1
+      if (next >= 5) {
+        setShowPasscodeModal(true)
+        return 0
+      }
+      return next
+    })
+    if (tapTimer) window.clearTimeout(tapTimer)
+    setTapTimer(window.setTimeout(() => setTapCount(0), 2000))
+  }
+
+  const handleVerifyPasscode = () => {
+    if (passcode === '1234') {
+      setShowPasscodeModal(false)
+      setPasscode('')
+      setPasscodeError('')
+      setShowSetupScreen(true)
+      void handleFetchTables()
+    } else {
+      setPasscodeError('パスコードが正しくありません。')
+    }
+  }
+
+  if (showSetupScreen) {
+    return (
+      <div
+        className="customer-tablet-app"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: 'linear-gradient(135deg, #1a1c23 0%, #111217 100%)',
+          color: '#e2e8f0',
+          fontFamily: 'system-ui, -apple-system, sans-serif'
+        }}
+      >
+        <div
+          style={{
+            background: 'rgba(30, 41, 59, 0.7)',
+            backdropFilter: 'blur(16px)',
+            borderRadius: '24px',
+            padding: '48px',
+            width: '100%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxSizing: 'border-box'
+          }}
+        >
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <div style={{ fontSize: '3.5rem', marginBottom: '16px' }}>⚙️</div>
+            <h2 style={{ fontSize: '2rem', margin: 0, fontWeight: 'bold', letterSpacing: '-0.5px' }}>タブレット初期設定</h2>
+            <p style={{ color: '#94a3b8', marginTop: '8px' }}>店舗IDとテーブル番号を設定してください。</p>
+          </div>
+
+          {setupError && (
+            <div
+              style={{
+                background: 'rgba(239, 68, 68, 0.15)',
+                color: '#f87171',
+                padding: '16px',
+                borderRadius: '12px',
+                marginBottom: '24px',
+                fontSize: '0.95rem',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                lineHeight: '1.5'
+              }}
+            >
+              {setupError}
+            </div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px', fontWeight: '600' }}>店舗ID (store slug)</label>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <input
+                  type="text"
+                  value={setupStoreSlug}
+                  onChange={(e) => setSetupStoreSlug(e.target.value)}
+                  placeholder="例: demo-bbq"
+                  style={{
+                    flex: 1,
+                    padding: '14px 18px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '1.1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <button
+                  onClick={handleFetchTables}
+                  disabled={loadingTables || !setupStoreSlug}
+                  style={{
+                    padding: '0 24px',
+                    borderRadius: '12px',
+                    background: '#4dabf7',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.2s',
+                    opacity: (loadingTables || !setupStoreSlug) ? 0.6 : 1
+                  }}
+                >
+                  {loadingTables ? '読込中...' : 'テーブル取得'}
+                </button>
+              </div>
+            </div>
+
+            {tablesList.length > 0 && (
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px', fontWeight: '600' }}>テーブル選択</label>
+                <select
+                  value={selectedTableQr}
+                  onChange={(e) => setSelectedTableQr(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '14px 18px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'rgba(15, 23, 42, 0.6)',
+                    color: 'white',
+                    fontSize: '1.1rem',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  {tablesList.map((t) => (
+                    <option key={t.id} value={t.qr_token} style={{ background: '#1e293b', color: 'white' }}>
+                      卓番: {t.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+              {(activeStoreName || activeTableName) && (
+                <button
+                  onClick={() => setShowSetupScreen(false)}
+                  style={{
+                    flex: 1,
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '1.1rem',
+                    fontWeight: 'bold',
+                    cursor: 'pointer'
+                  }}
+                >
+                  キャンセル
+                </button>
+              )}
+              <button
+                onClick={handleSaveSetup}
+                disabled={!selectedTableQr}
+                style={{
+                  flex: 2,
+                  padding: '16px',
+                  borderRadius: '12px',
+                  background: '#ff5a5f',
+                  color: 'white',
+                  border: 'none',
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(255,90,95,0.3)',
+                  transition: 'opacity 0.2s',
+                  opacity: !selectedTableQr ? 0.6 : 1
+                }}
+              >
+                設定を保存して起動
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!customerApiAvailable) {
@@ -274,7 +536,13 @@ export function CustomerTabletScreen({
                 伝票 #{activeTicketNo}
               </span>
             )}
-            <span className="tablet-table-badge">卓番: {activeTableName || '—'}</span>
+            <span 
+              className="tablet-table-badge"
+              style={{ cursor: 'pointer' }}
+              onClick={handleTableBadgeClick}
+            >
+              卓番: {activeTableName || '—'}
+            </span>
             {selectedCustomerUrl && (
               <button 
                 onClick={() => setShowQrModal(true)}
@@ -622,6 +890,68 @@ export function CustomerTabletScreen({
           }}
           lang={lang}
         />
+      )}
+      {showPasscodeModal && (
+        <div 
+          style={{position:'fixed', top:0, left:0, right:0, bottom:0, background:'rgba(0,0,0,0.85)', backdropFilter:'blur(4px)', display:'flex', alignItems:'center', justifyContent:'center', zIndex: 3000}}
+          onClick={() => {
+            setShowPasscodeModal(false)
+            setPasscode('')
+            setPasscodeError('')
+          }}
+        >
+          <div 
+            style={{background:'white', padding:'32px', borderRadius:'24px', textAlign:'center', color:'#333', width:'100%', maxWidth:'400px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)'}}
+            onClick={e => e.stopPropagation()}
+          >
+            <h3 style={{margin: '0 0 16px', fontSize: '1.5rem', fontWeight: 'bold'}}>管理者認証</h3>
+            <p style={{color: '#666', marginBottom: '24px'}}>テーブル変更にはパスコードが必要です。</p>
+            
+            {passcodeError && (
+              <div style={{color: '#ff5a5f', fontSize: '0.95rem', marginBottom: '16px', fontWeight: 'bold'}}>{passcodeError}</div>
+            )}
+            
+            <input
+              type="password"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              placeholder="パスコードを入力"
+              style={{
+                width: '100%',
+                padding: '14px',
+                borderRadius: '12px',
+                border: '1px solid #ccc',
+                fontSize: '1.2rem',
+                textAlign: 'center',
+                marginBottom: '24px',
+                boxSizing: 'border-box'
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleVerifyPasscode()
+              }}
+              autoFocus
+            />
+            
+            <div style={{display:'flex', gap:'16px'}}>
+              <button 
+                onClick={() => {
+                  setShowPasscodeModal(false)
+                  setPasscode('')
+                  setPasscodeError('')
+                }}
+                style={{flex:1, padding:'14px', background:'#f0f3f5', border:'none', borderRadius:'12px', cursor:'pointer', fontSize:'1rem', fontWeight:'bold', color:'#555'}}
+              >
+                キャンセル
+              </button>
+              <button 
+                onClick={handleVerifyPasscode}
+                style={{flex:1, padding:'14px', background:'#ff5a5f', border:'none', borderRadius:'12px', cursor:'pointer', fontSize:'1rem', fontWeight:'bold', color:'white'}}
+              >
+                確認
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

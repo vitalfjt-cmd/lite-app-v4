@@ -180,7 +180,9 @@ export function useCustomerFlow(view: AppView) {
     setCart({})
     setCustomerStep('menu')
     if ((view === 'customer' || view === 'cust-tablet') && !hasPublicCustomerAccess) {
-      setCustomerMessage('卓情報が見つかりません。QRコードから開き直してください。')
+      const savedStore = window.localStorage.getItem('pos_tablet_store')
+      const savedQr = window.localStorage.getItem('pos_tablet_qr')
+      setCustomerMessage(`卓情報が見つかりません。URL: ${window.location.search || '(空)'} / キャッシュ: store=${savedStore || '(空)'}, qr=${savedQr || '(空)'}`)
     }
   }, [hasPublicCustomerAccess, publicQrToken, publicStoreSlug, publicTicketToken, view])
 
@@ -233,7 +235,11 @@ export function useCustomerFlow(view: AppView) {
         await loadPublicMenu(true)
         setCart({})
         setCustomerStep('menu')
-        setCustomerMessage('会計済みのため、この卓からの追加注文はできません。スタッフにお声がけください。')
+        if (view === 'cust-tablet') {
+          setCustomerMessage('会計が完了しました。新しいご注文を開始できます。')
+        } else {
+          setCustomerMessage('会計済みのため、この卓からの追加注文はできません。スタッフにお声がけください。')
+        }
       } else if (errorMessage.includes('menu_item_sold_out') || errorMessage.includes('sold_out')) {
         await loadPublicMenu(true)
         setCustomerMessage('一部の商品が売切れになったため、メニューを更新しました。')
