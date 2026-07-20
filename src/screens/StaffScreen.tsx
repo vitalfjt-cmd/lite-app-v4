@@ -475,6 +475,14 @@ export function StaffScreen({
     const paymentMethod = livePaymentMethods.find((pm) => pm.id === methodStr)
     const isChangeAllowed = paymentMethod ? paymentMethod.is_change_allowed !== false : true
 
+    if (!isChangeAllowed) {
+      const limitAmt = targetPaymentAmount !== null ? targetPaymentAmount : remainingTotal
+      if (inputVal > limitAmt) {
+        const ok = window.confirm(`釣銭が出ない決済ですが、お預かり金額（${inputVal}円）が支払額（${limitAmt}円）を超えています。登録しますか？`)
+        if (!ok) return
+      }
+    }
+
     let billedAmt = inputVal
     let receivedAmt = inputVal
     let nextTargetAmt: number | null = null
