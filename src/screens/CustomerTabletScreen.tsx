@@ -488,6 +488,7 @@ export function CustomerTabletScreen({
                 onRefreshTicket?.()
                 setShowHistoryModal(true)
               }}
+              data-testid="customer-open-my-order"
             >
               📋 注文履歴
             </button>
@@ -496,6 +497,7 @@ export function CustomerTabletScreen({
               className={`tablet-submit-btn glowing`}
               disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
               onClick={onSubmitOrder}
+              data-testid="customer-submit-order"
             >
               {customerBusy ? '送信中...' : '注文を確定する'}
             </button>
@@ -506,7 +508,7 @@ export function CustomerTabletScreen({
   }
 
   return (
-    <div className="customer-tablet-app">
+    <div className="customer-tablet-app" data-testid="customer-screen">
       {/* Header with 2-tier category nav */}
       <header className="tablet-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 0, padding: 0 }}>
         {/* Top row: store name + table badge */}
@@ -581,6 +583,7 @@ export function CustomerTabletScreen({
                 key={cat.id}
                 className={`tablet-cat-btn ${selectedCustomerTopCategoryId === cat.id ? 'active' : ''}`}
                 onClick={() => onSelectTopCategory(cat.id)}
+                data-testid={`customer-top-category-${cat.id}`}
               >
                 {cat.name}
               </button>
@@ -603,6 +606,7 @@ export function CustomerTabletScreen({
                 key={cat.id}
                 className={`tablet-cat-btn ${selectedCustomerCategoryId === cat.id ? 'active' : ''}`}
                 onClick={() => onSelectCategory(cat.id)}
+                data-testid={`customer-sub-category-${cat.id}`}
                 style={{
                   fontSize: '1.05rem',
                   padding: '10px 22px',
@@ -650,6 +654,7 @@ export function CustomerTabletScreen({
                 <article
                   key={item.id}
                   className={`tablet-menu-card ${item.soldOut ? 'sold-out' : ''}`}
+                  data-testid={`customer-menu-item-${item.id}`}
                 >
                   <div
                     className="tablet-card-image"
@@ -685,6 +690,7 @@ export function CustomerTabletScreen({
                         <button
                           className="tablet-add-btn"
                           disabled={!customerOrderingEnabled}
+                          data-testid={`customer-item-increment-${item.id}`}
                           onClick={() => {
                             if (item.toppings && item.toppings.length > 0) {
                               setActiveToppingItem(item)
@@ -740,6 +746,7 @@ export function CustomerTabletScreen({
               onRefreshTicket?.()
               setShowHistoryModal(true)
             }}
+            data-testid="customer-open-my-order"
           >
             📋 注文履歴
           </button>
@@ -748,6 +755,7 @@ export function CustomerTabletScreen({
             className={`tablet-submit-btn ${cartCount > 0 ? 'glowing' : ''}`}
             disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
             onClick={onOpenConfirm}
+            data-testid="customer-open-confirm"
           >
             {customerBusy ? '送信中...' : '注文を確認して送信する'}
           </button>
@@ -791,6 +799,7 @@ export function CustomerTabletScreen({
           <div 
             style={{background:'white', padding:'32px', borderRadius:'24px', color:'#333', width:'100%', maxWidth:'600px', maxHeight:'80vh', display:'flex', flexDirection:'column', boxShadow:'0 20px 40px rgba(0,0,0,0.2)', position:'relative'}}
             onClick={e => e.stopPropagation()}
+            data-testid="customer-my-order-panel"
           >
             {/* Header */}
             <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', borderBottom:'1px solid #eee', paddingBottom:'16px', marginBottom:'16px'}}>
@@ -869,6 +878,7 @@ export function CustomerTabletScreen({
                 className="tablet-submit-btn" 
                 style={{flex: 1, padding:'16px', background:'#f0f3f5', color:'#555', cursor:'pointer'}}
                 onClick={() => setShowHistoryModal(false)}
+                data-testid="customer-back-to-menu-from-my-order"
               >
                 閉じる
               </button>

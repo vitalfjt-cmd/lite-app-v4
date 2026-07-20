@@ -42,8 +42,9 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     headless: process.env.PW_HEADLESS === '0' ? false : true,
+    ignoreHTTPSErrors: true,
   },
-  webServer: {
+  webServer: process.env.PW_NO_WEBSERVER ? undefined : {
     command: `npm run dev -- --host ${host} --port ${port}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,

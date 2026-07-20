@@ -47,7 +47,7 @@ async function writeMetricsIfNeeded(outputPath: string | null, payload: unknown)
 
 function buildCustomerUrl(baseURL: string, store: string, qr: string) {
   const url = new URL(baseURL)
-  url.searchParams.set('view', 'customer')
+  url.searchParams.set('view', 'cust-tablet')
   url.searchParams.set('store', store)
   url.searchParams.set('qr', qr)
   return url.toString()
@@ -87,7 +87,7 @@ test.describe('single-pc multi-context foundation', () => {
       )
 
       for (const customer of customers) {
-        await expect(customer.page).toHaveURL(new RegExp('[?&]view=customer'))
+        await expect(customer.page).toHaveURL(new RegExp('[?&]view=cust-tablet'))
       }
 
       const staffSession = scenario.staff

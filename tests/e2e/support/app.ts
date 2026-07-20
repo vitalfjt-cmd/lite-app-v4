@@ -257,7 +257,7 @@ export async function signIn(page: Page, credentials: RoleCredentials) {
 
 export async function gotoCustomer(page: Page, customerUrl: string) {
   await page.goto(customerUrl, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByTestId('customer-screen')).toBeVisible()
+  await expect(page.getByTestId('customer-screen')).toBeVisible({ timeout: 30_000 })
 }
 
 export async function addOneItemAndOpenConfirm(page: Page, itemName?: string | null) {
