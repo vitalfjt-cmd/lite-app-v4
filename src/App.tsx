@@ -845,6 +845,7 @@ export default function App() {
             adminPaymentMethodName={adminForm.adminPaymentMethodName}
             adminPaymentMethodSortOrder={adminForm.adminPaymentMethodSortOrder}
             adminPaymentMethodIsActive={adminForm.adminPaymentMethodIsActive}
+            adminPaymentMethodIsChangeAllowed={adminForm.adminPaymentMethodIsChangeAllowed}
             editingPaymentMethodId={adminForm.editingPaymentMethodId}
             adminMenuBookName={adminForm.adminMenuBookName}
             adminMenuBookCode={adminForm.adminMenuBookCode}
@@ -934,6 +935,7 @@ export default function App() {
             onPaymentMethodNameChange={adminForm.setAdminPaymentMethodName}
             onPaymentMethodSortOrderChange={adminForm.setAdminPaymentMethodSortOrder}
             onPaymentMethodIsActiveChange={adminForm.setAdminPaymentMethodIsActive}
+            onPaymentMethodIsChangeAllowedChange={adminForm.setAdminPaymentMethodIsChangeAllowed}
             onSavePaymentMethod={adminOps.savePaymentMethod}
             onCancelPaymentMethodEdit={adminForm.resetPaymentMethod}
             onEditPaymentMethod={(id: string) => {

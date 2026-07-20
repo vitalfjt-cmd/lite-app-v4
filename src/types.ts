@@ -191,5 +191,6 @@ export type AdminPaymentMethod = {
   name: string
   sort_order: number
   is_active: boolean
+  is_change_allowed: boolean
   toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }

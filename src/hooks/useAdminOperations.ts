@@ -206,6 +206,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           name: adminForm.adminPaymentMethodName.trim(),
           sortOrder: Number.isFinite(nextSortOrder) ? nextSortOrder : 0,
           isActive: adminForm.adminPaymentMethodIsActive,
+          isChangeAllowed: adminForm.adminPaymentMethodIsChangeAllowed,
         })
         await refreshAdminData()
       }

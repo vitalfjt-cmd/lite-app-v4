@@ -61,6 +61,7 @@ export function AdminPaymentMethodsTab(props: Props) {
                 <th>決済種別名</th>
                 <th>表示順</th>
                 <th>状態</th>
+                <th>釣銭</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -70,6 +71,7 @@ export function AdminPaymentMethodsTab(props: Props) {
                   <td>{pm.name}</td>
                   <td>{pm.sort_order ?? 0}</td>
                   <td>{pm.is_active ? '有効' : '無効'}</td>
+                  <td>{pm.is_change_allowed ? '釣銭あり' : '釣銭なし'}</td>
                   <td>
                     <div className="admin-table-actions">
                       <button className="secondary-button" onClick={() => {

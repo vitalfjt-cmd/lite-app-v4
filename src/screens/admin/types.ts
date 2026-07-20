@@ -107,6 +107,7 @@ export type AdminPaymentMethod = {
   name: string
   sort_order: number
   is_active: boolean
+  is_change_allowed: boolean
 }
 
 export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue' | 'categorySales' | 'subcategorySales' | 'hourlySalesHistory'

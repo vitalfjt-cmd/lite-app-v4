@@ -472,6 +472,9 @@ export function StaffScreen({
     let inputVal = currentPaymentInput && parseInt(currentPaymentInput) > 0 ? parseInt(currentPaymentInput) : 0
     if (inputVal <= 0) return // Force user to input amount first
 
+    const paymentMethod = livePaymentMethods.find((pm) => pm.id === methodStr)
+    const isChangeAllowed = paymentMethod ? paymentMethod.is_change_allowed !== false : true
+
     let billedAmt = inputVal
     let receivedAmt = inputVal
     let nextTargetAmt: number | null = null
@@ -484,14 +487,14 @@ export function StaffScreen({
         nextTargetAmt = targetPaymentAmount - inputVal
       } else {
         billedAmt = Math.min(targetPaymentAmount, remainingTotal)
-        receivedAmt = Math.max(inputVal, billedAmt)
+        receivedAmt = isChangeAllowed ? Math.max(inputVal, billedAmt) : billedAmt
         nextTargetAmt = null
         nextPersonLabel = null
       }
     } else {
       if (inputVal > remainingTotal) {
         billedAmt = remainingTotal
-        receivedAmt = inputVal
+        receivedAmt = isChangeAllowed ? inputVal : billedAmt
       }
     }
 
