@@ -357,13 +357,13 @@ export function CustomerTabletScreen({
                   flex: 2,
                   padding: '16px',
                   borderRadius: '12px',
-                  background: '#ff5a5f',
+                  background: 'var(--tab-primary, #ff6b00)',
                   color: 'white',
                   border: 'none',
                   fontSize: '1.1rem',
                   fontWeight: 'bold',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 14px rgba(255,90,95,0.3)',
+                  boxShadow: '0 4px 14px rgba(255,107,0,0.3)',
                   transition: 'opacity 0.2s',
                   opacity: !selectedTableQr ? 0.6 : 1
                 }}
@@ -428,7 +428,7 @@ export function CustomerTabletScreen({
         </header>
         
         {customerMessage && (
-          <div style={{ padding: '16px 32px', background: '#ff5a5f', color: 'white', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
+          <div style={{ padding: '16px 32px', background: 'var(--tab-primary, #ff6b00)', color: 'white', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
             {customerMessage}
           </div>
         )}
@@ -449,7 +449,7 @@ export function CustomerTabletScreen({
                         {item.toppings.map((t) => `＋ ${(lang === 'en' && t.name_en) ? t.name_en : t.name}`).join(' ')}
                       </div>
                     )}
-                    <span style={{ color: '#ff5a5f', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
+                    <span style={{ color: 'var(--tab-primary, #ff6b00)', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{ width: '150px', margin: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
@@ -462,7 +462,7 @@ export function CustomerTabletScreen({
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingTop: '16px', borderTop: '2px solid #eee', fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
               <span>小計</span>
-              <span style={{ color: '#ff5a5f' }}>{yen(cartSubtotal)}</span>
+              <span style={{ color: 'var(--tab-primary, #ff6b00)' }}>{yen(cartSubtotal)}</span>
             </div>
           </div>
         </main>
@@ -568,7 +568,7 @@ export function CustomerTabletScreen({
         </div>
         
         {customerMessage && customerStep === 'menu' && (
-          <div style={{ padding: '12px 64px', background: '#ff5a5f', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+          <div style={{ padding: '12px 64px', background: 'var(--tab-primary, #ff6b00)', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
             {customerMessage}
           </div>
         )}
@@ -606,7 +606,7 @@ export function CustomerTabletScreen({
                 style={{
                   fontSize: '1.05rem',
                   padding: '10px 22px',
-                  background: selectedCustomerCategoryId === cat.id ? '#ff5a5f' : '#f0f3f5',
+                  background: selectedCustomerCategoryId === cat.id ? 'var(--tab-primary, #ff6b00)' : '#f0f3f5',
                   color: selectedCustomerCategoryId === cat.id ? 'white' : '#59656f',
                   borderColor: 'transparent',
                 }}
@@ -839,7 +839,7 @@ export function CustomerTabletScreen({
                   {/* Summary */}
                   <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.8rem', fontWeight:'bold', color:'#333'}}>
                     <span>合計金額</span>
-                    <span style={{color:'#ff5a5f'}}>{yen(ticketReceipt.subtotal)}</span>
+                    <span style={{color:'var(--tab-primary, #ff6b00)'}}>{yen(ticketReceipt.subtotal)}</span>
                   </div>
                 </>
               ) : customerBusy ? (
@@ -908,7 +908,7 @@ export function CustomerTabletScreen({
             <p style={{color: '#666', marginBottom: '24px'}}>テーブル変更にはパスコードが必要です。</p>
             
             {passcodeError && (
-              <div style={{color: '#ff5a5f', fontSize: '0.95rem', marginBottom: '16px', fontWeight: 'bold'}}>{passcodeError}</div>
+              <div style={{color: 'var(--tab-primary, #ff6b00)', fontSize: '0.95rem', marginBottom: '16px', fontWeight: 'bold'}}>{passcodeError}</div>
             )}
             
             <input
@@ -945,7 +945,7 @@ export function CustomerTabletScreen({
               </button>
               <button 
                 onClick={handleVerifyPasscode}
-                style={{flex:1, padding:'14px', background:'#ff5a5f', border:'none', borderRadius:'12px', cursor:'pointer', fontSize:'1rem', fontWeight:'bold', color:'white'}}
+                style={{flex:1, padding:'14px', background:'var(--tab-primary, #ff6b00)', border:'none', borderRadius:'12px', cursor:'pointer', fontSize:'1rem', fontWeight:'bold', color:'white'}}
               >
                 確認
               </button>
