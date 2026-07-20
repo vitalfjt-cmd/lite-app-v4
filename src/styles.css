@@ -4349,23 +4349,23 @@ h1 {
 }
 .tablet-menu-card.sold-out { opacity: 0.6; }
 .tablet-menu-card:active { transform: scale(0.98); }
-.tablet-card-image { height: 120px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+.tablet-card-image { height: 95px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
 .tablet-qty-badge { position: absolute; top: 8px; right: 8px; background: var(--tab-primary); color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .tablet-sold-out-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: bold; }
 
-.tablet-card-content { padding: 10px 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 0; }
+.tablet-card-content { padding: 8px 12px 10px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 0; }
 .tablet-card-text { display: flex; flex-direction: column; gap: 4px; }
 .tablet-item-name { font-size: 0.95rem; font-weight: 700; color: var(--tab-text-main); margin: 0; line-height: 1.3; }
 .tablet-item-lead { font-size: 0.78rem; color: var(--tab-text-sub); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tablet-item-price { font-size: 1.1rem; font-weight: 900; color: var(--tab-primary); margin: 4px 0 0; }
 
 .tablet-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
-.tablet-add-btn { background: var(--tab-primary-soft); color: var(--tab-primary); border: 2px solid var(--tab-primary); padding: 7px 10px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; transition: background 0.2s; }
+.tablet-add-btn { background: var(--tab-primary-soft); color: var(--tab-primary); border: 2px solid var(--tab-primary); padding: 6px 10px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; transition: background 0.2s; }
 .tablet-add-btn:hover { background: var(--tab-primary); color: white; }
 .tablet-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .tablet-stepper { display: flex; align-items: center; width: 100%; background: var(--tab-surface); border: 2px solid var(--tab-primary); border-radius: 8px; overflow: hidden; }
-.tablet-stepper button { flex: 1; padding: 6px; background: transparent; color: var(--tab-primary); font-size: 1.4rem; font-weight: bold; border: none; cursor: pointer; line-height: 1; }
+.tablet-stepper button { flex: 1; padding: 5px; background: transparent; color: var(--tab-primary); font-size: 1.4rem; font-weight: bold; border: none; cursor: pointer; line-height: 1; }
 .tablet-stepper button:active { background: var(--tab-primary); color: white; }
 .tablet-stepper button:disabled { opacity: 0.4; cursor: not-allowed; }
 .tablet-stepper span { flex: 1; text-align: center; font-size: 1.2rem; font-weight: bold; color: var(--tab-text-main); }
