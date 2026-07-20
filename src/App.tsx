@@ -950,7 +950,7 @@ export default function App() {
             onTableIsActiveChange={adminForm.setAdminTableIsActive}
             onSaveTableRef={() => adminOps.saveTableRef()}
             onEditTable={(id) => {
-              const table = availableTables.find((t) => t.id === id)
+              const table = liveTables.find((t) => t.id === id)
               if (table) adminForm.startEditTable(table)
             }}
             onDeleteTable={(id) => void adminOps.deleteTable(id)}
