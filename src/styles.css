@@ -4291,6 +4291,7 @@ h1 {
   --tab-primary-soft: #fff2e6;
   --tab-bg: #f4f4f3;
   --tab-surface: #ffffff;
+  --tab-header-footer-bg: #ececec;
   --tab-text-main: #22252a;
   --tab-text-sub: #727a85;
   --tab-border: #e2e8f0;
@@ -4303,7 +4304,7 @@ h1 {
   height: 100dvh; /* Lock to real viewport height  Eno overflow */
 }
 .tablet-header {
-  background: var(--tab-surface); display: flex; align-items: center; justify-content: space-between;
+  background: var(--tab-header-footer-bg); display: flex; align-items: center; justify-content: space-between;
   box-shadow: var(--tab-shadow); z-index: 10;
   flex-shrink: 0; /* Never let the header shrink */
   border-bottom: 1px solid var(--tab-border);
@@ -4371,7 +4372,7 @@ h1 {
 
 /* Footer  Ealways visible, never pushed off screen */
 .tablet-footer {
-  background: var(--tab-surface); border-top: 1px solid var(--tab-border); padding: 12px 32px;
+  background: var(--tab-header-footer-bg); border-top: 1px solid var(--tab-border); padding: 12px 32px;
   display: flex; justify-content: space-between; align-items: center;
   box-shadow: 0 -4px 10px rgba(0,0,0,0.03); z-index: 10; flex-shrink: 0;
 }
