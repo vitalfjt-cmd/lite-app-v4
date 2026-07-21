@@ -5422,3 +5422,86 @@ h1 {
   font-size: 1.1rem;
 }
 
+/* Time Limit Countdown Banners */
+.time-limit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  margin: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.time-limit-banner.normal {
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+}
+
+.time-limit-banner.last-order {
+  background: rgba(230, 126, 34, 0.1);
+  border: 1px solid rgba(230, 126, 34, 0.3);
+  color: #e67e22;
+  animation: pulse-orange 2s infinite ease-in-out;
+}
+
+.time-limit-banner.time-up {
+  background: rgba(235, 94, 85, 0.1);
+  border: 1px solid rgba(235, 94, 85, 0.3);
+  color: #eb5e55;
+}
+
+.time-limit-banner .time-icon {
+  margin-right: 8px;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+
+.tablet-time-limit-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  margin: 16px 64px 0 64px;
+  border-radius: 16px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.tablet-time-limit-banner.normal {
+  background: rgba(39, 174, 96, 0.1);
+  border: 1px solid rgba(39, 174, 96, 0.2);
+  color: #27ae60;
+}
+
+.tablet-time-limit-banner.last-order {
+  background: rgba(230, 126, 34, 0.1);
+  border: 1px solid rgba(230, 126, 34, 0.3);
+  color: #e67e22;
+  animation: pulse-orange 2s infinite ease-in-out;
+}
+
+.tablet-time-limit-banner.time-up {
+  background: rgba(235, 94, 85, 0.1);
+  border: 1px solid rgba(235, 94, 85, 0.3);
+  color: #eb5e55;
+}
+
+@keyframes pulse-orange {
+  0% {
+    box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(230, 126, 34, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(230, 126, 34, 0);
+  }
+}

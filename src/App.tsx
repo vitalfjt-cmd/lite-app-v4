@@ -102,6 +102,7 @@ export default function App() {
     publicStore, setPublicStore,
     publicTable, setPublicTable,
     publicOpenTicket, setPublicOpenTicket,
+    publicMenuBook, setPublicMenuBook,
     publicCategories, setPublicCategories,
     publicItems, setPublicItems,
     selectedCustomerTopCategoryId, setSelectedCustomerTopCategoryId,
@@ -151,7 +152,7 @@ export default function App() {
     setAdminStorePaymentTimingMode: adminForm.setAdminStorePaymentTimingMode,
     setAdminStoreTicketNoResetMode: adminForm.setAdminStoreTicketNoResetMode,
     setAdminStoreTicketNoDigits: adminForm.setAdminStoreTicketNoDigits,
-    setPublicStore, setPublicTable, setPublicOpenTicket, setPublicCategories, setPublicItems,
+    setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
     setPublicMenuReady, setCustomerBusy, setCustomerMessage, setCustomerAccess, setSession
   })
 
@@ -335,11 +336,49 @@ export default function App() {
     }
   }, [session, wasLoggingIn])
 
+  const [currentTime, setCurrentTime] = useState(Date.now())
+
+  useEffect(() => {
+    const timeLimitMinutes = publicMenuBook?.time_limit_minutes
+    const orderedAt = publicOpenTicket?.ordered_at
+    if (!timeLimitMinutes || !orderedAt) return
+
+    setCurrentTime(Date.now())
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [publicMenuBook?.time_limit_minutes, publicOpenTicket?.ordered_at])
+
+  const timeLimitInfo = useMemo(() => {
+    const timeLimitMinutes = publicMenuBook?.time_limit_minutes
+    const orderedAt = publicOpenTicket?.ordered_at
+    if (!timeLimitMinutes || !orderedAt) return null
+
+    const startTime = new Date(orderedAt).getTime()
+    const durationMs = timeLimitMinutes * 60 * 1000
+    const endTime = startTime + durationMs
+    const remainingMs = Math.max(0, endTime - currentTime)
+    const remainingSeconds = Math.floor(remainingMs / 1000)
+
+    const lastOrderOffsetMinutes = publicMenuBook?.last_order_offset_minutes ?? 0
+    const lastOrderMs = lastOrderOffsetMinutes * 60 * 1000
+    const isLastOrder = remainingMs <= lastOrderMs
+    const isTimeUp = remainingMs <= 0
+
+    return {
+      remainingSeconds,
+      isLastOrder,
+      isTimeUp
+    }
+  }, [publicMenuBook, publicOpenTicket, currentTime])
+
   const publicTicketIsOpen = !publicOpenTicket || publicOpenTicket.status === 'OPEN'
   const customerCanViewMyOrder = Boolean((ticketReceipt || publicOpenTicket) && publicTicketIsOpen)
   const customerApiAvailable = customerApiSupportsTicketBootstrap
   const customerOrderingEnabled = customerApiSupportsTicketBootstrap
-    ? hasPublicCustomerAccess && publicTicketIsOpen
+    ? hasPublicCustomerAccess && publicTicketIsOpen && (!timeLimitInfo || !timeLimitInfo.isTimeUp)
     : false
 
   const availableTables = useMemo(() => {
@@ -640,6 +679,7 @@ export default function App() {
             customerFocusedItemId={customerFocusedItemId}
             customerOrderingEnabled={customerOrderingEnabled}
             customerCanViewMyOrder={customerCanViewMyOrder}
+            timeLimitInfo={timeLimitInfo}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             formatTime={formatTime}
@@ -689,6 +729,7 @@ export default function App() {
             cartSubtotal={cartSubtotal}
             customerOrderingEnabled={customerOrderingEnabled}
             customerBusy={customerBusy}
+            timeLimitInfo={timeLimitInfo}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             yen={yen}
@@ -856,6 +897,8 @@ export default function App() {
             adminMenuBookAvailableToTime={adminForm.adminMenuBookAvailableToTime}
             adminMenuBookValidFrom={adminForm.adminMenuBookValidFrom}
             adminMenuBookValidTo={adminForm.adminMenuBookValidTo}
+            adminMenuBookTimeLimit={adminForm.adminMenuBookTimeLimit}
+            adminMenuBookLastOrderOffset={adminForm.adminMenuBookLastOrderOffset}
             editingMenuBookId={adminForm.editingMenuBookId}
             adminCategoryName={adminForm.adminCategoryName}
             adminCategorySortOrder={adminForm.adminCategorySortOrder}
@@ -915,6 +958,8 @@ export default function App() {
             onMenuBookAvailableToTimeChange={adminForm.setAdminMenuBookAvailableToTime}
             onMenuBookValidFromChange={adminForm.setAdminMenuBookValidFrom}
             onMenuBookValidToChange={adminForm.setAdminMenuBookValidTo}
+            onMenuBookTimeLimitChange={adminForm.setAdminMenuBookTimeLimit}
+            onMenuBookLastOrderOffsetChange={adminForm.setAdminMenuBookLastOrderOffset}
             onCreateMenuBook={() => void adminOps.createMenuBook()}
             onEditMenuBook={(id) => {
               const book = liveMenuBooks.find((b) => b.id === id)

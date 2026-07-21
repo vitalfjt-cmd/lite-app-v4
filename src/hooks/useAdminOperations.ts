@@ -65,6 +65,16 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         setAdminMessage('表示順を正しく入力してください。')
         return
       }
+      const timeLimitMinutes = adminForm.adminMenuBookTimeLimit.trim() ? Number(adminForm.adminMenuBookTimeLimit) : null
+      const lastOrderOffsetMinutes = adminForm.adminMenuBookLastOrderOffset.trim() ? Number(adminForm.adminMenuBookLastOrderOffset) : null
+      if (timeLimitMinutes !== null && (!Number.isFinite(timeLimitMinutes) || timeLimitMinutes < 0)) {
+        setAdminMessage('時間制限（分）を正しく入力してください。')
+        return
+      }
+      if (lastOrderOffsetMinutes !== null && (!Number.isFinite(lastOrderOffsetMinutes) || lastOrderOffsetMinutes < 0)) {
+        setAdminMessage('ラストオーダー告知（分）を正しく入力してください。')
+        return
+      }
       if (staffReadApiEnabled) {
         const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
@@ -79,6 +89,8 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           availableToTime: adminForm.adminMenuBookAvailableToTime || null,
           validFrom: adminForm.adminMenuBookValidFrom || null,
           validTo: adminForm.adminMenuBookValidTo || null,
+          timeLimitMinutes: timeLimitMinutes,
+          lastOrderOffsetMinutes: lastOrderOffsetMinutes,
         })
         await refreshAdminData()
       }

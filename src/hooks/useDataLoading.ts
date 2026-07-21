@@ -40,6 +40,7 @@ export type DataLoadingSetters = {
   setPublicStore: (store: any) => void
   setPublicTable: (table: any) => void
   setPublicOpenTicket: (ticket: any) => void
+  setPublicMenuBook: (menuBook: any) => void
   setPublicCategories: (categories: any[]) => void
   setPublicItems: (items: any[]) => void
   setPublicMenuReady: (ready: boolean) => void
@@ -58,7 +59,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setAdminItemCategoryId, setAdminPlacementTopCategoryId, setAdminPlacementCategoryId, setAdminPlacementItemId,
     setAdminStoreName, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
     setAdminStorePaymentTimingMode, setAdminStoreTicketNoResetMode, setAdminStoreTicketNoDigits,
-    setPublicStore, setPublicTable, setPublicOpenTicket, setPublicCategories, setPublicItems,
+    setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
     setPublicMenuReady, setCustomerBusy, setCustomerMessage, setCustomerAccess, setSession
   } = setters
 
@@ -264,6 +265,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
       setPublicStore(null)
       setPublicTable(null)
       setPublicOpenTicket(null)
+      setPublicMenuBook(null)
       setPublicCategories([])
       setPublicItems([])
       if (!silent) {
@@ -281,6 +283,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
       const data = await fetchPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken)
       setPublicStore(data.store)
       setPublicTable({ id: data.table.id, label: data.table.label })
+      setPublicMenuBook(data.menu_book)
       setPublicOpenTicket(
         data.current_ticket
           ? {
@@ -305,6 +308,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     } catch (err) {
       setPublicMenuReady(false)
       setPublicOpenTicket(null)
+      setPublicMenuBook(null)
       setPublicCategories([])
       setPublicItems([])
       if (!silent) setCustomerMessage(formatError(err))

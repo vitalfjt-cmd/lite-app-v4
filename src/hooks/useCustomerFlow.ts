@@ -27,6 +27,14 @@ export function useCustomerFlow(view: AppView) {
   } | null>(null)
   const [publicCategories, setPublicCategories] = useState<LiveCategory[]>([])
   const [publicItems, setPublicItems] = useState<LiveMenuItem[]>([])
+  const [publicMenuBook, setPublicMenuBook] = useState<{
+    id: string
+    code: string
+    name: string
+    description: string | null
+    time_limit_minutes: number | null
+    last_order_offset_minutes: number | null
+  } | null>(null)
 
   const [selectedCustomerTopCategoryId, setSelectedCustomerTopCategoryId] = useState<string | null>(null)
   const [selectedCustomerCategoryId, setSelectedCustomerCategoryId] = useState<string | null>(null)
@@ -176,6 +184,7 @@ export function useCustomerFlow(view: AppView) {
     setPublicTable(null)
     setPublicCategories([])
     setPublicItems([])
+    setPublicMenuBook(null)
     setTicketReceipt(null)
     setCart({})
     setCustomerStep('menu')
@@ -217,6 +226,10 @@ export function useCustomerFlow(view: AppView) {
       )
       if (created.customer_access_token) {
         syncCustomerTicketInUrl(created.customer_access_token)
+        setCustomerAccess((current) => ({
+          ...current,
+          ticketToken: created.customer_access_token as string,
+        }))
         setPublicOpenTicket((current) => ({
           id: current?.id ?? '',
           ticket_no: created.ticket_no,
@@ -291,6 +304,8 @@ export function useCustomerFlow(view: AppView) {
     setPublicTable,
     publicOpenTicket,
     setPublicOpenTicket,
+    publicMenuBook,
+    setPublicMenuBook,
     publicCategories,
     setPublicCategories,
     publicItems,

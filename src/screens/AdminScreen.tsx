@@ -88,6 +88,8 @@ type Props = {
   adminMenuBookAvailableToTime: string
   adminMenuBookValidFrom: string
   adminMenuBookValidTo: string
+  adminMenuBookTimeLimit: string
+  adminMenuBookLastOrderOffset: string
   editingMenuBookId: string | null
   adminCategoryName: string
   adminCategorySortOrder: string
@@ -155,6 +157,8 @@ type Props = {
   onMenuBookAvailableToTimeChange: (value: string) => void
   onMenuBookValidFromChange: (value: string) => void
   onMenuBookValidToChange: (value: string) => void
+  onMenuBookTimeLimitChange: (value: string) => void
+  onMenuBookLastOrderOffsetChange: (value: string) => void
   onCreateMenuBook: () => void
   onCancelMenuBookEdit: () => void
   onCategoryNameChange: (value: string) => void
@@ -652,6 +656,8 @@ export function AdminScreen(props: Props) {
             adminMenuBookAvailableToTime={props.adminMenuBookAvailableToTime}
             adminMenuBookValidFrom={props.adminMenuBookValidFrom}
             adminMenuBookValidTo={props.adminMenuBookValidTo}
+            adminMenuBookTimeLimit={props.adminMenuBookTimeLimit}
+            adminMenuBookLastOrderOffset={props.adminMenuBookLastOrderOffset}
             adminMenuBookIsActive={props.adminMenuBookIsActive}
             disabled={disabled}
             onClose={() => {
@@ -666,6 +672,8 @@ export function AdminScreen(props: Props) {
             onMenuBookAvailableToTimeChange={props.onMenuBookAvailableToTimeChange}
             onMenuBookValidFromChange={props.onMenuBookValidFromChange}
             onMenuBookValidToChange={props.onMenuBookValidToChange}
+            onMenuBookTimeLimitChange={props.onMenuBookTimeLimitChange}
+            onMenuBookLastOrderOffsetChange={props.onMenuBookLastOrderOffsetChange}
             onMenuBookIsActiveChange={props.onMenuBookIsActiveChange}
             onCreateMenuBook={props.onCreateMenuBook}
             checkBox={checkBox}

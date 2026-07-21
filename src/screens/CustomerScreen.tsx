@@ -48,6 +48,7 @@ type CustomerScreenProps = {
   customerFocusedItemId: string | null
   customerOrderingEnabled: boolean
   customerCanViewMyOrder: boolean
+  timeLimitInfo?: { remainingSeconds: number; isLastOrder: boolean; isTimeUp: boolean } | null
   publicMenuReady: boolean
   customerApiAvailable: boolean
   formatTime: (value: string) => string
@@ -91,6 +92,7 @@ export function CustomerScreen({
   customerFocusedItemId,
   customerOrderingEnabled,
   customerCanViewMyOrder,
+  timeLimitInfo,
   publicMenuReady,
   customerApiAvailable,
   formatTime,
@@ -117,6 +119,33 @@ export function CustomerScreen({
   const getItemName = (item: { name: string; name_en?: string | null }) => {
     return (lang === 'en' && item.name_en) ? item.name_en : item.name
   }
+
+  const formatRemainingTime = (totalSeconds: number) => {
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    if (lang === 'en') {
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+    }
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
+
+  const renderTimeLimitBanner = () => {
+    if (!timeLimitInfo) return null
+    const { remainingSeconds, isLastOrder, isTimeUp } = timeLimitInfo
+    const stateClass = isTimeUp ? 'time-up' : isLastOrder ? 'last-order' : 'normal'
+    return (
+      <div className={`time-limit-banner ${stateClass}`}>
+        <span className="time-icon">⏱️</span>
+        <span className="banner-text">
+          {isTimeUp
+            ? '注文時間が終了しました。'
+            : isLastOrder
+              ? `【ラストオーダー】残り ${formatRemainingTime(remainingSeconds)}`
+              : `残り注文時間: ${formatRemainingTime(remainingSeconds)}`}
+        </span>
+      </div>
+    )
+  }
   
   if (customerStep === 'confirm') {
     return (
@@ -130,6 +159,7 @@ export function CustomerScreen({
         </header>
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center'}}>{customerMessage}</p> : null}
+        {renderTimeLimitBanner()}
 
         <main className="menu-grid" style={{paddingTop: '24px'}}>
           <div style={{background:'white', borderRadius:'16px', padding:'24px', boxShadow:'0 4px 12px rgba(0,0,0,0.05)'}}>
@@ -183,6 +213,7 @@ export function CustomerScreen({
           </div>
           <button className="customer-header-btn" onClick={onBackToMenu}>戻る</button>
         </header>
+        {renderTimeLimitBanner()}
 
         <main className="menu-grid" style={{paddingTop: '24px'}}>
           <div style={{background:'white', borderRadius:'16px', padding:'24px', boxShadow:'0 4px 12px rgba(0,0,0,0.05)'}}>
@@ -260,8 +291,9 @@ export function CustomerScreen({
         </header>
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
+        {renderTimeLimitBanner()}
 
-        {!customerOrderingEnabled && publicMenuReady ? (
+        {!customerOrderingEnabled && publicMenuReady && (!timeLimitInfo || !timeLimitInfo.isTimeUp) ? (
           <p style={{background:'#fcc419', color:'#333', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>この卓は現在注文を受け付けていません。</p>
         ) : null}
 

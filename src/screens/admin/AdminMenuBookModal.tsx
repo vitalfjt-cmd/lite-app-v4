@@ -13,6 +13,8 @@ type Props = {
   adminMenuBookValidFrom: string
   adminMenuBookValidTo: string
   adminMenuBookIsActive: boolean
+  adminMenuBookTimeLimit: string
+  adminMenuBookLastOrderOffset: string
   disabled: boolean
   onClose: () => void
   onMenuBookCodeChange: (value: string) => void
@@ -24,6 +26,8 @@ type Props = {
   onMenuBookValidFromChange: (value: string) => void
   onMenuBookValidToChange: (value: string) => void
   onMenuBookIsActiveChange: (value: boolean) => void
+  onMenuBookTimeLimitChange: (value: string) => void
+  onMenuBookLastOrderOffsetChange: (value: string) => void
   onCreateMenuBook: () => void
   checkBox: (checked: boolean, onChange: (next: boolean) => void, disabled?: boolean) => React.ReactNode
 }
@@ -56,6 +60,8 @@ export function AdminMenuBookModal(props: Props) {
           <label>終了時刻<input type="time" value={props.adminMenuBookAvailableToTime} onChange={(event) => props.onMenuBookAvailableToTimeChange(event.target.value)} disabled={props.disabled} /></label>
           <label>開始日<input type="date" value={props.adminMenuBookValidFrom} onChange={(event) => props.onMenuBookValidFromChange(event.target.value)} disabled={props.disabled} /></label>
           <label>終了日<input type="date" value={props.adminMenuBookValidTo} onChange={(event) => props.onMenuBookValidToChange(event.target.value)} disabled={props.disabled} /></label>
+          <label>制限時間（分）<input type="number" placeholder="無制限" value={props.adminMenuBookTimeLimit} onChange={(event) => props.onMenuBookTimeLimitChange(event.target.value)} disabled={props.disabled} /></label>
+          <label>ラストオーダー警告（残り分前）<input type="number" placeholder="警告なし" value={props.adminMenuBookLastOrderOffset} onChange={(event) => props.onMenuBookLastOrderOffsetChange(event.target.value)} disabled={props.disabled} /></label>
           <label>有効{props.checkBox(props.adminMenuBookIsActive, props.onMenuBookIsActiveChange, props.disabled)}</label>
           <div className="button-row">
             <button className="primary-button" onClick={props.onCreateMenuBook} disabled={props.disabled}>{props.editingMenuBookId ? '保存' : '追加'}</button>

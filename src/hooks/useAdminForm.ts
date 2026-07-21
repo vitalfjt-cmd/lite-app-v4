@@ -19,6 +19,8 @@ export function useAdminForm() {
   const [adminMenuBookAvailableToTime, setAdminMenuBookAvailableToTime] = useState('')
   const [adminMenuBookValidFrom, setAdminMenuBookValidFrom] = useState('')
   const [adminMenuBookValidTo, setAdminMenuBookValidTo] = useState('')
+  const [adminMenuBookTimeLimit, setAdminMenuBookTimeLimit] = useState('')
+  const [adminMenuBookLastOrderOffset, setAdminMenuBookLastOrderOffset] = useState('')
 
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
   const [adminCategoryName, setAdminCategoryName] = useState('')
@@ -79,7 +81,7 @@ export function useAdminForm() {
   const [adminStoreTicketNoDigits, setAdminStoreTicketNoDigits] = useState(4)
   const [itemImageUploadBusy, setItemImageUploadBusy] = useState(false)
 
-  const resetBook = () =>
+  const resetBook = () => {
     resetAdminBookForm(
       setEditingMenuBookId,
       setAdminMenuBookName,
@@ -92,6 +94,9 @@ export function useAdminForm() {
       setAdminMenuBookValidFrom,
       setAdminMenuBookValidTo,
     )
+    setAdminMenuBookTimeLimit('')
+    setAdminMenuBookLastOrderOffset('')
+  }
 
   const resetCategory = () => resetAdminCategoryForm(setEditingCategoryId, setAdminCategoryName, setAdminCategorySortOrder)
 
@@ -163,6 +168,8 @@ export function useAdminForm() {
     setAdminMenuBookAvailableToTime(menuBook.available_to_time ?? '')
     setAdminMenuBookValidFrom(menuBook.valid_from ?? '')
     setAdminMenuBookValidTo(menuBook.valid_to ?? '')
+    setAdminMenuBookTimeLimit(menuBook.time_limit_minutes != null ? String(menuBook.time_limit_minutes) : '')
+    setAdminMenuBookLastOrderOffset(menuBook.last_order_offset_minutes != null ? String(menuBook.last_order_offset_minutes) : '')
   }
 
   const startEditCategory = (category: any) => {
@@ -241,6 +248,8 @@ export function useAdminForm() {
     adminMenuBookAvailableToTime, setAdminMenuBookAvailableToTime,
     adminMenuBookValidFrom, setAdminMenuBookValidFrom,
     adminMenuBookValidTo, setAdminMenuBookValidTo,
+    adminMenuBookTimeLimit, setAdminMenuBookTimeLimit,
+    adminMenuBookLastOrderOffset, setAdminMenuBookLastOrderOffset,
     resetBook,
 
     editingCategoryId, setEditingCategoryId,

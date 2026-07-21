@@ -45,6 +45,7 @@ type CustomerTabletScreenProps = {
   customerMessage: string | null
   customerOrderingEnabled: boolean
   customerBusy: boolean
+  timeLimitInfo?: { remainingSeconds: number; isLastOrder: boolean; isTimeUp: boolean } | null
   publicMenuReady: boolean
   customerApiAvailable: boolean
   selectedCustomerUrl?: string | null
@@ -78,6 +79,7 @@ export function CustomerTabletScreen({
   customerMessage,
   customerOrderingEnabled,
   customerBusy,
+  timeLimitInfo,
   publicMenuReady,
   customerApiAvailable,
   selectedCustomerUrl,
@@ -126,6 +128,35 @@ export function CustomerTabletScreen({
 
   const getItemName = (item: { name: string; name_en?: string | null }) => {
     return (lang === 'en' && item.name_en) ? item.name_en : item.name
+  }
+
+  const formatRemainingTime = (totalSeconds: number): string => {
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+    const seconds = totalSeconds % 60
+    if (hours > 0) {
+      return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+    }
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+  }
+
+  const renderTabletTimeLimitBanner = (inModal = false) => {
+    if (!timeLimitInfo) return null
+    const { remainingSeconds, isLastOrder, isTimeUp } = timeLimitInfo
+    const stateClass = isTimeUp ? 'time-up' : isLastOrder ? 'last-order' : 'normal'
+    const style = inModal ? { margin: '0 0 16px 0', fontSize: '1rem', padding: '10px 16px' } : undefined
+    return (
+      <div className={`tablet-time-limit-banner ${stateClass}`} style={style}>
+        <span style={{ marginRight: '10px' }}>⏱️</span>
+        <span>
+          {isTimeUp
+            ? '注文時間が終了しました。'
+            : isLastOrder
+              ? `【ラストオーダー】注文終了まであと ${formatRemainingTime(remainingSeconds)}`
+              : `注文終了まであと ${formatRemainingTime(remainingSeconds)}`}
+        </span>
+      </div>
+    )
   }
   
   const scrollHorizontally = (direction: 'left' | 'right') => {
@@ -426,6 +457,7 @@ export function CustomerTabletScreen({
             </button>
           </div>
         </header>
+        {renderTabletTimeLimitBanner()}
         
         {customerMessage && (
           <div style={{ padding: '16px 32px', background: 'var(--tab-primary, #ff6b00)', color: 'white', textAlign: 'center', fontSize: '1.2rem', fontWeight: 'bold' }}>
@@ -621,6 +653,7 @@ export function CustomerTabletScreen({
           </div>
         )}
       </header>
+      {renderTabletTimeLimitBanner()}
 
       {/* Main horizontal scroll area */}
       <main className="tablet-main">
@@ -813,8 +846,9 @@ export function CustomerTabletScreen({
             </div>
 
             {/* Body */}
-            <div style={{flex: 1, overflowY: 'auto', paddingRight: '4px'}}>
-              {ticketReceipt ? (
+             <div style={{flex: 1, overflowY: 'auto', paddingRight: '4px'}}>
+               {renderTabletTimeLimitBanner(true)}
+               {ticketReceipt ? (
                 <>
                   <div style={{background:'#f8f9fa', padding:'16px', borderRadius:'12px', marginBottom:'20px', fontSize:'1.1rem', color:'#555', display:'flex', justifyContent:'space-between'}}>
                     <span><strong>伝票番号:</strong> {ticketReceipt.ticketNo || activeTicketNo || '—'}</span>

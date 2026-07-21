@@ -10,6 +10,8 @@ export type AdminMenuBook = {
   available_to_time: string | null
   valid_from: string | null
   valid_to: string | null
+  time_limit_minutes?: number | null
+  last_order_offset_minutes?: number | null
 }
 
 export type AdminCategory = {
