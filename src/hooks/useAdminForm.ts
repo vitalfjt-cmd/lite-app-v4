@@ -168,8 +168,10 @@ export function useAdminForm() {
     setAdminMenuBookAvailableToTime(menuBook.available_to_time ?? '')
     setAdminMenuBookValidFrom(menuBook.valid_from ?? '')
     setAdminMenuBookValidTo(menuBook.valid_to ?? '')
-    setAdminMenuBookTimeLimit(menuBook.time_limit_minutes != null ? String(menuBook.time_limit_minutes) : '')
-    setAdminMenuBookLastOrderOffset(menuBook.last_order_offset_minutes != null ? String(menuBook.last_order_offset_minutes) : '')
+    const timeLimit = menuBook.time_limit_minutes ?? menuBook.timeLimitMinutes
+    const lastOrderOffset = menuBook.last_order_offset_minutes ?? menuBook.lastOrderOffsetMinutes
+    setAdminMenuBookTimeLimit(timeLimit != null ? String(timeLimit) : '')
+    setAdminMenuBookLastOrderOffset(lastOrderOffset != null ? String(lastOrderOffset) : '')
   }
 
   const startEditCategory = (category: any) => {

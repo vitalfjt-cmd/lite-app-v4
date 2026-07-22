@@ -111,6 +111,8 @@ export function AdminMenuBooksTab(props: Props) {
                 <th>公開</th>
                 <th>時間帯</th>
                 <th>期間</th>
+                <th>制限時間</th>
+                <th>ラストオーダー</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -123,6 +125,8 @@ export function AdminMenuBooksTab(props: Props) {
                   <td>{book.is_active ? '有効' : '無効'}</td>
                   <td>{book.available_from_time || '-'} - {book.available_to_time || '-'}</td>
                   <td>{book.valid_from || '-'} - {book.valid_to || '-'}</td>
+                  <td>{book.time_limit_minutes != null ? `${book.time_limit_minutes}分` : '無制限'}</td>
+                  <td>{book.last_order_offset_minutes != null ? `終了${book.last_order_offset_minutes}分前` : 'なし'}</td>
                   <td>
                     <div className="admin-table-actions">
                       <button
