@@ -677,8 +677,11 @@ export function AdminScreen(props: Props) {
             onMenuBookIsActiveChange={props.onMenuBookIsActiveChange}
             onCreateMenuBook={async () => {
               if (props.onCreateMenuBook) {
-                const ok = await props.onCreateMenuBook()
-                if (ok) setMenuBookModalOpen(false)
+                try {
+                  await props.onCreateMenuBook()
+                } finally {
+                  setMenuBookModalOpen(false)
+                }
               }
             }}
             checkBox={checkBox}

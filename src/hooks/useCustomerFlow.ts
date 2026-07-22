@@ -233,7 +233,7 @@ export function useCustomerFlow(view: AppView) {
         setPublicOpenTicket((current) => ({
           id: current?.id ?? '',
           ticket_no: created.ticket_no,
-          ordered_at: created.ordered_at,
+          ordered_at: current?.ordered_at || created.ordered_at,
           customer_access_token: created.customer_access_token as string,
           status: 'OPEN',
         }))
