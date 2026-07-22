@@ -194,6 +194,7 @@ export default function App() {
     setItemImageUploadBusy: adminForm.setItemImageUploadBusy,
     setAdminMessage,
     setError,
+    setLiveMenuBooks,
     refreshAdminData: async () => {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       if (storeSlug) await loadAdminPrototypeData(storeSlug)

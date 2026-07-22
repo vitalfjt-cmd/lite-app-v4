@@ -40,6 +40,7 @@ export type AdminOperationsDependencies = {
   setError: (err: string | null) => void
   refreshAdminData: () => Promise<void>
   refreshLiveData: () => Promise<void>
+  setLiveMenuBooks?: React.Dispatch<React.SetStateAction<any[]>>
 }
 
 export function useAdminOperations(deps: AdminOperationsDependencies) {
@@ -47,7 +48,8 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     profile, liveStore, adminForm,
     liveItems, liveBookCategoryRows, liveBookCategorySubcategoryRows, livePlacements,
     setMutationBusy, setItemImageUploadBusy, setAdminMessage, setError,
-    refreshAdminData
+    refreshAdminData,
+    setLiveMenuBooks
   } = deps
 
   const createMenuBook = async () => {
@@ -75,10 +77,27 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         setAdminMessage('ラストオーダー告知（分）を正しく入力してください。')
         return
       }
+
+      const menuBookId = adminForm.editingMenuBookId || crypto.randomUUID()
+      const nextMenuBook = {
+        id: menuBookId,
+        code: normalizedCode,
+        name: adminForm.adminMenuBookName.trim(),
+        description: adminForm.adminMenuBookDescription.trim() || null,
+        sort_order: sortOrder,
+        is_active: adminForm.adminMenuBookIsActive,
+        available_from_time: adminForm.adminMenuBookAvailableFromTime || null,
+        available_to_time: adminForm.adminMenuBookAvailableToTime || null,
+        valid_from: adminForm.adminMenuBookValidFrom || null,
+        valid_to: adminForm.adminMenuBookValidTo || null,
+        time_limit_minutes: timeLimitMinutes,
+        last_order_offset_minutes: lastOrderOffsetMinutes,
+      }
+
       if (staffReadApiEnabled) {
         const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
-        await saveAdminPrototypeMenuBook(storeSlug, {
+        const res = await saveAdminPrototypeMenuBook(storeSlug, {
           menuBookId: adminForm.editingMenuBookId ?? undefined,
           code: normalizedCode,
           name: adminForm.adminMenuBookName.trim(),
@@ -92,7 +111,24 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           timeLimitMinutes: timeLimitMinutes,
           lastOrderOffsetMinutes: lastOrderOffsetMinutes,
         })
+        if (res?.menu_book && setLiveMenuBooks) {
+          setLiveMenuBooks((prev: any[]) => {
+            const exists = prev.some((b) => b.id === res.menu_book.id)
+            if (exists) {
+              return prev.map((b) => (b.id === res.menu_book.id ? res.menu_book : b))
+            }
+            return [...prev, res.menu_book]
+          })
+        }
         await refreshAdminData()
+      } else if (setLiveMenuBooks) {
+        setLiveMenuBooks((prev: any[]) => {
+          const exists = prev.some((b) => b.id === nextMenuBook.id)
+          if (exists) {
+            return prev.map((b) => (b.id === nextMenuBook.id ? nextMenuBook : b))
+          }
+          return [...prev, nextMenuBook]
+        })
       }
       adminForm.resetBook()
       setAdminMessage(adminForm.editingMenuBookId ? 'メニューブックを更新しました。' : 'メニューブックを追加しました。')
