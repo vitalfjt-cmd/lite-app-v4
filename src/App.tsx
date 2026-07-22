@@ -366,7 +366,7 @@ export default function App() {
     const lastOrderOffsetMinutes = publicMenuBook?.last_order_offset_minutes ?? 0
     const lastOrderMs = lastOrderOffsetMinutes * 60 * 1000
     const isLastOrder = remainingMs <= lastOrderMs
-    const isTimeUp = remainingMs <= 0
+    const isTimeUp = remainingMs <= 0 || Boolean(publicOpenTicket?.last_order_completed)
 
     return {
       remainingSeconds,

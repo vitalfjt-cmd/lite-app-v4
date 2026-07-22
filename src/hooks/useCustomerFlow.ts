@@ -24,6 +24,7 @@ export function useCustomerFlow(view: AppView) {
     ordered_at: string
     customer_access_token: string
     status?: string
+    last_order_completed?: boolean
   } | null>(null)
   const [publicCategories, setPublicCategories] = useState<LiveCategory[]>([])
   const [publicItems, setPublicItems] = useState<LiveMenuItem[]>([])
@@ -236,6 +237,7 @@ export function useCustomerFlow(view: AppView) {
           ordered_at: current?.ordered_at || created.ordered_at,
           customer_access_token: created.customer_access_token as string,
           status: 'OPEN',
+          last_order_completed: Boolean((created as any).last_order_completed || current?.last_order_completed),
         }))
       }
       setCart({})
