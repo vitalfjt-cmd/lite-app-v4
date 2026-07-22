@@ -57,7 +57,7 @@ export function fetchPublicMenu(storeSlug: string, qrToken: string, ticketToken?
     store: { id: string; slug: string; name: string }
     table: { id: string; label: string; qr_token: string }
     current_ticket: { id: string; ticket_no: string; ordered_at: string; status: string; customer_access_token: string } | null
-    menu_book: { id: string; code: string; name: string; description: string | null } | null
+    menu_book: { id: string; code: string; name: string; description: string | null; available_from_time?: string | null; available_to_time?: string | null } | null
     categories: { id: string; name: string; sort_order: number; parent_category_id?: string | null }[]
     top_categories: { id: string; name: string; sort_order: number; parent_category_id?: string | null }[]
     subcategories: { id: string; name: string; sort_order: number; parent_category_id?: string | null }[]

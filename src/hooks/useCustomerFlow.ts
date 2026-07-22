@@ -34,6 +34,8 @@ export function useCustomerFlow(view: AppView) {
     code: string
     name: string
     description: string | null
+    available_from_time?: string | null
+    available_to_time?: string | null
     time_limit_minutes: number | null
     last_order_offset_minutes: number | null
   } | null>(null)

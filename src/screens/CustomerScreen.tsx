@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { ToppingModal } from '../components/ToppingModal'
+import { isTimeWithinWindow } from '../lib/appUtils'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -49,6 +50,7 @@ type CustomerScreenProps = {
   customerOrderingEnabled: boolean
   customerCanViewMyOrder: boolean
   timeLimitInfo?: { remainingSeconds: number; isLastOrder: boolean; isTimeUp: boolean } | null
+  publicMenuBook?: { available_from_time?: string | null; available_to_time?: string | null } | null
   publicMenuReady: boolean
   customerApiAvailable: boolean
   formatTime: (value: string) => string
@@ -93,6 +95,7 @@ export function CustomerScreen({
   customerOrderingEnabled,
   customerCanViewMyOrder,
   timeLimitInfo,
+  publicMenuBook,
   publicMenuReady,
   customerApiAvailable,
   formatTime,
@@ -113,6 +116,10 @@ export function CustomerScreen({
   const [toppingModalOpen, setToppingModalOpen] = useState(false)
   const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
   const [lang, setLang] = useState<'ja' | 'en'>('ja')
+
+  const isBookOutOfTime = Boolean(
+    publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)
+  )
 
   const hasEnglishNames = visibleCustomerItems.some((item) => item.name_en)
 
@@ -292,6 +299,11 @@ export function CustomerScreen({
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
         {renderTimeLimitBanner()}
+        {isBookOutOfTime && (
+          <p style={{background:'#e03131', color:'white', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>
+            現在、このメニューの提供時間外です ({publicMenuBook?.available_from_time || ''} 〜 {publicMenuBook?.available_to_time || ''})
+          </p>
+        )}
 
         {!customerOrderingEnabled && publicMenuReady && (!timeLimitInfo || !timeLimitInfo.isTimeUp) ? (
           <p style={{background:'#fcc419', color:'#333', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>この卓は現在注文を受け付けていません。</p>
@@ -378,8 +390,10 @@ export function CustomerScreen({
                     <div className="actions">
                       <button 
                         className="add-btn" 
-                        disabled={!customerOrderingEnabled} 
+                        disabled={!customerOrderingEnabled || isBookOutOfTime} 
+                        style={isBookOutOfTime ? { background: '#888', borderColor: '#777', cursor: 'not-allowed', opacity: 0.7 } : undefined}
                         onClick={() => {
+                          if (isBookOutOfTime) return
                           if (item.toppings && item.toppings.length > 0) {
                             setActiveToppingItem(item)
                             setToppingModalOpen(true)
@@ -388,7 +402,7 @@ export function CustomerScreen({
                           }
                         }}
                       >
-                        {lang === 'en' ? 'Add' : '追加'}
+                        {isBookOutOfTime ? (lang === 'en' ? 'Out of Hours' : '時間外') : (lang === 'en' ? 'Add' : '追加')}
                       </button>
                     </div>
                   )}

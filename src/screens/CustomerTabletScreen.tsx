@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { ToppingModal } from '../components/ToppingModal'
 import { fetchStaffPrototypeBootstrap } from '../lib/staffReadApi'
+import { isTimeWithinWindow } from '../lib/appUtils'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -46,6 +47,7 @@ type CustomerTabletScreenProps = {
   customerOrderingEnabled: boolean
   customerBusy: boolean
   timeLimitInfo?: { remainingSeconds: number; isLastOrder: boolean; isTimeUp: boolean } | null
+  publicMenuBook?: { available_from_time?: string | null; available_to_time?: string | null } | null
   publicMenuReady: boolean
   customerApiAvailable: boolean
   selectedCustomerUrl?: string | null
@@ -80,6 +82,7 @@ export function CustomerTabletScreen({
   customerOrderingEnabled,
   customerBusy,
   timeLimitInfo,
+  publicMenuBook,
   publicMenuReady,
   customerApiAvailable,
   selectedCustomerUrl,
@@ -102,6 +105,10 @@ export function CustomerTabletScreen({
   const [toppingModalOpen, setToppingModalOpen] = useState(false)
   const [activeToppingItem, setActiveToppingItem] = useState<CustomerMenuItem | null>(null)
   const [lang, setLang] = useState<'ja' | 'en'>('ja')
+
+  const isBookOutOfTime = Boolean(
+    publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)
+  )
 
   // Setup states
   const [showSetupScreen, setShowSetupScreen] = useState(() => {
@@ -607,6 +614,12 @@ export function CustomerTabletScreen({
           </div>
         )}
 
+        {isBookOutOfTime && (
+          <div style={{ padding: '12px 64px', background: '#e03131', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+            現在、このメニューの提供時間外です ({publicMenuBook?.available_from_time || ''} 〜 {publicMenuBook?.available_to_time || ''})
+          </div>
+        )}
+
         {/* Tier 1: Top categories */}
         {customerTopCategories.length > 0 && (
           <div className="tablet-categories" style={{ padding: '14px 64px 0', borderBottom: customerSubCategories.length > 0 ? 'none' : '1px solid #eee' }}>
@@ -722,9 +735,11 @@ export function CustomerTabletScreen({
                       <div className="tablet-actions">
                         <button
                           className="tablet-add-btn"
-                          disabled={!customerOrderingEnabled}
+                          disabled={!customerOrderingEnabled || isBookOutOfTime}
+                          style={isBookOutOfTime ? { background: '#888', borderColor: '#777', cursor: 'not-allowed', opacity: 0.7 } : undefined}
                           data-testid={`customer-item-increment-${item.id}`}
                           onClick={() => {
+                            if (isBookOutOfTime) return
                             if (item.toppings && item.toppings.length > 0) {
                               setActiveToppingItem(item)
                               setToppingModalOpen(true)
@@ -733,7 +748,7 @@ export function CustomerTabletScreen({
                             }
                           }}
                         >
-                          注文リストへ追加
+                          {isBookOutOfTime ? '時間外' : '注文リストへ追加'}
                         </button>
                       </div>
                     )}

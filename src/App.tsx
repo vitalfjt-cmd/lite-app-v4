@@ -681,6 +681,7 @@ export default function App() {
             customerOrderingEnabled={customerOrderingEnabled}
             customerCanViewMyOrder={customerCanViewMyOrder}
             timeLimitInfo={timeLimitInfo}
+            publicMenuBook={publicMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             formatTime={formatTime}
@@ -731,6 +732,7 @@ export default function App() {
             customerOrderingEnabled={customerOrderingEnabled}
             customerBusy={customerBusy}
             timeLimitInfo={timeLimitInfo}
+            publicMenuBook={publicMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             yen={yen}

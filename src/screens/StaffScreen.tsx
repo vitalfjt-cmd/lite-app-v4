@@ -4,6 +4,7 @@ import type { KeyboardEventHandler } from 'react'
 import { DirectActionView } from './staff/DirectActionView'
 import { StaffPaymentView } from './staff/StaffPaymentView'
 import { StaffHandyView } from './staff/StaffHandyView'
+import { isTimeWithinWindow } from '../lib/appUtils'
 import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod } from '../types'
 
 type PaymentKind = string
@@ -1025,7 +1026,15 @@ export function StaffScreen({
               <label>
                 <div style={{marginBottom:'8px', color:'#aaa'}}>メニューブック選択</div>
                 <select value={newTicketMenuBookId} onChange={e => onNewTicketMenuBookChange(e.target.value)} style={{width:'100%', padding:'12px', background:'#111', color:'white', border:'1px solid #444', borderRadius:'8px', fontSize:'1.1rem'}}>
-                  {liveMenuBooks.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  {liveMenuBooks.map(b => {
+                    const isAvailable = isTimeWithinWindow(b.available_from_time, b.available_to_time)
+                    const timeRange = (b.available_from_time || b.available_to_time) ? ` (${b.available_from_time || ''}〜${b.available_to_time || ''})` : ''
+                    return (
+                      <option key={b.id} value={b.id}>
+                        {isAvailable ? `${b.name}${timeRange}` : `(時間外) ${b.name}${timeRange}`}
+                      </option>
+                    )
+                  })}
                 </select>
               </label>
               <label>

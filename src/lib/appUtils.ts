@@ -291,3 +291,30 @@ export function buildCustomerUrl(
 export function buildQrImageUrl(payload: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=16&data=${encodeURIComponent(payload)}`
 }
+
+export function isTimeWithinWindow(
+  fromTime: string | null | undefined,
+  toTime: string | null | undefined,
+  now: Date = new Date()
+): boolean {
+  if (!fromTime && !toTime) return true
+
+  const hours = String(now.getHours()).padStart(2, '0')
+  const minutes = String(now.getMinutes()).padStart(2, '0')
+  const current = `${hours}:${minutes}`
+
+  const from = fromTime ? fromTime.slice(0, 5) : null
+  const to = toTime ? toTime.slice(0, 5) : null
+
+  if (from && !to) return current >= from
+  if (!from && to) return current <= to
+  if (from && to) {
+    if (from <= to) {
+      return current >= from && current <= to
+    } else {
+      return current >= from || current <= to
+    }
+  }
+  return true
+}
+
