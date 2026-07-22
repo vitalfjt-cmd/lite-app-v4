@@ -350,14 +350,14 @@ export default function App() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [publicMenuBook?.time_limit_minutes, publicOpenTicket?.ordered_at])
+  }, [publicMenuBook?.time_limit_minutes, publicOpenTicket?.first_ordered_at])
 
   const timeLimitInfo = useMemo(() => {
     const timeLimitMinutes = publicMenuBook?.time_limit_minutes
-    const orderedAt = publicOpenTicket?.ordered_at
-    if (!timeLimitMinutes || !orderedAt) return null
+    const firstOrderedAt = publicOpenTicket?.first_ordered_at
+    if (!timeLimitMinutes || !firstOrderedAt) return null
 
-    const startTime = new Date(orderedAt).getTime()
+    const startTime = new Date(firstOrderedAt).getTime()
     const durationMs = timeLimitMinutes * 60 * 1000
     const endTime = startTime + durationMs
     const remainingMs = Math.max(0, endTime - currentTime)

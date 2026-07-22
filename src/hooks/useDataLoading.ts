@@ -290,6 +290,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
               id: data.current_ticket.id,
               ticket_no: data.current_ticket.ticket_no,
               ordered_at: data.current_ticket.ordered_at,
+              first_ordered_at: (data.current_ticket as any).first_ordered_at ?? null,
               customer_access_token: data.current_ticket.customer_access_token,
               status: data.current_ticket.status,
               last_order_completed: Boolean((data.current_ticket as any).last_order_completed),

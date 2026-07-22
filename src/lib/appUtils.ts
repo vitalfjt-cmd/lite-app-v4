@@ -279,7 +279,7 @@ export function buildCustomerUrl(
 ): string | null {
   if (!storeSlug || !qrToken) return null
   const url = new URL(resolveAppOrigin(baseLocation) + baseLocation.pathname)
-  url.searchParams.set('view', 'cust-tablet')
+  url.searchParams.set('view', 'customer')
   url.searchParams.set('store', storeSlug)
   url.searchParams.set('qr', qrToken)
   if (ticketToken) {

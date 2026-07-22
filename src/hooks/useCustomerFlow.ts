@@ -22,6 +22,7 @@ export function useCustomerFlow(view: AppView) {
     id: string
     ticket_no: string
     ordered_at: string
+    first_ordered_at?: string | null
     customer_access_token: string
     status?: string
     last_order_completed?: boolean
@@ -235,6 +236,7 @@ export function useCustomerFlow(view: AppView) {
           id: current?.id ?? '',
           ticket_no: created.ticket_no,
           ordered_at: current?.ordered_at || created.ordered_at,
+          first_ordered_at: (created as any).first_ordered_at || current?.first_ordered_at || created.ordered_at,
           customer_access_token: created.customer_access_token as string,
           status: 'OPEN',
           last_order_completed: Boolean((created as any).last_order_completed || current?.last_order_completed),
