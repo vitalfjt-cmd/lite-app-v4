@@ -300,7 +300,7 @@ export function CustomerScreen({
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
         {renderTimeLimitBanner()}
         <p style={{background:'#333', color:'#0f0', padding:'4px 8px', fontSize:'0.7rem', margin:0, wordBreak:'break-all'}}>
-          [DBG] from={(publicMenuBook as any)?.available_from_time ?? 'null'} to={(publicMenuBook as any)?.available_to_time ?? 'null'} outOfTime={String(isBookOutOfTime)} orderEnabled={String(customerOrderingEnabled)}
+          [DBG] name={(publicMenuBook as any)?.name ?? 'null'} id={(publicMenuBook as any)?.id?.slice(0,8) ?? 'null'} from={(publicMenuBook as any)?.available_from_time ?? 'null'} to={(publicMenuBook as any)?.available_to_time ?? 'null'} outOfTime={String(isBookOutOfTime)} orderEnabled={String(customerOrderingEnabled)}
         </p>
         {isBookOutOfTime && (
           <p style={{background:'#e03131', color:'white', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>
