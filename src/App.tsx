@@ -385,6 +385,7 @@ export default function App() {
     if (activeBookId) {
       const book = liveMenuBooks.find((b) => b.id === activeBookId)
       if (book) return book
+      if (publicMenuBook && publicMenuBook.id === activeBookId) return publicMenuBook
     }
     if (publicMenuBook) return publicMenuBook
     return (
