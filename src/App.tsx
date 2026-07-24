@@ -376,11 +376,19 @@ export default function App() {
     }
   }, [publicMenuBook, publicOpenTicket, currentTime])
 
-  const effectiveMenuBook = publicMenuBook || (
-    selectedTicket
-      ? liveMenuBooks.find((b) => b.id === selectedTicket.menu_book_id)
-      : liveMenuBooks.find((b) => b.id === newTicketMenuBookId) || liveMenuBooks[0]
-  )
+  const effectiveMenuBook = useMemo(() => {
+    const activeBookId = selectedTicket?.menu_book_id || publicOpenTicket?.menu_book_id
+    if (activeBookId) {
+      const book = liveMenuBooks.find((b) => b.id === activeBookId)
+      if (book) return book
+    }
+    if (publicMenuBook) return publicMenuBook
+    return (
+      liveMenuBooks.find((b) => b.id === newTicketMenuBookId) ||
+      liveMenuBooks[0] ||
+      null
+    )
+  }, [selectedTicket, publicOpenTicket, liveMenuBooks, publicMenuBook, newTicketMenuBookId])
 
   const isBookOutOfTime = Boolean(
     effectiveMenuBook && !isTimeWithinWindow(effectiveMenuBook.available_from_time, effectiveMenuBook.available_to_time)

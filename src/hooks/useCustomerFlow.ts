@@ -27,6 +27,7 @@ export function useCustomerFlow(view: AppView) {
     customer_access_token: string
     status?: string
     last_order_completed?: boolean
+    menu_book_id?: string | null
   } | null>(null)
   const [publicCategories, setPublicCategories] = useState<LiveCategory[]>([])
   const [publicItems, setPublicItems] = useState<LiveMenuItem[]>([])
@@ -210,7 +211,7 @@ export function useCustomerFlow(view: AppView) {
       setCustomerMessage('商品を選択してください。')
       return
     }
-    const bookToCheck = publicMenuBook || overrideMenuBook
+    const bookToCheck = overrideMenuBook || publicMenuBook
     if (bookToCheck && !isTimeWithinWindow(bookToCheck.available_from_time, bookToCheck.available_to_time)) {
       setCustomerMessage('現在、このメニューの提供時間外のため注文できません。')
       return
