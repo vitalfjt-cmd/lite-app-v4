@@ -6,6 +6,7 @@ import {
   composeScopedCategoryId,
   syncCustomerTicketInUrl,
   formatError,
+  isTimeWithinWindow,
 } from '../lib/appUtils'
 import { createPublicOrder, customerApiSupportsTicketBootstrap, fetchPublicTicket, fetchPublicMenu } from '../lib/publicCustomerApi'
 import { createLocalTicketReceipt, createTicketReceipt } from '../lib/staffUtils'
@@ -204,6 +205,10 @@ export function useCustomerFlow(view: AppView) {
       setCustomerMessage('商品を選択してください。')
       return
     }
+    if (publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)) {
+      setCustomerMessage('現在、このメニューの提供時間外のため注文できません。')
+      return
+    }
     setCustomerBusy(true)
     setCustomerMessage(null)
     try {
@@ -259,6 +264,10 @@ export function useCustomerFlow(view: AppView) {
         } else {
           setCustomerMessage('会計済みのため、この卓からの追加注文はできません。スタッフにお声がけください。')
         }
+      } else if (errorMessage.includes('menu_book_out_of_hours') || errorMessage.includes('out_of_hours')) {
+        await loadPublicMenu(true)
+        setCustomerMessage('現在、このメニューの提供時間外のため注文できません。')
+        setCustomerStep('menu')
       } else if (errorMessage.includes('menu_item_sold_out') || errorMessage.includes('sold_out')) {
         await loadPublicMenu(true)
         setCustomerMessage('一部の商品が売切れになったため、メニューを更新しました。')

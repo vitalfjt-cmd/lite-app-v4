@@ -7,6 +7,7 @@ import {
   buildCustomerUrl,
   formatError,
   formatTime,
+  isTimeWithinWindow,
   messageTone,
   normalizeAppLocation,
   readCustomerAccessParams,
@@ -375,11 +376,15 @@ export default function App() {
     }
   }, [publicMenuBook, publicOpenTicket, currentTime])
 
+  const isBookOutOfTime = Boolean(
+    publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)
+  )
+
   const publicTicketIsOpen = !publicOpenTicket || publicOpenTicket.status === 'OPEN'
   const customerCanViewMyOrder = Boolean((ticketReceipt || publicOpenTicket) && publicTicketIsOpen)
   const customerApiAvailable = customerApiSupportsTicketBootstrap
   const customerOrderingEnabled = customerApiSupportsTicketBootstrap
-    ? hasPublicCustomerAccess && publicTicketIsOpen && (!timeLimitInfo || !timeLimitInfo.isTimeUp)
+    ? hasPublicCustomerAccess && publicTicketIsOpen && (!timeLimitInfo || !timeLimitInfo.isTimeUp) && !isBookOutOfTime
     : false
 
   const availableTables = useMemo(() => {
