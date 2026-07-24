@@ -292,27 +292,37 @@ export function buildQrImageUrl(payload: string): string {
   return `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=16&data=${encodeURIComponent(payload)}`
 }
 
+export function parseTimeToMinutes(timeStr: string | null | undefined): number | null {
+  if (!timeStr) return null
+  const normalized = String(timeStr).replace(/：/g, ':').replace(/\s+/g, '').trim()
+  const parts = normalized.split(':')
+  if (parts.length < 2) return null
+  const hours = parseInt(parts[0], 10)
+  const minutes = parseInt(parts[1], 10)
+  if (isNaN(hours) || isNaN(minutes)) return null
+  return hours * 60 + minutes
+}
+
 export function isTimeWithinWindow(
   fromTime: string | null | undefined,
   toTime: string | null | undefined,
   now: Date = new Date()
 ): boolean {
-  if (!fromTime && !toTime) return true
+  const fromMin = parseTimeToMinutes(fromTime)
+  const toMin = parseTimeToMinutes(toTime)
 
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-  const current = `${hours}:${minutes}`
+  if (fromMin === null && toMin === null) return true
 
-  const from = fromTime ? fromTime.slice(0, 5) : null
-  const to = toTime ? toTime.slice(0, 5) : null
+  const currentMin = now.getHours() * 60 + now.getMinutes()
 
-  if (from && !to) return current >= from
-  if (!from && to) return current <= to
-  if (from && to) {
-    if (from <= to) {
-      return current >= from && current <= to
+  if (fromMin !== null && toMin === null) return currentMin >= fromMin
+  if (fromMin === null && toMin !== null) return currentMin <= toMin
+
+  if (fromMin !== null && toMin !== null) {
+    if (fromMin <= toMin) {
+      return currentMin >= fromMin && currentMin <= toMin
     } else {
-      return current >= from || current <= to
+      return currentMin >= fromMin || currentMin <= toMin
     }
   }
   return true
