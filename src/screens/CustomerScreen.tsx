@@ -299,6 +299,9 @@ export function CustomerScreen({
         
         {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
         {renderTimeLimitBanner()}
+        <p style={{background:'#333', color:'#0f0', padding:'4px 8px', fontSize:'0.7rem', margin:0, wordBreak:'break-all'}}>
+          [DBG] from={(publicMenuBook as any)?.available_from_time ?? 'null'} to={(publicMenuBook as any)?.available_to_time ?? 'null'} outOfTime={String(isBookOutOfTime)} orderEnabled={String(customerOrderingEnabled)}
+        </p>
         {isBookOutOfTime && (
           <p style={{background:'#e03131', color:'white', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>
             現在、このメニューの提供時間外です ({publicMenuBook?.available_from_time || ''} 〜 {publicMenuBook?.available_to_time || ''})
