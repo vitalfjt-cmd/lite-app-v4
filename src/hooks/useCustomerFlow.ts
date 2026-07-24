@@ -200,12 +200,18 @@ export function useCustomerFlow(view: AppView) {
     }
   }, [hasPublicCustomerAccess, publicQrToken, publicStoreSlug, publicTicketToken, view])
 
-  const handleSubmitCustomerOrder = async (session: any | null, loadLiveData: (s: any) => Promise<void>, loadPublicMenu: (silent?: boolean) => Promise<void>) => {
+  const handleSubmitCustomerOrder = async (
+    session: any | null, 
+    loadLiveData: (s: any) => Promise<void>, 
+    loadPublicMenu: (silent?: boolean) => Promise<void>,
+    overrideMenuBook?: { available_from_time?: string | null; available_to_time?: string | null } | null
+  ) => {
     if (cartItems.length === 0) {
       setCustomerMessage('商品を選択してください。')
       return
     }
-    if (publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)) {
+    const bookToCheck = publicMenuBook || overrideMenuBook
+    if (bookToCheck && !isTimeWithinWindow(bookToCheck.available_from_time, bookToCheck.available_to_time)) {
       setCustomerMessage('現在、このメニューの提供時間外のため注文できません。')
       return
     }

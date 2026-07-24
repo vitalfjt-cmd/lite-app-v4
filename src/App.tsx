@@ -376,15 +376,21 @@ export default function App() {
     }
   }, [publicMenuBook, publicOpenTicket, currentTime])
 
+  const effectiveMenuBook = publicMenuBook || (
+    selectedTicket
+      ? liveMenuBooks.find((b) => b.id === selectedTicket.menu_book_id)
+      : liveMenuBooks.find((b) => b.id === newTicketMenuBookId) || liveMenuBooks[0]
+  )
+
   const isBookOutOfTime = Boolean(
-    publicMenuBook && !isTimeWithinWindow(publicMenuBook.available_from_time, publicMenuBook.available_to_time)
+    effectiveMenuBook && !isTimeWithinWindow(effectiveMenuBook.available_from_time, effectiveMenuBook.available_to_time)
   )
 
   const publicTicketIsOpen = !publicOpenTicket || publicOpenTicket.status === 'OPEN'
   const customerCanViewMyOrder = Boolean((ticketReceipt || publicOpenTicket) && publicTicketIsOpen)
   const customerApiAvailable = customerApiSupportsTicketBootstrap
   const customerOrderingEnabled = customerApiSupportsTicketBootstrap
-    ? hasPublicCustomerAccess && publicTicketIsOpen && (!timeLimitInfo || !timeLimitInfo.isTimeUp) && !isBookOutOfTime
+    ? (hasPublicCustomerAccess || Boolean(session)) && publicTicketIsOpen && (!timeLimitInfo || !timeLimitInfo.isTimeUp) && !isBookOutOfTime
     : false
 
   const availableTables = useMemo(() => {
@@ -686,7 +692,7 @@ export default function App() {
             customerOrderingEnabled={customerOrderingEnabled}
             customerCanViewMyOrder={customerCanViewMyOrder}
             timeLimitInfo={timeLimitInfo}
-            publicMenuBook={publicMenuBook}
+            publicMenuBook={effectiveMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             formatTime={formatTime}
@@ -717,7 +723,7 @@ export default function App() {
             }}
             onOpenConfirm={() => setCustomerStep('confirm')}
             onBackToMenu={returnToCustomerMenu}
-            onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent))}
+            onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent), effectiveMenuBook)}
             onRefreshTicket={() => void refreshCustomerTicket()}
           />
         ) : null}
@@ -737,7 +743,7 @@ export default function App() {
             customerOrderingEnabled={customerOrderingEnabled}
             customerBusy={customerBusy}
             timeLimitInfo={timeLimitInfo}
-            publicMenuBook={publicMenuBook}
+            publicMenuBook={effectiveMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
             yen={yen}
@@ -763,7 +769,7 @@ export default function App() {
             cartItems={cartItems}
             onOpenConfirm={() => setCustomerStep('confirm')}
             onBackToMenu={returnToCustomerMenu}
-            onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent))}
+            onSubmitOrder={() => void handleSubmitCustomerOrder(session, (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY), (silent) => loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, silent), effectiveMenuBook)}
             selectedCustomerUrl={selectedCustomerUrl}
             ticketReceipt={ticketReceipt}
             ticketSummaryLines={ticketSummaryLines}
