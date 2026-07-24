@@ -274,7 +274,11 @@ export default function App() {
   useEffect(() => {
     if (!customerApiSupportsTicketBootstrap || !hasPublicCustomerAccess) return
     void loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess)
-  }, [hasPublicCustomerAccess, publicQrToken, publicStoreSlug, publicTicketToken])
+    const timer = window.setInterval(() => {
+      void loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess, true)
+    }, 5000)
+    return () => window.clearInterval(timer)
+  }, [hasPublicCustomerAccess, publicQrToken, publicStoreSlug, publicTicketToken, customerApiSupportsTicketBootstrap])
 
   useEffect(() => {
     if (!session || view === 'customer') return

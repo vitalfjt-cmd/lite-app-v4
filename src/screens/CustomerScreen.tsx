@@ -185,9 +185,9 @@ export function CustomerScreen({
                     <span style={{color:'#ff5a5f', fontWeight:'bold', fontSize:'1.1rem'}}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{width: '120px', margin:0}}>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.cartKey)}>-</button>
+                    <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onDecrementItem(item.cartKey)}>-</button>
                     <span>{item.qty}</span>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.cartKey)}>+</button>
+                    <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onIncrementItem(item.cartKey)}>+</button>
                   </div>
                 </div>
               ))}
@@ -201,9 +201,9 @@ export function CustomerScreen({
         </main>
 
         <div className={`floating-cart-container visible`}>
-          <button className="floating-cart-btn" onClick={onSubmitOrder} disabled={!customerOrderingEnabled || cartCount === 0 || customerBusy}>
+          <button className="floating-cart-btn" onClick={onSubmitOrder} disabled={!customerOrderingEnabled || cartCount === 0 || customerBusy || isBookOutOfTime}>
             <div className="cart-meta" style={{alignItems:'center'}}>
-              <span className="cart-action-text" style={{fontSize:'1.3rem'}}>{customerBusy ? '送信中...' : '注文を確定する'}</span>
+              <span className="cart-action-text" style={{fontSize:'1.3rem'}}>{isBookOutOfTime ? '時間外' : customerBusy ? '送信中...' : '注文を確定する'}</span>
             </div>
           </button>
         </div>
@@ -418,13 +418,13 @@ export function CustomerScreen({
         <button 
           className="floating-cart-btn" 
           onClick={onOpenConfirm}
-          disabled={!customerOrderingEnabled || cartCount === 0 || customerBusy}
+          disabled={!customerOrderingEnabled || cartCount === 0 || customerBusy || isBookOutOfTime}
         >
           <div className="cart-meta">
             <span className="cart-count">{lang === 'en' ? `${cartCount} items in cart` : `カートに ${cartCount} 点`}</span>
             <span className="cart-subtotal">{yen(cartSubtotal)}</span>
           </div>
-          <span className="cart-action-text">{lang === 'en' ? 'To order confirmation →' : '注文確認へ →'}</span>
+          <span className="cart-action-text">{isBookOutOfTime ? (lang === 'en' ? 'Out of Hours' : '時間外') : (lang === 'en' ? 'To order confirmation →' : '注文確認へ →')}</span>
         </button>
       </div>
 
@@ -438,6 +438,7 @@ export function CustomerScreen({
           itemName={getItemName(activeToppingItem)}
           toppings={activeToppingItem.toppings || []}
           onConfirm={(selectedToppingIds) => {
+            if (isBookOutOfTime) return
             onIncrementItem(activeToppingItem.id, selectedToppingIds)
           }}
           lang={lang}

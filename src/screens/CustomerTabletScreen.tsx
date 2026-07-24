@@ -947,6 +947,7 @@ export function CustomerTabletScreen({
           itemName={getItemName(activeToppingItem)}
           toppings={activeToppingItem.toppings || []}
           onConfirm={(selectedToppingIds) => {
+            if (isBookOutOfTime) return
             onIncrementItem(activeToppingItem.id, selectedToppingIds)
           }}
           lang={lang}
