@@ -491,9 +491,9 @@ export function CustomerTabletScreen({
                     <span style={{ color: 'var(--tab-primary, #ff6b00)', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{ width: '150px', margin: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onDecrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
+                    <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onDecrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
                     <span style={{ fontSize: '1.5rem', minWidth: '30px', textAlign: 'center', fontWeight: 'bold' }}>{item.qty}</span>
-                    <button disabled={!customerOrderingEnabled} onClick={() => onIncrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
+                    <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onIncrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>+</button>
                   </div>
                 </div>
               ))}
@@ -534,11 +534,12 @@ export function CustomerTabletScreen({
 
             <button
               className={`tablet-submit-btn glowing`}
-              disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
+              disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy || isBookOutOfTime}
+              style={isBookOutOfTime ? { background: '#888', cursor: 'not-allowed', opacity: 0.7 } : undefined}
               onClick={onSubmitOrder}
               data-testid="customer-submit-order"
             >
-              {customerBusy ? '送信中...' : '注文を確定する'}
+              {isBookOutOfTime ? '時間外' : customerBusy ? '送信中...' : '注文を確定する'}
             </button>
           </div>
         </footer>
@@ -800,12 +801,13 @@ export function CustomerTabletScreen({
           </button>
 
           <button
-            className={`tablet-submit-btn ${cartCount > 0 ? 'glowing' : ''}`}
-            disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy}
+            className={`tablet-submit-btn ${cartCount > 0 && !isBookOutOfTime ? 'glowing' : ''}`}
+            disabled={cartCount === 0 || !customerOrderingEnabled || customerBusy || isBookOutOfTime}
+            style={isBookOutOfTime ? { background: '#888', cursor: 'not-allowed', opacity: 0.7 } : undefined}
             onClick={onOpenConfirm}
             data-testid="customer-open-confirm"
           >
-            {customerBusy ? '送信中...' : '注文を確認して送信する'}
+            {isBookOutOfTime ? '時間外' : customerBusy ? '送信中...' : '注文を確認して送信する'}
           </button>
         </div>
       </footer>

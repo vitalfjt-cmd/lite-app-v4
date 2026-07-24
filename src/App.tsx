@@ -272,9 +272,9 @@ export default function App() {
   }, [session])
 
   useEffect(() => {
-    if (!customerApiSupportsTicketBootstrap || publicMenuReady || customerBusy || !hasPublicCustomerAccess) return
+    if (!customerApiSupportsTicketBootstrap || customerBusy || !hasPublicCustomerAccess) return
     void loadPublicMenu(publicStoreSlug, publicQrToken, publicTicketToken, hasPublicCustomerAccess)
-  }, [customerBusy, hasPublicCustomerAccess, publicMenuReady, publicQrToken, publicStoreSlug, publicTicketToken])
+  }, [customerBusy, hasPublicCustomerAccess, publicQrToken, publicStoreSlug, publicTicketToken])
 
   useEffect(() => {
     if (!session || view === 'customer') return
