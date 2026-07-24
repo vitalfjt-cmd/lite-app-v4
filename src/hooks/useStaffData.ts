@@ -51,6 +51,7 @@ export function useStaffData() {
       customerUrl: selectedTicket.customer_access_token || null,
       customerCount: selectedTicket.customer_count,
       receiptNo: selectedTicket.receipt_no || null,
+      menuBookId: selectedTicket.menu_book_id || null,
     }
   }, [selectedTicket, activeLines])
 
@@ -130,6 +131,7 @@ export function useStaffData() {
           customerUrl: t.customer_access_token || null,
           customerCount: t.customer_count,
           receiptNo: t.receipt_no || null,
+          menuBookId: t.menu_book_id || null,
         }
       })
   }, [activeLiveTickets, liveLines])

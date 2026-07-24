@@ -942,24 +942,41 @@ export function StaffScreen({
         <main className="ticket-detail-pane">
           {selectedSummary ? (
             <>
-              <div className="detail-header">
-                <div className="title-group">
-                  <h2 className="detail-title">
-                    <button className="btn-secondary mobile-only" onClick={() => setMobileView('list')} style={{marginRight:'12px', padding:'4px 8px'}}>← 戻る</button>
-                    {selectedSummary.tableName} 詳細
-                  </h2>
-                  <span className="order-time">注文時刻: {selectedSummary.orderedAt} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
-                </div>
-                <div className="action-group">
-                  {selectedCustomerUrl && (
-                    <button className="btn-secondary" onClick={() => setShowQrModal(true)}>
-                      客用QR表示
-                    </button>
-                  )}
-                  <button className="btn-secondary" onClick={() => setShowHandyModal(true)}>注文</button>
-                  <button className="btn-primary" onClick={() => setShowPaymentModal(true)}>会計へ進む</button>
-                </div>
-              </div>
+              {(() => {
+                const selectedTicketBook = liveMenuBooks.find(b => b.id === selectedSummary.menuBookId)
+                const isTicketMenuBookOutOfTime = Boolean(
+                  selectedTicketBook && !isTimeWithinWindow(selectedTicketBook.available_from_time, selectedTicketBook.available_to_time)
+                )
+                return (
+                  <>
+                    {isTicketMenuBookOutOfTime && (
+                      <div style={{ padding: '12px 24px', background: '#e03131', color: 'white', textAlign: 'center', fontWeight: 'bold' }}>
+                        現在、この伝票のメニューブック ({selectedTicketBook?.name}) は提供時間外です ({selectedTicketBook?.available_from_time || ''} 〜 {selectedTicketBook?.available_to_time || ''})
+                      </div>
+                    )}
+                    <div className="detail-header">
+                      <div className="title-group">
+                        <h2 className="detail-title">
+                          <button className="btn-secondary mobile-only" onClick={() => setMobileView('list')} style={{marginRight:'12px', padding:'4px 8px'}}>← 戻る</button>
+                          {selectedSummary.tableName} 詳細
+                        </h2>
+                        <span className="order-time">注文時刻: {selectedSummary.orderedAt} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
+                      </div>
+                      <div className="action-group">
+                        {selectedCustomerUrl && (
+                          <button className="btn-secondary" onClick={() => setShowQrModal(true)}>
+                            客用QR表示
+                          </button>
+                        )}
+                        <button className="btn-secondary" disabled={isTicketMenuBookOutOfTime} style={isTicketMenuBookOutOfTime ? { background: '#888', cursor: 'not-allowed', opacity: 0.7 } : undefined} onClick={() => setShowHandyModal(true)}>
+                          {isTicketMenuBookOutOfTime ? '時間外' : '注文'}
+                        </button>
+                        <button className="btn-primary" onClick={() => setShowPaymentModal(true)}>会計へ進む</button>
+                      </div>
+                    </div>
+                  </>
+                )
+              })()}
 
               <div className="order-lines">
                 <div className="lines-header">

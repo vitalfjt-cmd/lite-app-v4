@@ -1,5 +1,5 @@
 import type { LiveLine, LiveTicket, LiveStore, LiveTableRef, LiveMenuBook, StaffProfile } from '../types'
-import { formatError } from '../lib/appUtils'
+import { formatError, isTimeWithinWindow } from '../lib/appUtils'
 import {
   staffReadApiEnabled,
   staffReadStoreSlugOverride,
@@ -158,6 +158,14 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     const targetItemId = overrideItemId || handyItemId
     const targetQty = overrideQty || handyQty
     if (!profile || !selectedTicket || !targetItemId) return
+    const targetBook = liveMenuBooks.find((b) => b.id === selectedTicket.menu_book_id)
+    if (targetBook && !isTimeWithinWindow(targetBook.available_from_time, targetBook.available_to_time)) {
+      const msg = `現在、このメニュー (${targetBook.name}) は提供時間外のため注文を追加できません。`
+      setError(msg)
+      setStaffMessage(msg)
+      window.alert(msg)
+      return
+    }
     const menuItem = staffHandyItems.find((item) => item.id === targetItemId)
     if (!menuItem) return
     const quantity = Math.max(Number(targetQty) || 1, 1)
@@ -202,6 +210,14 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
 
   const createHandyOrders = async (items: Array<{ itemId: string; qty: number; toppings?: string[] }>) => {
     if (!profile || !selectedTicket || items.length === 0) return
+    const targetBook = liveMenuBooks.find((b) => b.id === selectedTicket.menu_book_id)
+    if (targetBook && !isTimeWithinWindow(targetBook.available_from_time, targetBook.available_to_time)) {
+      const msg = `現在、このメニュー (${targetBook.name}) は提供時間外のため注文を追加できません。`
+      setError(msg)
+      setStaffMessage(msg)
+      window.alert(msg)
+      return
+    }
     setMutationBusy('handy-order')
     setStaffMessage(null)
     setError(null)

@@ -156,6 +156,7 @@ export type TicketSummaryView = {
   customerCount?: number | null
   status: 'NEW' | 'COOKING' | 'SERVED'
   receiptNo?: string | null
+  menuBookId?: string | null
 }
 export type ReceiptSummaryLine = { itemName: string; qty: number; subtotal: number }
 
