@@ -987,7 +987,7 @@ export default function App() {
             onMenuBookValidToChange={adminForm.setAdminMenuBookValidTo}
             onMenuBookTimeLimitChange={adminForm.setAdminMenuBookTimeLimit}
             onMenuBookLastOrderOffsetChange={adminForm.setAdminMenuBookLastOrderOffset}
-            onCreateMenuBook={() => void adminOps.createMenuBook()}
+            onCreateMenuBook={() => adminOps.createMenuBook()}
             onEditMenuBook={(id) => {
               const book = liveMenuBooks.find((b) => b.id === id)
               if (book) adminForm.startEditMenuBook(book)
