@@ -9,6 +9,7 @@ import {
   addStaffPrototypeOrder,
   addStaffPrototypeOrders,
   createStaffPrototypeTicket,
+  updateStaffPrototypeTicketMenuBook,
   addStaffPrototypePaymentEntry,
   closeStaffPrototypeTicket,
   staffAuditLog,
@@ -414,6 +415,33 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
+  const updateTicketMenuBook = async (ticketId: string, newMenuBookId: string): Promise<boolean> => {
+    setMutationBusy('update-ticket-menu-book')
+    setStaffMessage(null)
+    setError(null)
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await updateStaffPrototypeTicketMenuBook(storeSlug, ticketId, newMenuBookId)
+      }
+      setLiveTickets((current) =>
+        current.map((t) => (t.id === ticketId ? { ...t, menu_book_id: newMenuBookId } : t))
+      )
+      const book = liveMenuBooks.find((b) => b.id === newMenuBookId)
+      const bookName = book ? book.name : '未選択'
+      setStaffMessage(`メニューブックを「${bookName}」に変更しました。`)
+      return true
+    } catch (err) {
+      const message = messageFromStaffApiError(err)
+      setError(message)
+      setStaffMessage(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   return {
     changeLineQuantity,
     submitLineQuantityUpdate,
@@ -422,6 +450,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     createHandyOrder,
     createHandyOrders,
     createStaffTicket,
+    updateTicketMenuBook,
     savePaymentEntry,
     settleTicket,
     logPaymentAbort,

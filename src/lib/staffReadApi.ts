@@ -824,6 +824,22 @@ export function createStaffPrototypeTicket(storeSlug: string, tableLabel: string
   })
 }
 
+export function updateStaffPrototypeTicketMenuBook(storeSlug: string, ticketId: string, menuBookId: string) {
+  return invoke<{
+    store: { id: string; slug: string; name: string }
+    ticket: {
+      id: string
+      ticket_no: string
+      menu_book_id: string
+    }
+  }>({
+    action: 'update-ticket-menu-book',
+    storeSlug,
+    ticketId,
+    menuBookId,
+  })
+}
+
 export function closeStaffPrototypeTicket(storeSlug: string, ticketId: string, ticketNo?: string | null) {
   return invoke<{
     store: { id: string; slug: string; name: string }

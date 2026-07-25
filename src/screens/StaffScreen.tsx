@@ -53,6 +53,7 @@ type StaffScreenProps = {
   onCreateHandyOrders: (items: Array<{ itemId: string; qty: number; toppings?: string[] }>) => void
   onNewTicketMenuBookChange: (value: string) => void
   onCreateTicket: (tableRefId: string, menuBookId: string, customerCount: number | null) => Promise<boolean>
+  onUpdateTicketMenuBook?: (ticketId: string, menuBookId: string) => Promise<boolean> | void
   onSavePaymentEntry: (payload: {
     ticketId?: string
     paymentType: string
@@ -122,6 +123,7 @@ export function StaffScreen({
   onCreateHandyOrders,
   onNewTicketMenuBookChange,
   onCreateTicket,
+  onUpdateTicketMenuBook,
   onSavePaymentEntry,
   onCloseTicket,
   onAbortPayment,
@@ -961,6 +963,39 @@ export function StaffScreen({
                           {selectedSummary.tableName} 詳細
                         </h2>
                         <span className="order-time">注文時刻: {selectedSummary.orderedAt} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
+                          <span style={{ fontSize: '0.85rem', color: '#aaa' }}>メニューブック:</span>
+                          <select
+                            data-testid="staff-ticket-menu-book-select"
+                            value={selectedSummary.menuBookId || ''}
+                            onChange={(e) => {
+                              const nextBookId = e.target.value
+                              if (nextBookId && nextBookId !== selectedSummary.menuBookId) {
+                                onUpdateTicketMenuBook?.(selectedSummary.ticketId, nextBookId)
+                              }
+                            }}
+                            disabled={mutationBusy === 'update-ticket-menu-book'}
+                            style={{
+                              padding: '4px 8px',
+                              background: '#111',
+                              color: '#fff',
+                              border: '1px solid #444',
+                              borderRadius: '6px',
+                              fontSize: '0.85rem',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            {liveMenuBooks.map((mb) => {
+                              const isAvailable = isTimeWithinWindow(mb.available_from_time, mb.available_to_time)
+                              const timeRange = (mb.available_from_time || mb.available_to_time) ? ` (${mb.available_from_time || ''}〜${mb.available_to_time || ''})` : ''
+                              return (
+                                <option key={mb.id} value={mb.id}>
+                                  {isAvailable ? `${mb.name}${timeRange}` : `(時間外) ${mb.name}${timeRange}`}
+                                </option>
+                              )
+                            })}
+                          </select>
+                        </div>
                       </div>
                       <div className="action-group">
                         {selectedCustomerUrl && (

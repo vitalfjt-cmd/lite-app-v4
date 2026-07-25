@@ -215,7 +215,7 @@ export default function App() {
 
   const {
     changeLineQuantity, submitLineQuantityUpdate, cancelLine, advanceLineStatus,
-    createHandyOrder, createHandyOrders, createStaffTicket, savePaymentEntry, settleTicket, logPaymentAbort
+    createHandyOrder, createHandyOrders, createStaffTicket, updateTicketMenuBook, savePaymentEntry, settleTicket, logPaymentAbort
   } = staffOps
 
 
@@ -838,6 +838,7 @@ export default function App() {
             onCreateHandyOrders={(items) => void createHandyOrders(items)}
             onNewTicketMenuBookChange={setNewTicketMenuBookId}
             onCreateTicket={(tableRefId, menuBookId, customerCount) => createStaffTicket(tableRefId, menuBookId, customerCount)}
+            onUpdateTicketMenuBook={(ticketId, menuBookId) => updateTicketMenuBook(ticketId, menuBookId)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             onSavePaymentEntry={(payload) => savePaymentEntry(payload)}
             onCloseTicket={async (ticketId?: string) => { return await settleTicket(ticketId) }}
