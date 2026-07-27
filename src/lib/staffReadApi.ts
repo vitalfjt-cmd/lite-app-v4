@@ -805,7 +805,14 @@ export function fetchStaffTicketDetail(
   })
 }
 
-export function createStaffPrototypeTicket(storeSlug: string, tableLabel: string, menuBookCode?: string | null, customerCount?: number | null) {
+export function createStaffPrototypeTicket(
+  storeSlug: string,
+  tableLabel: string,
+  menuBookCode?: string | null,
+  customerCount?: number | null,
+  tableId?: string | null,
+  menuBookId?: string | null,
+) {
   return invoke<{
     store: { id: string; slug: string; name: string }
     ticket: {
@@ -825,6 +832,8 @@ export function createStaffPrototypeTicket(storeSlug: string, tableLabel: string
     tableLabel,
     menuBookCode,
     customerCount,
+    tableId,
+    menuBookId,
   })
 }
 

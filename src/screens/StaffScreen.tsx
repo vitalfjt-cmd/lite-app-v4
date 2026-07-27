@@ -290,6 +290,14 @@ export function StaffScreen({
   }, [availableTables])
 
   useEffect(() => {
+    if (liveMenuBooks.length === 0) return
+    if (!newTicketMenuBookId || !liveMenuBooks.some((b) => b.id === newTicketMenuBookId)) {
+      const activeBook = liveMenuBooks.find((book) => book.is_active) ?? liveMenuBooks[0]
+      if (activeBook) onNewTicketMenuBookChange(activeBook.id)
+    }
+  }, [liveMenuBooks, newTicketMenuBookId, onNewTicketMenuBookChange])
+
+  useEffect(() => {
     const nextTopCategoryId = handyTopCategories[0]?.id ?? null
     setHandyTopCategoryId((current) => current && handyTopCategories.some((category) => category.id === current) ? current : nextTopCategoryId)
   }, [handyTopCategories])
@@ -326,6 +334,10 @@ export function StaffScreen({
   /* Create Ticket Handlers */
   function openCreateTicketModal() {
     if (!newTicketTableId && availableTables.length > 0) setNewTicketTableId(availableTables[0].id)
+    if ((!newTicketMenuBookId || !liveMenuBooks.some((b) => b.id === newTicketMenuBookId)) && liveMenuBooks.length > 0) {
+      const activeBook = liveMenuBooks.find((b) => b.is_active) ?? liveMenuBooks[0]
+      if (activeBook) onNewTicketMenuBookChange(activeBook.id)
+    }
     setShowCreateTicketModal(true)
   }
   const canSubmitCreateTicket = Boolean(newTicketTableId) && (staffReadOnlyMode || Boolean(newTicketMenuBookId))

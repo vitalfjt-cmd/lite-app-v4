@@ -276,10 +276,17 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     try {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       const table = liveTables.find((candidate) => candidate.id === tableRefId)
-      const menuBook = liveMenuBooks.find((candidate) => candidate.id === menuBookId)
+      const menuBook = liveMenuBooks.find((candidate) => candidate.id === menuBookId || candidate.code === menuBookId)
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       if (!table) throw new Error('staff_table_not_found')
-      const created = await createStaffPrototypeTicket(storeSlug, table.label, menuBook?.code ?? null, customerCount)
+      const created = await createStaffPrototypeTicket(
+        storeSlug,
+        table.label,
+        menuBook?.code ?? null,
+        customerCount,
+        table.id,
+        menuBook?.id ?? menuBookId,
+      )
 
       setLiveTickets((current) => [
         {
