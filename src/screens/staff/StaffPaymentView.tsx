@@ -1,5 +1,5 @@
 import React from 'react'
-import { TicketSummaryView, LivePaymentEntry, LiveLine , AdminPaymentMethod } from '../../types'
+import { TicketSummaryView, LivePaymentEntry, LiveLine, AdminPaymentMethod, LiveMenuItem } from '../../types'
 
 type PaymentKind = string
 
@@ -73,11 +73,13 @@ type StaffPaymentViewProps = {
   onRemoveCombinedTicket: (ticketId: string) => void
   staffMessage: string | null
   livePaymentMethods: AdminPaymentMethod[]
+  liveItems?: LiveMenuItem[]
 }
 
 export function StaffPaymentView({
   selectedSummary,
   selectedLines,
+  liveItems,
   payments,
   currentPaymentInput,
   discountAmount,
@@ -233,13 +235,17 @@ export function StaffPaymentView({
         <div style={{ flex: 1, padding: '0 20px', overflowY: 'auto' }}>
           {g ? (
             g.items && g.items.length > 0 ? (
-              g.items.map((item, idx) => (
-                <div key={idx} className="receipt-item-row">
-                  <span className="receipt-item-name">{item.name}</span>
-                  <span className="receipt-item-qty">x{item.qty}</span>
-                  <span className="receipt-item-price">{yen(item.subtotal)}</span>
-                </div>
-              ))
+              g.items.map((item, idx) => {
+                const lineItem = liveItems?.find((i) => i.name === item.name)
+                const isReduced = lineItem?.tax_rate_type === 'REDUCED'
+                return (
+                  <div key={idx} className="receipt-item-row">
+                    <span className="receipt-item-name">{item.name}{isReduced ? ' ※' : ''}</span>
+                    <span className="receipt-item-qty">x{item.qty}</span>
+                    <span className="receipt-item-price">{yen(item.subtotal)}</span>
+                  </div>
+                )
+              })
             ) : (
               <div className="receipt-item-row">
                 <span className="receipt-item-name">{g.label || 'ご飲食代'}</span>
@@ -251,16 +257,18 @@ export function StaffPaymentView({
             Object.values(
               selectedLines.reduce((acc, line) => {
                 const name = line.item_name_snapshot
+                const lineItem = liveItems?.find((i) => i.id === line.item_id || i.name === name)
+                const isReduced = line.tax_rate_type === 'REDUCED' || lineItem?.tax_rate_type === 'REDUCED'
                 if (!acc[name]) {
-                  acc[name] = { id: name, item_name_snapshot: name, quantity: 0, line_subtotal: 0 }
+                  acc[name] = { id: name, item_name_snapshot: name, quantity: 0, line_subtotal: 0, isReduced }
                 }
                 acc[name].quantity += line.quantity
                 acc[name].line_subtotal += line.line_subtotal
                 return acc
-              }, {} as Record<string, { id: string; item_name_snapshot: string; quantity: number; line_subtotal: number }>),
+              }, {} as Record<string, { id: string; item_name_snapshot: string; quantity: number; line_subtotal: number; isReduced: boolean }>),
             ).map((l: any) => (
               <div key={l.id} className="receipt-item-row">
-                <span className="receipt-item-name">{l.item_name_snapshot}</span>
+                <span className="receipt-item-name">{l.item_name_snapshot}{l.isReduced ? ' ※' : ''}</span>
                 <span className="receipt-item-qty">x{l.quantity}</span>
                 <span className="receipt-item-price">{yen(l.line_subtotal)}</span>
               </div>
@@ -293,6 +301,64 @@ export function StaffPaymentView({
               {yen(g ? g.amount : finalBilledAmount)}
             </span>
           </div>
+
+          {/* 税額内訳 */}
+          {(() => {
+            let total10 = 0
+            let total8 = 0
+            let totalNone = 0
+            if (g && g.items && g.items.length > 0) {
+              for (const item of g.items) {
+                const lineItem = liveItems?.find((i) => i.name === item.name)
+                const rateType = lineItem?.tax_rate_type || 'STANDARD'
+                if (rateType === 'REDUCED') total8 += item.subtotal
+                else if (rateType === 'NONE') totalNone += item.subtotal
+                else total10 += item.subtotal
+              }
+            } else {
+              for (const line of selectedLines) {
+                const lineItem = liveItems?.find((i) => i.id === line.item_id || i.name === line.item_name_snapshot)
+                const rateType = line.tax_rate_type || lineItem?.tax_rate_type || 'STANDARD'
+                if (rateType === 'REDUCED') total8 += line.line_subtotal
+                else if (rateType === 'NONE') totalNone += line.line_subtotal
+                else total10 += line.line_subtotal
+              }
+            }
+            const currentBilled = g ? g.amount : finalBilledAmount
+            const originalSum = total10 + total8 + totalNone
+            const scale = originalSum > 0 ? (currentBilled / originalSum) : 1
+
+            const billed10 = Math.round(total10 * scale)
+            const billed8 = Math.round(total8 * scale)
+            const tax10 = Math.round(billed10 * 10 / 110)
+            const tax8 = Math.round(billed8 * 8 / 108)
+
+            return (
+              <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.85rem', color: '#555' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>10%対象金額</span>
+                  <span>{yen(billed10)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
+                  <span>(内消費税額)</span>
+                  <span>{yen(tax10)}</span>
+                </div>
+                {total8 > 0 && (
+                  <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                      <span>8%対象金額(※)</span>
+                      <span>{yen(billed8)}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
+                      <span>(内消費税額)</span>
+                      <span>{yen(tax8)}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          })()}
+
           <div className="receipt-deposit-group" style={{ marginTop: '16px' }}>
             {g ? (
               <>

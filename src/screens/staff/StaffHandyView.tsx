@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ToppingModal } from '../../components/ToppingModal'
 import { TicketSummaryView, LiveLine, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem } from '../../types'
+import { formatItemPrice } from '../../lib/priceUtils'
 
 type StaffHandyViewProps = {
   selectedSummary: TicketSummaryView
@@ -12,6 +13,9 @@ type StaffHandyViewProps = {
   handyTopCategoryId: string | null
   handySubCategoryId: string | null
   mutationBusy: string | null
+  taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
+  taxRate?: number
+  reducedTaxRate?: number
   yen: (val: number) => string
   setShowHandyModal: (val: boolean) => void
   setHandyTopCategoryId: (val: string | null) => void
@@ -31,6 +35,9 @@ export function StaffHandyView({
   handyTopCategoryId,
   handySubCategoryId,
   mutationBusy,
+  taxDisplayMode,
+  taxRate,
+  reducedTaxRate,
   yen,
   setShowHandyModal,
   setHandyTopCategoryId,
@@ -92,7 +99,7 @@ export function StaffHandyView({
                   }}
                 >
                   <span className="h-item-name">{item.name}</span>
-                  <span className="h-item-price">{yen(item.price)}</span>
+                  <span className="h-item-price">{formatItemPrice(item.price, item.tax_type, item.tax_rate_type, taxDisplayMode, taxRate, reducedTaxRate, yen)}</span>
                   {qtyInCart > 0 && <span className="h-item-qty-badge">{qtyInCart}</span>}
                 </button>
               );

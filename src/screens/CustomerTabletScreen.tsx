@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ToppingModal } from '../components/ToppingModal'
 import { fetchStaffPrototypeBootstrap } from '../lib/staffReadApi'
 import { isTimeWithinWindow } from '../lib/appUtils'
+import { formatItemPrice } from '../lib/priceUtils'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -10,6 +11,8 @@ type CustomerMenuItem = {
   name_en?: string | null
   lead?: string
   price: number
+  tax_type?: 'INCLUDED' | 'EXCLUDED' | 'NONE'
+  tax_rate_type?: 'STANDARD' | 'REDUCED' | 'NONE'
   soldOut: boolean
   imageUrl?: string | null
   toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
@@ -51,6 +54,9 @@ type CustomerTabletScreenProps = {
   publicMenuReady: boolean
   customerApiAvailable: boolean
   selectedCustomerUrl?: string | null
+  taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
+  taxRate?: number
+  reducedTaxRate?: number
   yen: (value: number) => string
   onSelectTopCategory: (id: string) => void
   onSelectCategory: (id: string) => void
@@ -86,6 +92,9 @@ export function CustomerTabletScreen({
   publicMenuReady,
   customerApiAvailable,
   selectedCustomerUrl,
+  taxDisplayMode,
+  taxRate,
+  reducedTaxRate,
   yen,
   onSelectTopCategory,
   onSelectCategory,
@@ -729,7 +738,9 @@ export function CustomerTabletScreen({
                     <div className="tablet-card-text">
                       <h3 className="tablet-item-name">{getItemName(item)}</h3>
                       {item.lead && <p className="tablet-item-lead">{item.lead}</p>}
-                      <strong className="tablet-item-price">{yen(item.price)}</strong>
+                      <strong className="tablet-item-price">
+                        {formatItemPrice(item.price, item.tax_type, item.tax_rate_type, taxDisplayMode, taxRate, reducedTaxRate, yen)}
+                      </strong>
                     </div>
 
                     {!item.soldOut && (

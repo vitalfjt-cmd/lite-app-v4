@@ -159,6 +159,9 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           paymentTimingMode: adminForm.adminStorePaymentTimingMode,
           ticketNoResetMode: adminForm.adminStoreTicketNoResetMode,
           ticketNoDigits: Number(adminForm.adminStoreTicketNoDigits) || 4,
+          taxRate: Number(adminForm.adminStoreTaxRate) || 10,
+          reducedTaxRate: Number(adminForm.adminStoreReducedTaxRate) || 8,
+          taxDisplayMode: adminForm.adminStoreTaxDisplayMode,
         })
         await refreshAdminData()
       }
@@ -377,6 +380,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           nameEn: adminForm.adminItemNameEn.trim() || null,
           price,
           taxType: adminForm.adminItemTaxType,
+          taxRateType: adminForm.adminItemTaxRateType,
           imageUrl: adminForm.adminItemImageUrl.trim() || null,
           sortOrder: sortOrder,
           isActive: adminForm.adminItemIsActive,

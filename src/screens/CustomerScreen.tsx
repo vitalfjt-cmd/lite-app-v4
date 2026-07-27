@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { ToppingModal } from '../components/ToppingModal'
 import { isTimeWithinWindow } from '../lib/appUtils'
+import { formatItemPrice } from '../lib/priceUtils'
 
 type CustomerCategory = { id: string; name: string; parentId?: string | null }
 type CustomerMenuItem = {
@@ -10,6 +11,8 @@ type CustomerMenuItem = {
   name_en?: string | null
   lead?: string
   price: number
+  tax_type?: 'INCLUDED' | 'EXCLUDED' | 'NONE'
+  tax_rate_type?: 'STANDARD' | 'REDUCED' | 'NONE'
   soldOut: boolean
   imageUrl?: string | null
   toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
@@ -53,6 +56,9 @@ type CustomerScreenProps = {
   publicMenuBook?: { available_from_time?: string | null; available_to_time?: string | null } | null
   publicMenuReady: boolean
   customerApiAvailable: boolean
+  taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
+  taxRate?: number
+  reducedTaxRate?: number
   formatTime: (value: string) => string
   yen: (value: number) => string
   messageTone: (message: string | null) => 'success' | 'error'
@@ -98,6 +104,9 @@ export function CustomerScreen({
   publicMenuBook,
   publicMenuReady,
   customerApiAvailable,
+  taxDisplayMode,
+  taxRate,
+  reducedTaxRate,
   formatTime,
   yen,
   messageTone,
@@ -385,7 +394,9 @@ export function CustomerScreen({
                 <h3 className="item-name">{getItemName(item)}</h3>
                 <p className="item-lead">{item.lead}</p>
                 <div className="card-bottom">
-                  <strong className="item-price">{yen(item.price)}</strong>
+                  <strong className="item-price">
+                    {formatItemPrice(item.price, item.tax_type, item.tax_rate_type, taxDisplayMode, taxRate, reducedTaxRate, yen)}
+                  </strong>
                   {!item.soldOut && (
                     <div className="actions">
                       <button 

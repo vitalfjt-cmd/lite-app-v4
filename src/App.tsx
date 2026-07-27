@@ -708,6 +708,9 @@ export default function App() {
             publicMenuBook={effectiveMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
+            taxDisplayMode={liveStore?.tax_display_mode}
+            taxRate={liveStore?.tax_rate}
+            reducedTaxRate={liveStore?.reduced_tax_rate}
             formatTime={formatTime}
             yen={yen}
             messageTone={messageTone}
@@ -759,6 +762,9 @@ export default function App() {
             publicMenuBook={effectiveMenuBook}
             publicMenuReady={publicMenuReady}
             customerApiAvailable={customerApiAvailable}
+            taxDisplayMode={liveStore?.tax_display_mode}
+            taxRate={liveStore?.tax_rate}
+            reducedTaxRate={liveStore?.reduced_tax_rate}
             yen={yen}
             onSelectTopCategory={setSelectedCustomerTopCategoryId}
             onSelectCategory={setSelectedCustomerCategoryId}
@@ -824,6 +830,9 @@ export default function App() {
             newTicketMenuBookId={newTicketMenuBookId}
             selectedCustomerUrl={selectedCustomerUrl}
             livePaymentMethods={livePaymentMethods}
+            taxDisplayMode={liveStore?.tax_display_mode}
+            taxRate={liveStore?.tax_rate}
+            reducedTaxRate={liveStore?.reduced_tax_rate}
             yen={yen}
             kdsStatusLabel={kdsStatusLabel}
             messageTone={messageTone}
@@ -942,6 +951,7 @@ export default function App() {
             adminItemNameEn={adminForm.adminItemNameEn}
             adminItemPrice={adminForm.adminItemPrice}
             adminItemTaxType={adminForm.adminItemTaxType}
+            adminItemTaxRateType={adminForm.adminItemTaxRateType}
             adminItemImageUrl={adminForm.adminItemImageUrl}
             adminItemSortOrder={adminForm.adminItemSortOrder}
             adminItemIsActive={adminForm.adminItemIsActive}
@@ -963,6 +973,9 @@ export default function App() {
             adminStorePaymentTimingMode={adminForm.adminStorePaymentTimingMode}
             adminStoreTicketNoResetMode={adminForm.adminStoreTicketNoResetMode}
             adminStoreTicketNoDigits={String(adminForm.adminStoreTicketNoDigits)}
+            adminStoreTaxRate={String(adminForm.adminStoreTaxRate)}
+            adminStoreReducedTaxRate={String(adminForm.adminStoreReducedTaxRate)}
+            adminStoreTaxDisplayMode={adminForm.adminStoreTaxDisplayMode}
             adminTableLabel={adminForm.adminTableLabel}
             adminTableQrToken={adminForm.adminTableQrToken}
             adminTableGroupName={adminForm.adminTableGroupName}
@@ -1002,6 +1015,9 @@ export default function App() {
             onStorePaymentTimingModeChange={adminForm.setAdminStorePaymentTimingMode}
             onStoreTicketNoResetModeChange={adminForm.setAdminStoreTicketNoResetMode}
             onStoreTicketNoDigitsChange={(v) => adminForm.setAdminStoreTicketNoDigits(Number(v))}
+            onStoreTaxRateChange={(v) => adminForm.setAdminStoreTaxRate(Number(v))}
+            onStoreReducedTaxRateChange={(v) => adminForm.setAdminStoreReducedTaxRate(Number(v))}
+            onStoreTaxDisplayModeChange={adminForm.setAdminStoreTaxDisplayMode}
             onSaveStoreSettings={() => void adminOps.saveStoreSettings()}
             onDeleteStaffUser={(id) => void adminOps.deleteStaffUser(id)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
@@ -1065,6 +1081,7 @@ export default function App() {
             onItemNameEnChange={adminForm.setAdminItemNameEn}
             onItemPriceChange={adminForm.setAdminItemPrice}
             onItemTaxTypeChange={adminForm.setAdminItemTaxType}
+            onItemTaxRateTypeChange={adminForm.setAdminItemTaxRateType}
             onItemImageUrlChange={adminForm.setAdminItemImageUrl}
             onItemSortOrderChange={adminForm.setAdminItemSortOrder}
             onItemIsActiveChange={adminForm.setAdminItemIsActive}

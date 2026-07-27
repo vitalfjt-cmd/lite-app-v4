@@ -39,6 +39,9 @@ type StaffScreenProps = {
   newTicketMenuBookId: string
   selectedCustomerUrl: string | null
   livePaymentMethods: AdminPaymentMethod[]
+  taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
+  taxRate?: number
+  reducedTaxRate?: number
   yen: (value: number) => string
   kdsStatusLabel: (status: LiveLine['kds_status'] | 'NEW' | 'COOKING' | 'SERVED') => string
   messageTone: (message: string | null) => 'success' | 'error'
@@ -109,6 +112,9 @@ export function StaffScreen({
   newTicketMenuBookId,
   selectedCustomerUrl,
   livePaymentMethods,
+  taxDisplayMode,
+  taxRate,
+  reducedTaxRate,
   yen,
   kdsStatusLabel,
   messageTone,
@@ -828,7 +834,8 @@ export function StaffScreen({
           setPendingPaymentItems={setPendingPaymentItems as any}
           liveTicketSummaries={liveTicketSummaries}
           combinedTicketIds={combinedTicketIds}
-        livePaymentMethods={livePaymentMethods}
+          livePaymentMethods={livePaymentMethods}
+          liveItems={liveItems}
           onAddCombinedTicket={(id) => setCombinedTicketIds((prev) => [...prev, id])}
           onRemoveCombinedTicket={(id) => setCombinedTicketIds((prev) => prev.filter((x) => x !== id))}
         />
@@ -849,6 +856,9 @@ export function StaffScreen({
         handyTopCategoryId={handyTopCategoryId}
         handySubCategoryId={handySubCategoryId}
         mutationBusy={mutationBusy}
+        taxDisplayMode={taxDisplayMode}
+        taxRate={taxRate}
+        reducedTaxRate={reducedTaxRate}
         yen={yen}
         setShowHandyModal={(v) => {
           if (isHandyMode) {

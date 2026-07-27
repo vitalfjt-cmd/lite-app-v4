@@ -424,6 +424,9 @@ export function saveAdminPrototypeStore(
     paymentTimingMode: 'PREPAID' | 'POSTPAID'
     ticketNoResetMode: 'DAILY' | 'SEQUENCE'
     ticketNoDigits: number
+    taxRate?: number
+    reducedTaxRate?: number
+    taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
   },
 ) {
   return invoke<{
@@ -605,6 +608,7 @@ export function saveAdminPrototypeItem(
     nameEn?: string | null
     price: number
     taxType: 'INCLUDED' | 'EXCLUDED' | 'NONE'
+    taxRateType?: 'STANDARD' | 'REDUCED' | 'NONE'
     isSoldOut: boolean
     imageUrl?: string | null
     sortOrder: number

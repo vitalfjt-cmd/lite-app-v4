@@ -9,6 +9,9 @@ type Props = {
   adminStorePaymentTimingMode: 'PREPAID' | 'POSTPAID'
   adminStoreTicketNoResetMode: 'DAILY' | 'SEQUENCE'
   adminStoreTicketNoDigits: string
+  adminStoreTaxRate: string
+  adminStoreReducedTaxRate: string
+  adminStoreTaxDisplayMode: 'INCLUDED' | 'EXCLUDED'
   disabled: boolean
   onStoreNameChange: (value: string) => void
   onStoreSlugChange: (value: string) => void
@@ -17,6 +20,9 @@ type Props = {
   onStorePaymentTimingModeChange: (value: 'PREPAID' | 'POSTPAID') => void
   onStoreTicketNoResetModeChange: (value: 'DAILY' | 'SEQUENCE') => void
   onStoreTicketNoDigitsChange: (value: string) => void
+  onStoreTaxRateChange: (value: string) => void
+  onStoreReducedTaxRateChange: (value: string) => void
+  onStoreTaxDisplayModeChange: (value: 'INCLUDED' | 'EXCLUDED') => void
   onSaveStoreSettings: () => void
 }
 
@@ -46,6 +52,21 @@ export function AdminStoreTab(props: Props) {
           <label className="admin-store-field">
             <span>営業日切替時刻</span>
             <input type="number" value={props.adminStoreBusinessOffsetMinutes} onChange={(event) => props.onStoreBusinessOffsetMinutesChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>標準税率 (%)</span>
+            <input type="number" value={props.adminStoreTaxRate} onChange={(event) => props.onStoreTaxRateChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>軽減税率 (%)</span>
+            <input type="number" value={props.adminStoreReducedTaxRate} onChange={(event) => props.onStoreReducedTaxRateChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>税表示区分</span>
+            <select value={props.adminStoreTaxDisplayMode} onChange={(event) => props.onStoreTaxDisplayModeChange(event.target.value as 'INCLUDED' | 'EXCLUDED')} disabled={props.disabled}>
+              <option value="INCLUDED">税込表示</option>
+              <option value="EXCLUDED">税抜表示</option>
+            </select>
           </label>
           <label className="admin-store-field">
             <span>支払いタイミング</span>

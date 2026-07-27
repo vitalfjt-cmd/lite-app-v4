@@ -240,13 +240,16 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, setError }: P
 
                 {/* Items */}
                 <div style={{ flex: 1, padding: '0 20px' }}>
-                  {ticketDetail.lines.map((line: any, idx: number) => (
-                    <div key={idx} className="receipt-item-row" style={{ display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', marginBottom: '8px' }}>
-                      <span className="receipt-item-name">{line.item_name_snapshot}</span>
-                      <span className="receipt-item-qty">x{line.quantity}</span>
-                      <span className="receipt-item-price" style={{ textAlign: 'right' }}>{yen(line.line_subtotal)}</span>
-                    </div>
-                  ))}
+                  {ticketDetail.lines.map((line: any, idx: number) => {
+                    const isReduced = line.tax_rate_type === 'REDUCED'
+                    return (
+                      <div key={idx} className="receipt-item-row" style={{ display: 'grid', gridTemplateColumns: '1fr auto 80px', gap: '8px', marginBottom: '8px' }}>
+                        <span className="receipt-item-name">{line.item_name_snapshot}{isReduced ? ' ※' : ''}</span>
+                        <span className="receipt-item-qty">x{line.quantity}</span>
+                        <span className="receipt-item-price" style={{ textAlign: 'right' }}>{yen(line.line_subtotal)}</span>
+                      </div>
+                    )
+                  })}
                 </div>
 
                 {/* Footer */}
@@ -255,6 +258,46 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, setError }: P
                     <span>ご請求額</span>
                     <span className="total-amount">{yen(orderSubtotal)}</span>
                   </div>
+
+                  {/* 税額内訳 */}
+                  {(() => {
+                    let total10 = 0
+                    let total8 = 0
+                    let totalNone = 0
+                    for (const line of ticketDetail.lines) {
+                      const rateType = line.tax_rate_type || 'STANDARD'
+                      if (rateType === 'REDUCED') total8 += line.line_subtotal
+                      else if (rateType === 'NONE') totalNone += line.line_subtotal
+                      else total10 += line.line_subtotal
+                    }
+                    const tax10 = Math.round(total10 * 10 / 110)
+                    const tax8 = Math.round(total8 * 8 / 108)
+
+                    return (
+                      <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.85rem', color: '#555' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span>10%対象金額</span>
+                          <span>{yen(total10)}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
+                          <span>(内消費税額)</span>
+                          <span>{yen(tax10)}</span>
+                        </div>
+                        {total8 > 0 && (
+                          <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
+                              <span>8%対象金額(※)</span>
+                              <span>{yen(total8)}</span>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
+                              <span>(内消費税額)</span>
+                              <span>{yen(tax8)}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   <div className="receipt-divider" style={{ borderTop: '1px dashed #ccc', margin: '12px 0' }}></div>
                   

@@ -28,6 +28,7 @@ export type AdminMenuItem = {
   name: string
   price: number
   tax_type?: 'INCLUDED' | 'EXCLUDED' | 'NONE'
+  tax_rate_type?: 'STANDARD' | 'REDUCED' | 'NONE'
   image_url?: string | null
   sort_order: number
   is_active: boolean
@@ -80,6 +81,9 @@ export type AdminStoreSettings = {
   payment_timing_mode: 'PREPAID' | 'POSTPAID'
   ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
   ticket_no_digits: number
+  tax_rate?: number
+  reduced_tax_rate?: number
+  tax_display_mode?: 'INCLUDED' | 'EXCLUDED'
   open_business_date?: string | null
   today_business_date?: string
 } | null
