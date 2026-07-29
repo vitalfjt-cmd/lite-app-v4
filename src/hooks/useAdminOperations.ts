@@ -159,8 +159,8 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           paymentTimingMode: adminForm.adminStorePaymentTimingMode,
           ticketNoResetMode: adminForm.adminStoreTicketNoResetMode,
           ticketNoDigits: Number(adminForm.adminStoreTicketNoDigits) || 4,
-          taxRate: Number(adminForm.adminStoreTaxRate) || 10,
-          reducedTaxRate: Number(adminForm.adminStoreReducedTaxRate) || 8,
+          taxRate: isNaN(Number(adminForm.adminStoreTaxRate)) ? 10 : Number(adminForm.adminStoreTaxRate),
+          reducedTaxRate: isNaN(Number(adminForm.adminStoreReducedTaxRate)) ? 8 : Number(adminForm.adminStoreReducedTaxRate),
           taxDisplayMode: adminForm.adminStoreTaxDisplayMode,
         })
         await refreshAdminData()

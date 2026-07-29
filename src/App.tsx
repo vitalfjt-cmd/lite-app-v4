@@ -153,6 +153,9 @@ export default function App() {
     setAdminStorePaymentTimingMode: adminForm.setAdminStorePaymentTimingMode,
     setAdminStoreTicketNoResetMode: adminForm.setAdminStoreTicketNoResetMode,
     setAdminStoreTicketNoDigits: adminForm.setAdminStoreTicketNoDigits,
+    setAdminStoreTaxRate: (rate) => adminForm.setAdminStoreTaxRate(Number(rate)),
+    setAdminStoreReducedTaxRate: (rate) => adminForm.setAdminStoreReducedTaxRate(Number(rate)),
+    setAdminStoreTaxDisplayMode: adminForm.setAdminStoreTaxDisplayMode,
     setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
     setPublicMenuReady, setCustomerBusy, setCustomerMessage, setCustomerAccess, setSession
   })
