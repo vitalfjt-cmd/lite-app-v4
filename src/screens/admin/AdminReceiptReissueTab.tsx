@@ -5,10 +5,12 @@ type Props = {
   storeSlug: string
   disabled: boolean
   yen: (value: number) => string
+  taxRate?: number
+  reducedTaxRate?: number
   setError: (msg: string | null) => void
 }
 
-export function AdminReceiptReissueTab({ storeSlug, disabled, yen, setError }: Props) {
+export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, reducedTaxRate, setError }: Props) {
   const [targetDate, setTargetDate] = useState('')
   const [loadingList, setLoadingList] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
@@ -270,13 +272,15 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, setError }: P
                       else if (rateType === 'NONE') totalNone += line.line_subtotal
                       else total10 += line.line_subtotal
                     }
-                    const tax10 = Math.round(total10 * 10 / 110)
-                    const tax8 = Math.round(total8 * 8 / 108)
+                    const stdRate = taxRate ?? 10
+                    const redRate = reducedTaxRate ?? 8
+                    const tax10 = Math.round(total10 * stdRate / (100 + stdRate))
+                    const tax8 = Math.round(total8 * redRate / (100 + redRate))
 
                     return (
                       <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.85rem', color: '#555' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>10%対象金額</span>
+                          <span>{stdRate}%対象金額</span>
                           <span>{yen(total10)}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
@@ -286,7 +290,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, setError }: P
                         {total8 > 0 && (
                           <>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                              <span>8%対象金額(※)</span>
+                              <span>{redRate}%対象金額(※)</span>
                               <span>{yen(total8)}</span>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>

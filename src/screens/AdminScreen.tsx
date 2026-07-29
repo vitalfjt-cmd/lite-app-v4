@@ -401,6 +401,8 @@ export function AdminScreen(props: Props) {
               categoryNameMap={categoryNameMap}
               itemCategoryOptions={itemCategoryOptions}
               yen={props.yen}
+              adminStoreTaxRate={props.adminStoreTaxRate}
+              adminStoreReducedTaxRate={props.adminStoreReducedTaxRate}
               disabled={disabled}
               onEditMenuItem={(id) => {
                 props.onEditMenuItem(id)
@@ -616,6 +618,8 @@ export function AdminScreen(props: Props) {
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}
+              taxRate={props.liveStoreSettings?.tax_rate}
+              reducedTaxRate={props.liveStoreSettings?.reduced_tax_rate}
               setError={(msg) => msg ? alert(msg) : null}
             />
           ) : null}
@@ -630,6 +634,8 @@ export function AdminScreen(props: Props) {
             adminItemPrice={props.adminItemPrice}
             adminItemTaxType={props.adminItemTaxType}
             adminItemTaxRateType={props.adminItemTaxRateType}
+            adminStoreTaxRate={props.adminStoreTaxRate}
+            adminStoreReducedTaxRate={props.adminStoreReducedTaxRate}
             adminItemImageUrl={props.adminItemImageUrl}
             adminItemSortOrder={props.adminItemSortOrder}
             adminItemIsActive={props.adminItemIsActive}

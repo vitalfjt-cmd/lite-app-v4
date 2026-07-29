@@ -21,6 +21,8 @@ type StaffPaymentViewProps = {
   paymentFinalized: boolean
   mutationBusy: string | null
   storeName: string
+  taxRate?: number
+  reducedTaxRate?: number
   yen: (val: number) => string
   setShowPaymentModal: (val: boolean) => void
   setPayments: React.Dispatch<React.SetStateAction<Array<{
@@ -87,6 +89,8 @@ export function StaffPaymentView({
   paymentFinalized,
   mutationBusy,
   storeName,
+  taxRate,
+  reducedTaxRate,
   yen,
   setShowPaymentModal,
   setPayments,
@@ -328,15 +332,18 @@ export function StaffPaymentView({
             const originalSum = total10 + total8 + totalNone
             const scale = originalSum > 0 ? (currentBilled / originalSum) : 1
 
+            const stdRate = taxRate ?? 10
+            const redRate = reducedTaxRate ?? 8
+
             const billed10 = Math.round(total10 * scale)
             const billed8 = Math.round(total8 * scale)
-            const tax10 = Math.round(billed10 * 10 / 110)
-            const tax8 = Math.round(billed8 * 8 / 108)
+            const tax10 = Math.round(billed10 * stdRate / (100 + stdRate))
+            const tax8 = Math.round(billed8 * redRate / (100 + redRate))
 
             return (
               <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.85rem', color: '#555' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>10%対象金額</span>
+                  <span>{stdRate}%対象金額</span>
                   <span>{yen(billed10)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
@@ -346,7 +353,7 @@ export function StaffPaymentView({
                 {total8 > 0 && (
                   <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px' }}>
-                      <span>8%対象金額(※)</span>
+                      <span>{redRate}%対象金額(※)</span>
                       <span>{yen(billed8)}</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777' }}>
