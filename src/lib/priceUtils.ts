@@ -35,13 +35,11 @@ export function formatItemPrice(
     if (type === 'EXCLUDED') {
       computedPrice = Math.round(price * (1 + rate / 100))
     }
-    const label = rateType === 'REDUCED' ? `税込${rate}%` : '税込'
-    return `${yenFn(computedPrice)}（${label}）`
+    return `${yenFn(computedPrice)}（税込）`
   } else {
     if (type === 'INCLUDED') {
       computedPrice = Math.round(price / (1 + rate / 100))
     }
-    const label = rateType === 'REDUCED' ? `税抜${rate}%` : '税抜'
-    return `${yenFn(computedPrice)}（${label}）`
+    return `${yenFn(computedPrice)}（税抜）`
   }
 }
