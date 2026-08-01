@@ -1045,7 +1045,7 @@ export function StaffScreen({
                   <span>状態</span>
                 </div>
                 <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-                  {selectedLines.map(line => (
+                  {selectedLines.filter(l => l.kds_status !== 'CANCELLED').map(line => (
                     <div key={line.id} className="line-row" style={{ height: 'auto', minHeight: '60px', padding: '12px 16px' }}>
                       <span className="line-name">
                         <div style={{ fontWeight: 'bold' }}>{line.item_name_snapshot}</div>
