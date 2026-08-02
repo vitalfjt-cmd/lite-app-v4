@@ -201,9 +201,9 @@ export function StaffScreen({
   const [combinedTicketIds, setCombinedTicketIds] = useState<string[]>([])
 
   const combinedLines = useMemo(() => {
-    const lines = [...selectedLines]
+    const lines = selectedLines.filter(l => l.kds_status !== 'CANCELLED')
     for (const ticketId of combinedTicketIds) {
-      lines.push(...liveLines.filter(l => l.order_ticket_id === ticketId))
+      lines.push(...liveLines.filter(l => l.order_ticket_id === ticketId && l.kds_status !== 'CANCELLED'))
     }
     return lines
   }, [selectedLines, combinedTicketIds, liveLines])

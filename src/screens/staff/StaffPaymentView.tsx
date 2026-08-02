@@ -134,6 +134,8 @@ export function StaffPaymentView({
   livePaymentMethods,
   staffMessage,
 }: StaffPaymentViewProps) {
+  const activeSelectedLines = React.useMemo(() => selectedLines.filter(l => l.kds_status !== 'CANCELLED'), [selectedLines])
+
   const groupedPayments = React.useMemo(() => {
     const groups: Array<{
       id: string
@@ -259,7 +261,7 @@ export function StaffPaymentView({
             )
           ) : (
             Object.values(
-              selectedLines.reduce((acc, line) => {
+              activeSelectedLines.reduce((acc, line) => {
                 const name = line.item_name_snapshot
                 const lineItem = liveItems?.find((i) => i.id === line.item_id || i.name === name)
                 const isReduced = line.tax_rate_type === 'REDUCED' || lineItem?.tax_rate_type === 'REDUCED'
@@ -320,7 +322,7 @@ export function StaffPaymentView({
                 else total10 += item.subtotal
               }
             } else {
-              for (const line of selectedLines) {
+              for (const line of activeSelectedLines) {
                 const lineItem = liveItems?.find((i) => i.id === line.item_id || i.name === line.item_name_snapshot)
                 const rateType = line.tax_rate_type || lineItem?.tax_rate_type || 'STANDARD'
                 if (rateType === 'REDUCED') total8 += line.line_subtotal
@@ -1194,7 +1196,7 @@ export function StaffPaymentView({
                 <div style={{ flex: 1, overflowY: 'auto', padding: '12px 24px' }}>
                   {(() => {
                     const groupedMap = new Map<string, LiveLine[]>()
-                    for (const line of selectedLines) {
+                    for (const line of activeSelectedLines) {
                       const name = line.item_name_snapshot
                       if (!groupedMap.has(name)) {
                         groupedMap.set(name, [])
