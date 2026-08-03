@@ -563,7 +563,6 @@ export function CustomerTabletScreen({
         {/* Top row: store name + table badge */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 64px', borderBottom: '1px solid #eee' }}>
           <div className="tablet-meta" style={{ marginBottom: 0 }}>
-            <h1 style={{ margin: 0 }}>{activeStoreName || '焼肉 UCD'}</h1>
             {hasEnglishNames && (
               <button
                 onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}

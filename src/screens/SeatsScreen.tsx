@@ -43,7 +43,7 @@ export function SeatsScreen({
           <button className="menu-trigger" onClick={onOpenLauncher} aria-label="Open Menu">
             <span className="material-icons">menu</span>
           </button>
-          <h2>{storeName} 座席情報</h2>
+          <h2>座席情報</h2>
         </div>
       </header>
 

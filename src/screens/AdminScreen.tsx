@@ -341,7 +341,7 @@ export function AdminScreen(props: Props) {
           <button className="menu-trigger" onClick={props.onOpenLauncher} aria-label="Open Menu">
             <span className="material-icons">menu</span>
           </button>
-          <h2>{props.storeName} {props.mode === 'sales' ? '売上管理' : 'マスタメンテナンス'}</h2>
+          <h2>{props.mode === 'sales' ? '売上管理' : 'マスタメンテナンス'}</h2>
         </div>
       </header>
 

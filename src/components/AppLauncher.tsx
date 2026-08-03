@@ -110,10 +110,7 @@ export function AppLauncher({
     <div className="launcher-overlay" onClick={onClose}>
       <div className="launcher-content" onClick={(e) => e.stopPropagation()}>
         <div className="launcher-header">
-          <h2>
-            pachira{"\n"}
-            Demo
-          </h2>
+          <h2>メニュー</h2>
           <button className="launcher-close" onClick={onClose}>&times;</button>
         </div>
         
