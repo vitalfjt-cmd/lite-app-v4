@@ -3953,12 +3953,17 @@ h1 {
    KDS (Kitchen Display)
    ========================================= */
 .kds-app { background: #f5f6f7; color: #212529; flex: 1; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
-.kds-header { display: flex; justify-content: space-between; padding: 16px 24px; background: var(--s-primary); border-bottom: 1px solid rgba(0,0,0,0.1); color: #ffffff; }
+.kds-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--s-primary); border-bottom: 1px solid rgba(0,0,0,0.1); color: #ffffff; gap: 12px; flex-wrap: nowrap; }
+.kds-header .logo-area { display: flex; align-items: center; gap: 12px; min-width: 0; flex-shrink: 1; }
+.kds-header .logo-area h2 { font-size: 1.2rem; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .glow-text { color: #ffffff; text-shadow: 0 0 8px rgba(255,255,255,0.3); }
-.header-meta { display: flex; gap: 20px; align-items: center; font-size: 1.25rem; font-weight: bold; color: #ffffff; }
+.header-meta { display: flex; gap: 10px; align-items: center; font-size: 0.95rem; font-weight: bold; color: #ffffff; flex-shrink: 0; }
+.kds-table-select { background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.4); color: #ffffff; padding: 6px 14px; border-radius: 16px; font-size: 0.9rem; font-weight: bold; cursor: pointer; outline: none; transition: all 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.1); max-width: 150px; }
+.kds-table-select:hover, .kds-table-select:focus { background: rgba(255, 255, 255, 0.35); border-color: #ffffff; }
+.kds-table-select option { background: #1e293b; color: #ffffff; padding: 8px; }
 .kds-header .chip { background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 6px 12px; border-radius: 16px; font-size: 0.8rem; cursor: pointer; }
 .kds-header .chip.active { background: white; color: var(--s-primary); }
-.queue-badge { background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; color: #ffffff; }
+.queue-badge { background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; color: #ffffff; font-size: 0.85rem; white-space: nowrap; }
 .kds-board { display: flex; gap: 20px; padding: 24px; overflow-x: auto; flex: 1; min-height: 0; align-items: flex-start; height: 100%; background: #f5f6f7; }
 .kds-card { background: #ffffff; width: 320px; flex-shrink: 0; border-radius: 12px; border: 1px solid #dee2e6; display: flex; flex-direction: column; overflow: hidden; max-height: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
 .kds-card.urgent { border-color: #fa5252; box-shadow: 0 0 15px rgba(250,82,82,0.15); }
