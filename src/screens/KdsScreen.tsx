@@ -114,7 +114,7 @@ export function KdsScreen({
           <button className="menu-trigger" onClick={onOpenLauncher} aria-label="Open Menu">
             <span className="material-icons">menu</span>
           </button>
-          <h2 className="glow-text">KDS / 調理指示画面</h2>
+          <h2 className="glow-text">KDS<span className="kds-title-sub"> / 調理指示画面</span></h2>
         </div>
         <div className="header-meta">
           <select
