@@ -62,7 +62,7 @@ export function AdminPlacementModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-placements">
           <div>
-<h2>{props.editingPlacementId ? '掲載設定編集' : '掲載設定登録'}</h2>
+<h2>{props.editingPlacementId ? 'メニューブック構成' : '掲載設定登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>
