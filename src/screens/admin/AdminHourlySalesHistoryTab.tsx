@@ -53,7 +53,7 @@ export function AdminHourlySalesHistoryTab({ storeSlug, disabled, yen, setError 
       <section className="panel admin-list-panel admin-list-panel-wide">
         <div className="admin-list-head">
           <div>
-            <h2>時間帯別売上</h2>
+            <h2>時間帯別売上照会</h2>
           </div>
         </div>
 
@@ -91,6 +91,7 @@ export function AdminHourlySalesHistoryTab({ storeSlug, disabled, yen, setError 
             <table className="admin-table">
               <thead>
                 <tr>
+                  <th>日付</th>
                   <th>時間帯</th>
                   <th style={{ textAlign: 'right' }}>伝票数</th>
                   <th style={{ textAlign: 'right' }}>売上金額</th>
@@ -99,18 +100,24 @@ export function AdminHourlySalesHistoryTab({ storeSlug, disabled, yen, setError 
               <tbody>
                 {items.length === 0 ? (
                   <tr>
-                    <td colSpan={3} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-sub)' }}>
+                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-sub)' }}>
                       指定された期間の時間帯別売上データはありません。
                     </td>
                   </tr>
                 ) : (
-                  items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>{item.hour_label || `${item.hour}時`}</td>
-                      <td style={{ textAlign: 'right' }}>{item.ticket_count}</td>
-                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{yen(item.total_sales)}</td>
-                    </tr>
-                  ))
+                  items.map((item, idx) => {
+                    const hourLabel = item.hour_label || (item.hour !== undefined ? `${item.hour}時` : '-')
+                    const countVal = item.ticket_count ?? item.count ?? '-'
+                    const salesVal = item.sales_amount ?? item.amount ?? item.total_sales ?? 0
+                    return (
+                      <tr key={idx}>
+                        <td>{item.business_date || '-'}</td>
+                        <td>{hourLabel}</td>
+                        <td style={{ textAlign: 'right' }}>{countVal}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{yen(salesVal)}</td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>

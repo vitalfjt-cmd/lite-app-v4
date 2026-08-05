@@ -91,9 +91,9 @@ export function AdminSubcategorySalesTab({ storeSlug, disabled, yen, setError }:
             <table className="admin-table">
               <thead>
                 <tr>
+                  <th>日付</th>
                   <th>親カテゴリ</th>
                   <th>サブカテゴリ名</th>
-                  <th style={{ textAlign: 'right' }}>注文数量</th>
                   <th style={{ textAlign: 'right' }}>売上金額</th>
                 </tr>
               </thead>
@@ -105,14 +105,17 @@ export function AdminSubcategorySalesTab({ storeSlug, disabled, yen, setError }:
                     </td>
                   </tr>
                 ) : (
-                  items.map((item, idx) => (
-                    <tr key={idx}>
-                      <td>{item.parent_category_name || '-'}</td>
-                      <td>{item.subcategory_name}</td>
-                      <td style={{ textAlign: 'right' }}>{item.total_quantity}</td>
-                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{yen(item.total_sales)}</td>
-                    </tr>
-                  ))
+                  items.map((item, idx) => {
+                    const salesVal = item.amount ?? item.sales_amount ?? item.total_sales ?? 0
+                    return (
+                      <tr key={idx}>
+                        <td>{item.business_date || '-'}</td>
+                        <td>{item.parent_category_name || '-'}</td>
+                        <td>{item.subcategory_name}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{yen(salesVal)}</td>
+                      </tr>
+                    )
+                  })
                 )}
               </tbody>
             </table>
