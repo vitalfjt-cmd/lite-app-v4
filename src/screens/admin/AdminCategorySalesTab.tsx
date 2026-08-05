@@ -57,7 +57,7 @@ export function AdminCategorySalesTab({ storeSlug, disabled, yen, setError }: Pr
           </div>
         </div>
 
-        <div className="admin-filter-bar compact">
+        <div className="admin-filter-bar admin-filter-bar-dates">
           <label className="admin-filter-field">
             <span>開始日</span>
             <input 

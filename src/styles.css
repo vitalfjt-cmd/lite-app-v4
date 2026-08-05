@@ -5724,7 +5724,7 @@ h1 {
 
 .admin-filter-bar.compact,
 .admin-filter-bar-wide {
-  grid-template-columns: minmax(160px, 2fr) minmax(130px, 1fr) minmax(110px, 0.8fr) minmax(90px, 0.7fr) auto;
+  grid-template-columns: minmax(180px, 2fr) minmax(140px, 1fr) minmax(120px, 1fr) minmax(100px, 1fr) auto;
 }
 
 .admin-filter-field {
@@ -5822,4 +5822,19 @@ h1 {
   font-size: 1.8rem;
   font-weight: 800;
   color: var(--text-main);
+}
+
+
+/* Date filter bar with EQUAL widths for 開始日 & 終了日 */
+.admin-filter-bar-dates {
+  display: grid;
+  grid-template-columns: minmax(160px, 200px) minmax(160px, 200px) auto;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.admin-filter-bar.compact {
+  grid-template-columns: minmax(160px, 180px) minmax(160px, 180px) auto;
+  gap: 16px;
+  align-items: flex-end;
 }
