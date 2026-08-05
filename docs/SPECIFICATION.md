@@ -22,6 +22,12 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 - **SSL開発対応**: Vite 基本 SSL プラグイン (`@vitejs/plugin-basic-ssl`) を使用したローカル HTTPS 接続およびカメラ/QR スキャナー開発サポート。
 - **認証**: Firebase Auth (`firebase.ts`) および Worker トークン認証 (`useAuth.ts`)。
 
+
+### スタッフ認証・DBテーブル仕様 (Firebase Auth & Staff Tables)
+- **Firebase Authentication**: スタッフのログイン本人確認・認証および UID (`auth_user_id`) の発行を担当。
+- **`staff_users` テーブル (使用中)**: 店舗に所属するスタッフのプロファイル・権限マスタ。Firebase の UID (`auth_user_id`) に対し、店舗ごとの表示名 (`display_name`)、権限ロール (`role_type`: `ADMIN` / `STAFF` / `KDS`)、有効フラグ (`is_active`) を紐付けて保持・管理（マスタ管理画面の「スタッフ一覧」で編集可能）。
+- **`staff_sessions` テーブル (非推奨・互換用)**: 開発初期の独自セッション管理用テーブル。Firebase Auth 導入後はセッション維持が Firebase SDK およびクライアント側 (`sessionStorage` 等) へ移行したため、アプリケーションの主要フローからは実質使われていません。
+
 ### 2.3 モジュール構成 (Hooks & Lib)
 大規模ロジックを独立したカスタムフックおよびライブラリに集約：
 - **`useDataLoading`**: データ読み込みおよびバックグラウンドポリング統合管理。
