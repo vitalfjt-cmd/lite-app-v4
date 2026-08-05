@@ -204,8 +204,9 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   }
 
   return (
-    <div className="admin-tab-content" style={{ maxHeight: '100%', height: '100%', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
-      <div className="admin-tab-head">
+    <div className="ops-grid">
+      <section className="panel admin-list-panel admin-list-panel-wide">
+      <div className="admin-list-head">
         <div>
           <h2>
             {activeSubTab === 'category' ? 'カテゴリ別売上' 
@@ -221,7 +222,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       </div>
 
       {!hideHeaders && (
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #dee2e6', paddingBottom: '12px', flexWrap: 'wrap' }}>
+        <div className="admin-sales-subtabs">
           {[
             { id: 'status', label: '営業状況' },
             { id: 'void', label: 'VOID・会計変更' },
@@ -233,17 +234,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
           ].map(t => (
             <button
               key={t.id}
+              className={`admin-sales-subtab-btn ${activeSubTab === t.id ? 'active' : ''}`}
               onClick={() => setActiveSubTab(t.id as any)}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #dee2e6',
-                background: activeSubTab === t.id ? '#228be6' : 'white',
-                color: activeSubTab === t.id ? 'white' : '#495057',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
             >
               {t.label}
             </button>
@@ -252,8 +244,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       )}
 
       {activeSubTab === 'status' && (
-        <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>営業状況</h3>
+        <div className="admin-card">
+          <h3 className="admin-card-title">営業状況</h3>
           
           {report ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -294,9 +286,9 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       )}
 
       {activeSubTab === 'void' && (
-        <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-          <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>VOID・会計変更</h3>
-          <p style={{ color: '#868e96', fontSize: '0.9rem', marginBottom: '16px' }}>
+        <div className="admin-card">
+          <h3 className="admin-card-title">VOID・会計変更</h3>
+          <p className="admin-card-caption">
             レシート番号を入力して検索し、会計の取消（VOID）または決済明細ごとの会計種別の変更を行います。
           </p>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '20px' }}>
@@ -556,8 +548,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'summary' && (
         report ? (
-          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>売上サマリー</h3>
+          <div className="admin-card">
+            <h3 className="admin-card-title">売上サマリー</h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
               <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
@@ -608,8 +600,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'hourly' && (
         report ? (
-          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>時間帯別売上</h3>
+          <div className="admin-card">
+            <h3 className="admin-card-title">時間帯別売上</h3>
             <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
@@ -643,8 +635,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'items' && (
         report ? (
-          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>商品別注文数</h3>
+          <div className="admin-card">
+            <h3 className="admin-card-title">商品別注文数</h3>
             <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
@@ -680,8 +672,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'category' && (
         report ? (
-          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>カテゴリ別売上</h3>
+          <div className="admin-card">
+            <h3 className="admin-card-title">カテゴリ別売上</h3>
             <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
@@ -717,8 +709,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'subcategory' && (
         report ? (
-          <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-            <h3 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.2rem', color: '#343a40' }}>サブカテゴリ別売上</h3>
+          <div className="admin-card">
+            <h3 className="admin-card-title">サブカテゴリ別売上</h3>
             <div style={{ overflowY: 'auto', maxHeight: 'min(500px, 50vh)', border: '1px solid #dee2e6', borderRadius: '8px' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                 <thead>
@@ -751,6 +743,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
           </div>
         )
       )}
+    </section>
     </div>
   )
 }

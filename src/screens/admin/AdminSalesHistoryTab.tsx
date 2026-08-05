@@ -14,7 +14,6 @@ export function AdminSalesHistoryTab({ storeSlug, disabled, yen, setError }: Pro
   const [loading, setLoading] = useState(false)
   const [summaries, setSummaries] = useState<any[] | null>(null)
 
-  // Initialize dates with the current business day
   useEffect(() => {
     const initDates = async () => {
       if (!storeSlug) return
@@ -50,69 +49,68 @@ export function AdminSalesHistoryTab({ storeSlug, disabled, yen, setError }: Pro
   }
 
   return (
-    <div className="admin-tab-content" style={{ maxHeight: '100%', height: '100%', overflowY: 'auto', paddingRight: '12px', paddingBottom: '32px' }}>
-      <div className="admin-tab-head">
-        <div>
-          <h2>売上データ照会</h2>
-          <p className="caption">期間を指定して、日付ごとの売上金額、客数、組数を集計・照会します。</p>
+    <div className="ops-grid">
+      <section className="panel admin-list-panel admin-list-panel-wide">
+        <div className="admin-list-head">
+          <div>
+            <h2>売上データ照会</h2>
+          </div>
         </div>
-      </div>
 
-      <div style={{ padding: '24px', background: 'white', borderRadius: '12px', border: '1px solid #dee2e6', marginBottom: '24px' }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.9rem', color: '#495057' }}>開始日:</span>
+        <div className="admin-filter-bar compact">
+          <label className="admin-filter-field">
+            <span>開始日</span>
             <input 
               type="date" 
               value={startDate} 
               onChange={e => setStartDate(e.target.value)}
-              style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem' }}
             />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '0.9rem', color: '#495057' }}>終了日:</span>
+          </label>
+          <label className="admin-filter-field">
+            <span>終了日</span>
             <input 
               type="date" 
               value={endDate} 
               onChange={e => setEndDate(e.target.value)}
-              style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem' }}
             />
+          </label>
+          <div className="admin-filter-actions">
+            <button 
+              className="primary-button" 
+              type="button"
+              disabled={disabled || loading || !startDate || !endDate} 
+              onClick={handleSearch}
+            >
+              {loading ? '検索中...' : '検索'}
+            </button>
           </div>
-          <button 
-            className="primary-button" 
-            style={{ background: '#228be6', padding: '10px 20px' }} 
-            disabled={disabled || loading || !startDate || !endDate} 
-            onClick={handleSearch}
-          >
-            {loading ? '検索中...' : '検索する'}
-          </button>
         </div>
 
         {summaries && (
-          <div style={{ overflowY: 'auto', maxHeight: '500px', border: '1px solid #dee2e6', borderRadius: '8px' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.95rem' }}>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
               <thead>
-                <tr style={{ background: '#f8f9fa' }}>
-                  <th style={{ padding: '12px 8px', textAlign: 'left', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>日付</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>売上金額</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>客数</th>
-                  <th style={{ padding: '12px 8px', textAlign: 'right', borderBottom: '2px solid #dee2e6', color: '#495057', position: 'sticky', top: 0, background: '#f8f9fa', zIndex: 1 }}>組数</th>
+                <tr>
+                  <th>日付</th>
+                  <th style={{ textAlign: 'right' }}>売上金額</th>
+                  <th style={{ textAlign: 'right' }}>客数</th>
+                  <th style={{ textAlign: 'right' }}>組数</th>
                 </tr>
               </thead>
               <tbody>
                 {summaries.length === 0 ? (
                   <tr>
-                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: '#adb5bd' }}>
+                    <td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: 'var(--text-sub)' }}>
                       指定された期間の売上データはありません。
                     </td>
                   </tr>
                 ) : (
                   summaries.map((s, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #f1f3f5' }}>
-                      <td style={{ padding: '12px 8px', color: '#212529' }}>{s.business_date}</td>
-                      <td style={{ padding: '12px 8px', textAlign: 'right', fontWeight: 'bold', color: '#212529' }}>{yen(s.total_sales)}</td>
-                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.customer_count} 名</td>
-                      <td style={{ padding: '12px 8px', textAlign: 'right', color: '#212529' }}>{s.ticket_count} 組</td>
+                    <tr key={idx}>
+                      <td>{s.business_date}</td>
+                      <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{yen(s.total_sales)}</td>
+                      <td style={{ textAlign: 'right' }}>{s.customer_count} 名</td>
+                      <td style={{ textAlign: 'right' }}>{s.ticket_count} 組</td>
                     </tr>
                   ))
                 )}
@@ -120,7 +118,7 @@ export function AdminSalesHistoryTab({ storeSlug, disabled, yen, setError }: Pro
             </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   )
 }
