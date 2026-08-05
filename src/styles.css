@@ -2029,9 +2029,7 @@ h1 {
 }
 
 /* Sidebar Nav, List Head, and Modal Head Icons using Material Icons */
-.admin-nav-button::before,
-.admin-list-head h2::before,
-.admin-modal-head h2::before {
+.admin-nav-button::before {
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
@@ -2058,57 +2056,39 @@ h1 {
 }
 
 /* Tab Icon content mapping */
-.admin-nav-button-menuBooks::before,
-.admin-section-menuBooks .admin-list-head h2::before,
-.admin-modal-head-menuBooks h2::before {
+.admin-nav-button-menuBooks::before {
   content: "menu_book";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-categories::before,
-.admin-section-categories .admin-list-head h2::before,
-.admin-modal-head-categories h2::before {
+.admin-nav-button-categories::before {
   content: "category";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-subcategories::before,
-.admin-section-subcategories .admin-list-head h2::before,
-.admin-modal-head-subcategories h2::before {
+.admin-nav-button-subcategories::before {
   content: "layers";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-items::before,
-.admin-section-items .admin-list-head h2::before,
-.admin-modal-head-items h2::before {
+.admin-nav-button-items::before {
   content: "restaurant_menu";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-placements::before,
-.admin-section-placements .admin-list-head h2::before,
-.admin-modal-head-placements h2::before {
+.admin-nav-button-placements::before {
   content: "dashboard";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-sales::before,
-.admin-section-sales .admin-list-head h2::before,
-.admin-modal-head-sales h2::before {
+.admin-nav-button-sales::before {
   content: "bar_chart";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-store::before,
-.admin-section-store .admin-list-head h2::before,
-.admin-modal-head-store h2::before {
+.admin-nav-button-store::before {
   content: "store";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-tables::before,
-.admin-section-tables .admin-list-head h2::before,
-.admin-modal-head-tables h2::before {
+.admin-nav-button-tables::before {
   content: "table_restaurant";
   background: var(--admin-accent-soft);
 }
-.admin-nav-button-staff::before,
-.admin-section-staff .admin-list-head h2::before,
-.admin-modal-head-staff h2::before {
+.admin-nav-button-staff::before {
   content: "people";
   background: var(--admin-accent-soft);
 }
@@ -5722,3 +5702,14 @@ h1 {
   font-size: 1.1rem;
 }
 
+
+
+/* Remove top-left icons from master maintenance list headers and edit modal headers */
+.admin-list-head h2::before,
+.admin-modal-head h2::before,
+.admin-modal-panel h2::before,
+[class*="admin-section-"] .admin-list-head h2::before,
+[class*="admin-modal-head"] h2::before {
+  content: none !important;
+  display: none !important;
+}
