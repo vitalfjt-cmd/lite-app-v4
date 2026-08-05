@@ -4,7 +4,7 @@ import type { KeyboardEventHandler } from 'react'
 import { DirectActionView } from './staff/DirectActionView'
 import { StaffPaymentView } from './staff/StaffPaymentView'
 import { StaffHandyView } from './staff/StaffHandyView'
-import { isTimeWithinWindow } from '../lib/appUtils'
+import { isTimeWithinWindow, formatTime } from '../lib/appUtils'
 import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod } from '../types'
 
 type PaymentKind = string
@@ -986,7 +986,7 @@ export function StaffScreen({
                           <button className="btn-secondary mobile-only" onClick={() => setMobileView('list')} style={{marginRight:'12px', padding:'4px 8px'}}>← 戻る</button>
                           {selectedSummary.tableName} 詳細
                         </h2>
-                        <span className="order-time">注文時刻: {selectedSummary.orderedAt} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
+                        <span className="order-time">注文時刻: {formatTime(selectedSummary.orderedAt)} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
                           <span style={{ fontSize: '0.85rem', color: '#aaa' }}>メニューブック:</span>
                           <select

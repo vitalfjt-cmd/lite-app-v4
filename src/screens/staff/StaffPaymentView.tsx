@@ -846,8 +846,9 @@ export function StaffPaymentView({
                               ref={inputRef}
                               type="text"
                               pattern="[0-9]*"
-                              inputMode="numeric"
-                              value={currentPaymentInput}
+                              inputMode="none"
+                              readOnly
+                              value={currentPaymentInput ? yen(parseInt(currentPaymentInput)) : '¥0'}
                               onChange={(e) => {
                                 const val = e.target.value.replace(/[^0-9]/g, '')
                                 setCurrentPaymentInput(val)
@@ -856,7 +857,6 @@ export function StaffPaymentView({
                               onBlur={() => {
                                 setTimeout(() => setIsFocused(false), 150)
                               }}
-                              autoFocus
                               onClick={(e) => e.stopPropagation()}
                               style={{
                                 background: 'transparent',
@@ -884,8 +884,9 @@ export function StaffPaymentView({
                             ref={inputRef}
                             type="text"
                             pattern="[0-9]*"
-                            inputMode="numeric"
-                            value={currentPaymentInput}
+                            inputMode="none"
+                            readOnly
+                            value={currentPaymentInput ? yen(parseInt(currentPaymentInput)) : '¥0'}
                             onChange={(e) => {
                               const val = e.target.value.replace(/[^0-9]/g, '')
                               setCurrentPaymentInput(val)
@@ -894,7 +895,6 @@ export function StaffPaymentView({
                             onBlur={() => {
                               setTimeout(() => setIsFocused(false), 150)
                             }}
-                            autoFocus
                             onClick={(e) => e.stopPropagation()}
                             style={{
                               background: 'transparent',
