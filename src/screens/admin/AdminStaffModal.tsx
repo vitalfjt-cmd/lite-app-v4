@@ -28,8 +28,7 @@ export function AdminStaffModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-staff">
           <div>
-            <p className="eyebrow">STAFF</p>
-            <h2>{props.editingStaffUserId ? 'スタッフ編集' : 'スタッフ登録'}</h2>
+<h2>{props.editingStaffUserId ? 'スタッフ編集' : 'スタッフ登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>

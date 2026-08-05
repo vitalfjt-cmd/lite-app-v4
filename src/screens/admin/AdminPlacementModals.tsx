@@ -62,8 +62,7 @@ export function AdminPlacementModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-placements">
           <div>
-            <p className="eyebrow">PLACEMENT</p>
-            <h2>{props.editingPlacementId ? '掲載設定編集' : '掲載設定登録'}</h2>
+<h2>{props.editingPlacementId ? '掲載設定編集' : '掲載設定登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>
@@ -164,8 +163,7 @@ export function AdminPlacementCategoryModal(props: {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-placements">
           <div>
-            <p className="eyebrow">PLACEMENT</p>
-            <h2>カテゴリ追加</h2>
+<h2>カテゴリ追加</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>
@@ -226,8 +224,7 @@ export function AdminPlacementSubcategoryModal(props: {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-placements">
           <div>
-            <p className="eyebrow">PLACEMENT</p>
-            <h2>サブカテゴリ追加</h2>
+<h2>サブカテゴリ追加</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>

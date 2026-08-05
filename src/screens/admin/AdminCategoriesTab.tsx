@@ -26,8 +26,7 @@ export function AdminCategoriesTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-categories">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">CATEGORY</p>
-            <h2>カテゴリ一覧</h2>
+<h2>カテゴリ一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button

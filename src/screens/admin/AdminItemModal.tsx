@@ -69,8 +69,7 @@ export function AdminItemModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-items">
           <div>
-            <p className="eyebrow">MENU ITEM</p>
-            <h2>{props.editingMenuItemId ? 'メニュー編集' : 'メニュー登録'}</h2>
+<h2>{props.editingMenuItemId ? 'メニュー編集' : 'メニュー登録'}</h2>
           </div>
           <button
             className="secondary-button"

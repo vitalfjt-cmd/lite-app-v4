@@ -40,8 +40,7 @@ export function AdminMenuBookModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-menuBooks">
           <div>
-            <p className="eyebrow">MENU BOOK</p>
-            <h2>{props.editingMenuBookId ? 'メニューブック編集' : 'メニューブック登録'}</h2>
+<h2>{props.editingMenuBookId ? 'メニューブック編集' : 'メニューブック登録'}</h2>
           </div>
           <button
             className="secondary-button"

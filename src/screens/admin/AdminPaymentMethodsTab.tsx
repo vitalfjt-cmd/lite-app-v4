@@ -27,8 +27,7 @@ export function AdminPaymentMethodsTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-payment-methods">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">PAYMENT METHOD</p>
-            <h2>決済種別一覧</h2>
+<h2>決済種別一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button

@@ -906,8 +906,7 @@ function TableQrModal({
       <section className="panel admin-modal-panel admin-modal-panel-qr">
         <div className="admin-modal-head">
           <div>
-            <p className="eyebrow">TABLE QR</p>
-            <h2>{tableLabel}</h2>
+<h2>{tableLabel}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={onClose}>
             閉じる

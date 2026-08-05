@@ -32,8 +32,7 @@ export function AdminStaffTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-staff">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">STAFF</p>
-            <h2>スタッフ一覧</h2>
+<h2>スタッフ一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button

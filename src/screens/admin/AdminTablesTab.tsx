@@ -30,8 +30,7 @@ export function AdminTablesTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-tables">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">TABLE</p>
-            <h2>テーブル一覧</h2>
+<h2>テーブル一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button

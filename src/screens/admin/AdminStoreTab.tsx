@@ -32,8 +32,7 @@ export function AdminStoreTab(props: Props) {
       <section className="panel admin-section-store">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">STORE</p>
-            <h2>店舗設定</h2>
+<h2>店舗設定</h2>
           </div>
         </div>
         <div className="form-stack">

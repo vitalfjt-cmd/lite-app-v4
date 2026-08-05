@@ -28,8 +28,7 @@ export function AdminTableModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-tables">
           <div>
-            <p className="eyebrow">TABLE</p>
-            <h2>{props.editingTableId ? 'テーブル編集' : 'テーブル登録'}</h2>
+<h2>{props.editingTableId ? 'テーブル編集' : 'テーブル登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>

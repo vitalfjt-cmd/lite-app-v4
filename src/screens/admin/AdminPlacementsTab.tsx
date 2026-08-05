@@ -75,8 +75,7 @@ export function AdminPlacementsTab(props: Props) {
       <section className="panel admin-section-placements">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">PLACEMENT EXPLORER</p>
-            <h2>メニューブック構成</h2>
+<h2>メニューブック構成</h2>
           </div>
           <div className="admin-list-actions">
             {currentLevel === 'categories' && (

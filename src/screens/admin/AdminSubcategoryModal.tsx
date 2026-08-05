@@ -24,8 +24,7 @@ export function AdminSubcategoryModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-subcategories">
           <div>
-            <p className="eyebrow">SUBCATEGORY</p>
-            <h2>{props.editingSubCategoryId ? 'サブカテゴリ編集' : 'サブカテゴリ登録'}</h2>
+<h2>{props.editingSubCategoryId ? 'サブカテゴリ編集' : 'サブカテゴリ登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>

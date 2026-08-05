@@ -49,8 +49,7 @@ export function AdminItemsTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-items">
         <div className="admin-list-head">
           <div>
-            <p className="eyebrow">MENU ITEM</p>
-            <h2>メニュー一覧</h2>
+<h2>メニュー一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button

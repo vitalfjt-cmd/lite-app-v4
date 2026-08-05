@@ -25,8 +25,7 @@ export function AdminPaymentMethodModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-payment-methods">
           <div>
-            <p className="eyebrow">PAYMENT METHOD</p>
-            <h2>{props.editingPaymentMethodId ? '決済種別編集' : '決済種別登録'}</h2>
+<h2>{props.editingPaymentMethodId ? '決済種別編集' : '決済種別登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>

@@ -2835,6 +2835,21 @@ h1 {
   border-radius: 16px;
   border-color: rgba(216, 198, 170, 0.72);
   border-width: 0.75px;
+  background: #ffffff;
+  color: #1f2629;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  caret-color: #1f2629;
+  box-sizing: border-box;
+}
+
+.admin-modal-panel .form-stack > label > input:focus,
+.admin-modal-panel .form-stack > label > select:focus,
+.admin-modal-panel .form-stack > label > textarea:focus {
+  outline: none;
+  border-color: var(--admin-accent, #1b813e);
+  box-shadow: 0 0 0 3px rgba(27, 129, 62, 0.15);
+  caret-color: #1f2629;
 }
 
 .admin-readonly-field {
