@@ -1024,13 +1024,13 @@ export function StaffScreen({
                       <div className="action-group">
                         {selectedCustomerUrl && (
                           <button className="btn-secondary" onClick={() => setShowQrModal(true)}>
-                            客用QR表示
+                            QR
                           </button>
                         )}
                         <button className="btn-secondary" disabled={isTicketMenuBookOutOfTime} style={isTicketMenuBookOutOfTime ? { background: '#888', cursor: 'not-allowed', opacity: 0.7 } : undefined} onClick={() => setShowHandyModal(true)}>
                           {isTicketMenuBookOutOfTime ? '時間外' : '注文'}
                         </button>
-                        <button className="btn-primary" onClick={() => setShowPaymentModal(true)}>会計へ進む</button>
+                        <button className="btn-primary" onClick={() => setShowPaymentModal(true)}>会計</button>
                       </div>
                     </div>
                   </>
