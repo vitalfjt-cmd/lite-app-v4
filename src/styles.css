@@ -5854,3 +5854,11 @@ h1 {
   gap: 12px;
   align-items: flex-end;
 }
+
+
+.admin-store-field .hint {
+  grid-column: 2;
+  font-size: 0.85rem;
+  color: var(--text-sub);
+  margin-top: 4px;
+}
