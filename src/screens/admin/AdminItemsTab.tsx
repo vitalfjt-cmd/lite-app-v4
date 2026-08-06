@@ -62,7 +62,7 @@ export function AdminItemsTab(props: Props) {
             </button>
           </div>
         </div>
-        <div className="admin-filter-bar compact admin-filter-bar-wide">
+        <div className="admin-filter-bar admin-filter-bar-items">
           <label className="admin-filter-field wide">
             <span>検索</span>
             <input value={itemSearchDraft} onChange={(event) => setItemSearchDraft(event.target.value)} placeholder="メニュー名・コード・カテゴリで検索" />

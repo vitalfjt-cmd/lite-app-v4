@@ -51,6 +51,7 @@ export function AdminStoreTab(props: Props) {
           <label className="admin-store-field">
             <span>営業日切替時刻</span>
             <input type="number" value={props.adminStoreBusinessOffsetMinutes} onChange={(event) => props.onStoreBusinessOffsetMinutesChange(event.target.value)} disabled={props.disabled} />
+            <p className="hint" style={{ fontSize: "0.85rem", color: "var(--text-sub)", marginTop: "4px" }}>{"例: 深夜営業があり AM 5:00 で営業日付を切り替えたい場合は AM 0:00 からの経過時間を分で設定します （60分×5＝300分）"}</p>
           </label>
           <label className="admin-store-field">
             <span>標準税率 (%)</span>

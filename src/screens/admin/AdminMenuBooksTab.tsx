@@ -52,7 +52,7 @@ export function AdminMenuBooksTab(props: Props) {
             </button>
           </div>
         </div>
-        <div className="admin-filter-bar compact">
+        <div className="admin-filter-bar admin-filter-bar-menubooks">
           <label className="admin-filter-field wide">
             <span>検索</span>
             <input value={menuBookSearchDraft} onChange={(event) => setMenuBookSearchDraft(event.target.value)} placeholder="名称・コード・説明で検索" />

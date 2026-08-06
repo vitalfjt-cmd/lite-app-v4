@@ -957,7 +957,7 @@ export function StaffScreen({
                   <span className={`status-badge ${t.status.toLowerCase()}`}>{t.status === 'NEW' ? '新規' : t.status === 'COOKING' ? '調理中' : '提供済'}</span>
                 </div>
                 <div className="ticket-meta">
-                  <span>{t.orderedAt} / {t.customerCount || 1}名</span>
+                  <span>{formatTime(t.orderedAt)} / {t.customerCount || 1}名</span>
                   <span>{t.lineCount}点 / {yen(t.subtotal)}</span>
                 </div>
               </div>

@@ -5838,3 +5838,19 @@ h1 {
   gap: 16px;
   align-items: flex-end;
 }
+
+
+/* Specific Filter Bar layouts for Menu Books and Menu Items */
+.admin-filter-bar-menubooks {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr) minmax(140px, 1fr) auto;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.admin-filter-bar-items {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.2fr) minmax(120px, 1fr) minmax(120px, 1fr) minmax(100px, 1fr) auto;
+  gap: 12px;
+  align-items: flex-end;
+}
