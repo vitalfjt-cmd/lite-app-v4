@@ -4949,7 +4949,7 @@ h1 {
 }
 
 /* Ensure independent screens take full space */
-.shell.staff-mode, .shell.admin-mode, .shell.kds-mode, .shell.handy-mode {
+.shell.staff-mode, .shell.admin-mode, .shell.kds-mode, .shell.handy-mode, .shell.seats-mode {
   padding: 0;
   height: 100vh;
   height: 100dvh;
@@ -5529,6 +5529,7 @@ h1 {
   color: var(--s-text-main);
   flex: 1;
   height: 100%;
+  max-height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -5538,44 +5539,52 @@ h1 {
   background: var(--s-primary);
   color: #ffffff;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 12px 24px;
+  padding: 8px 16px;
+  padding-top: max(8px, calc(6px + env(safe-area-inset-top, 0px)));
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .seats-header h2 {
   color: #ffffff;
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .seats-header .menu-trigger {
   color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.15) !important;
+  background: transparent !important;
   border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
+  border-radius: 8px;
+  padding: 8px;
   cursor: pointer;
 }
 
 .seats-content {
-  padding: 24px;
+  padding: 16px;
   flex: 1;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  box-sizing: border-box;
 }
 
 .seats-legend {
   background: var(--s-surface);
   border: 1px solid var(--s-border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: 12px;
+  padding: 12px 16px;
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
   flex-wrap: wrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .legend-title {
@@ -5610,42 +5619,39 @@ h1 {
 
 .seats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
 }
 
-@media (max-width: 1200px) {
-  .seats-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-@media (max-width: 900px) {
-  .seats-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
 @media (max-width: 600px) {
+  .seats-content {
+    padding: 12px;
+    gap: 12px;
+  }
   .seats-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 }
 
 .seat-card {
-  border-radius: 8px;
-  padding: 16px;
-  min-height: 110px;
+  border-radius: 12px;
+  padding: 14px;
+  min-height: 105px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border: 1px solid var(--s-border);
   transition: all 0.2s ease;
   user-select: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 .seat-card.empty {
-  background-color: #dee2e6;
+  background-color: #e9ecef;
   color: #495057;
   cursor: default;
+  border-color: #ced4da;
 }
 
 .seat-card.occupied {

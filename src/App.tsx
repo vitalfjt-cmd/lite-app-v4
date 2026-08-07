@@ -623,7 +623,7 @@ export default function App() {
 
   return (
     <div
-      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''}`}
+      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''} ${view === 'seats' ? 'seats-mode' : ''}`}
     >
       <AppLauncher
         isOpen={isLauncherOpen}
