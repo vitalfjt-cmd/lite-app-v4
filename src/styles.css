@@ -6171,14 +6171,30 @@ h1 {
     font-size: 0.85rem;
   }
 
-  /* --- Base Mobile Scroll & Panel Fixes --- */
-  html, body, #root, .admin-shell, .admin-layout, .admin-main, .ops-grid, .panel {
+  /* --- Base Mobile Scroll & Shell Fixes (Complete Unlock) --- */
+  html,
+  body,
+  #root,
+  .shell.admin-mode,
+  .shell.staff-mode,
+  .shell.handy-mode,
+  .shell.kds-mode,
+  .shell.admin-mode > .content,
+  .shell.staff-mode > .content,
+  .shell.handy-mode > .content {
     height: auto !important;
-    min-height: auto !important;
+    min-height: 100% !important;
     max-height: none !important;
-    overflow: visible !important;
+    overflow: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
 
+  .admin-shell,
+  .admin-layout,
+  .admin-main,
+  .ops-grid,
+  .panel,
   .admin-section-placements,
   .placement-explorer,
   .placement-view-container,
@@ -6419,6 +6435,7 @@ h1 {
     font-size: 0.82rem !important;
   }
 }
+
 
 
 
