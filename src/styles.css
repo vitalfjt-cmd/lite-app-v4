@@ -6188,6 +6188,128 @@ h1 {
   .admin-table td:nth-child(4) {
     width: 17%;
   }
+
+  /* --- Placement Items (Menu Book Placement Items Card Layout) --- */
+  .placement-item-table-container {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .placement-item-table-container .admin-table,
+  .placement-item-table-container .admin-table tbody {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .placement-item-table-container .admin-table colgroup,
+  .placement-item-table-container .admin-table thead {
+    display: none !important;
+  }
+
+  .placement-item-table-container .admin-table tbody tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    background: var(--admin-surface, #ffffff);
+    border: 1px solid var(--admin-line, #e2e8f0) !important;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 6px 12px;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(1) {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-main, #1e293b);
+    padding: 0 !important;
+    border: none !important;
+    flex: 1 1 auto;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(2) {
+    font-size: 0.85rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+  }
+  .placement-item-table-container .admin-table tbody tr td:nth-child(2)::before {
+    content: "上書き: ";
+    font-weight: 600;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(3) {
+    font-size: 0.85rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .placement-item-table-container .admin-table tbody tr td:nth-child(3)::before {
+    content: "順序: ";
+    font-weight: 600;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(4) {
+    width: 100% !important;
+    border-top: 1px solid var(--admin-line-soft, #f1f5f9) !important;
+    padding-top: 10px !important;
+    margin-top: 6px;
+    border-bottom: none !important;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(4) .admin-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .placement-item-table-container .admin-table tbody tr td:nth-child(4) .admin-table-actions button {
+    flex: 1;
+    min-height: 38px;
+    font-size: 0.88rem;
+  }
+
+  /* --- Accounting History (Hide heavy KPI cards to prioritize history table) --- */
+  .admin-kpi-grid {
+    display: none !important;
+  }
+
+  /* --- Receipt Reissue Responsiveness & Layout Fixes --- */
+  .receipt-reissue-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .receipt-reissue-grid .admin-card {
+    padding: 16px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+
+  .receipt-reissue-grid .admin-table-wrap {
+    max-height: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    overflow-x: auto !important;
+  }
+
+  .receipt-reissue-grid .admin-table {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .receipt-reissue-grid .admin-table th,
+  .receipt-reissue-grid .admin-table td {
+    padding: 8px 4px !important;
+    font-size: 0.82rem !important;
+  }
 }
+
 
 
