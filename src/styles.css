@@ -5868,3 +5868,191 @@ h1 {
   color: var(--text-sub);
   margin-top: 4px;
 }
+
+
+/* ==========================================================================
+   Mobile Responsive Optimization (Master Maintenance & Sales Management)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* --- Master Maintenance (Filter Bar) --- */
+  .admin-filter-bar-items {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .admin-filter-bar-items .admin-filter-field.wide,
+  .admin-filter-bar-items .admin-filter-field:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .admin-filter-bar-items .admin-filter-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
+  /* --- Master Maintenance (Menu Items Card Layout) --- */
+  .admin-table-menu-items,
+  .admin-table-menu-items tbody {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-table-menu-items colgroup,
+  .admin-table-menu-items thead {
+    display: none !important;
+  }
+
+  .admin-table-menu-items tbody tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    background: var(--admin-surface, #ffffff);
+    border: 1px solid var(--admin-line, #e2e8f0) !important;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 6px 10px;
+  }
+
+  .admin-table-menu-items .admin-cell-thumb {
+    order: 1;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .admin-table-menu-items .admin-cell-name {
+    order: 2;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-main, #1e293b);
+    padding: 0 !important;
+    border: none !important;
+    flex: 1 1 auto;
+  }
+
+  .admin-table-menu-items .admin-cell-price {
+    order: 3;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--admin-accent, #1b813e);
+    text-align: right;
+    padding: 0 !important;
+    border: none !important;
+    margin-left: auto;
+  }
+
+  .admin-table-menu-items .admin-cell-category {
+    order: 4;
+    font-size: 0.85rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+    width: auto;
+  }
+
+  .admin-table-menu-items .admin-cell-status {
+    order: 5;
+    font-size: 0.8rem;
+    padding: 2px 8px !important;
+    border-radius: 6px;
+    background: var(--admin-surface-soft, #f1f5f9);
+    border: none !important;
+  }
+
+  .admin-table-menu-items .admin-cell-code,
+  .admin-table-menu-items .admin-cell-tax,
+  .admin-table-menu-items .admin-cell-sort {
+    order: 6;
+    font-size: 0.8rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .admin-table-menu-items .admin-cell-code::before {
+    content: "コード: ";
+    font-weight: 600;
+  }
+  .admin-table-menu-items .admin-cell-tax::before {
+    content: "・税: ";
+    font-weight: 600;
+  }
+  .admin-table-menu-items .admin-cell-sort::before {
+    content: "・順序: ";
+    font-weight: 600;
+  }
+
+  .admin-table-menu-items .admin-cell-actions {
+    order: 7;
+    width: 100% !important;
+    border-top: 1px solid var(--admin-line-soft, #f1f5f9) !important;
+    padding-top: 10px !important;
+    margin-top: 6px;
+    border-bottom: none !important;
+  }
+
+  .admin-table-menu-items .admin-cell-actions .admin-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .admin-table-menu-items .admin-cell-actions .admin-table-actions button {
+    flex: 1;
+    min-height: 38px;
+    font-size: 0.88rem;
+  }
+
+  /* --- Sales Management (Filter Bar & Compact Table) --- */
+  .admin-filter-bar-dates {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .admin-filter-bar-dates .admin-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+  .admin-filter-bar-dates .admin-filter-actions button {
+    width: 100%;
+  }
+
+  /* Compact Table for Sales History */
+  .admin-list-panel-wide .admin-table-wrap {
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    min-width: 0 !important;
+    width: 100% !important;
+    table-layout: fixed;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 10px 6px !important;
+    font-size: 0.85rem;
+  }
+
+  /* Sales table column widths on mobile */
+  .admin-table th:nth-child(1),
+  .admin-table td:nth-child(1) {
+    width: 30%;
+  }
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    width: 36%;
+  }
+  .admin-table th:nth-child(3),
+  .admin-table td:nth-child(3) {
+    width: 17%;
+  }
+  .admin-table th:nth-child(4),
+  .admin-table td:nth-child(4) {
+    width: 17%;
+  }
+}
+
