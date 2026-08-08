@@ -6171,22 +6171,23 @@ h1 {
     font-size: 0.85rem;
   }
 
-  /* Sales table column widths on mobile */
-  .admin-table th:nth-child(1),
-  .admin-table td:nth-child(1) {
-    width: 30%;
+  /* --- Base Mobile Scroll & Panel Fixes --- */
+  html, body, #root, .admin-shell, .admin-layout, .admin-main, .ops-grid, .panel {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
-  .admin-table th:nth-child(2),
-  .admin-table td:nth-child(2) {
-    width: 36%;
-  }
-  .admin-table th:nth-child(3),
-  .admin-table td:nth-child(3) {
-    width: 17%;
-  }
-  .admin-table th:nth-child(4),
-  .admin-table td:nth-child(4) {
-    width: 17%;
+
+  .admin-section-placements,
+  .placement-explorer,
+  .placement-view-container,
+  .placement-grid,
+  .placement-item-table-container {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   /* --- Placement Items (Menu Book Placement Items Card Layout) --- */
@@ -6275,15 +6276,123 @@ h1 {
     font-size: 0.88rem;
   }
 
-  /* --- Accounting History (Hide heavy KPI cards to prioritize history table) --- */
+  /* --- Accounting History (Compact KPI & Card Layout) --- */
   .admin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .admin-kpi-box {
+    padding: 10px 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .admin-kpi-box .kpi-label {
+    font-size: 0.75rem !important;
+  }
+
+  .admin-kpi-box .kpi-value {
+    font-size: 1.05rem !important;
+  }
+
+  /* Accounting History Table Card UI */
+  .admin-list-panel-wide .admin-table-wrap .admin-table,
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-list-panel-wide .admin-table-wrap .admin-table colgroup,
+  .admin-list-panel-wide .admin-table-wrap .admin-table thead {
     display: none !important;
   }
 
-  /* --- Receipt Reissue Responsiveness & Layout Fixes --- */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    background: var(--admin-surface, #ffffff);
+    border: 1px solid var(--admin-line, #e2e8f0) !important;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 6px 12px;
+  }
+
+  /* 1: 日付 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(1) {
+    font-size: 0.85rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* 2: 会計時刻 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(2) {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-main, #1e293b);
+    padding: 0 !important;
+    border: none !important;
+    margin-right: auto;
+  }
+
+  /* 6: 金額 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(6) {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--admin-accent, #1b813e);
+    text-align: right;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* 3: レシート番号 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(3) {
+    width: 100% !important;
+    font-size: 0.8rem;
+    color: var(--text-sub, #64748b);
+    padding-top: 6px !important;
+    border-top: 1px dashed var(--admin-line-soft, #f1f5f9) !important;
+    border-bottom: none !important;
+  }
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(3)::before {
+    content: "No: ";
+    font-weight: 600;
+  }
+
+  /* 4: 会計種別 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(4) {
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  /* 5: 滞留時間 */
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(5) {
+    font-size: 0.8rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+    margin-left: auto;
+  }
+  .admin-list-panel-wide .admin-table-wrap .admin-table tbody tr td:nth-child(5)::before {
+    content: "滞留: ";
+    font-weight: 600;
+  }
+
+  /* --- Receipt Reissue Responsiveness & Display Order --- */
   .receipt-reissue-grid {
-    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: 16px !important;
+  }
+
+  /* Move receipt preview to top on mobile when loaded */
+  .receipt-reissue-grid > div:nth-child(2) {
+    order: -1 !important;
   }
 
   .receipt-reissue-grid .admin-card {
@@ -6310,6 +6419,7 @@ h1 {
     font-size: 0.82rem !important;
   }
 }
+
 
 
 
