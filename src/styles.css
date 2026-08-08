@@ -5874,20 +5874,154 @@ h1 {
    Mobile Responsive Optimization (Master Maintenance & Sales Management)
    ========================================================================== */
 @media (max-width: 768px) {
-  /* --- Master Maintenance (Filter Bar) --- */
-  .admin-filter-bar-items {
+  /* --- Master Maintenance (General Filter Bars) --- */
+  .admin-filter-bar-items,
+  .admin-filter-bar-menubooks,
+  .admin-filter-bar.compact {
     grid-template-columns: 1fr 1fr !important;
     gap: 10px !important;
   }
 
   .admin-filter-bar-items .admin-filter-field.wide,
-  .admin-filter-bar-items .admin-filter-field:first-child {
+  .admin-filter-bar-menubooks .admin-filter-field.wide,
+  .admin-filter-bar.compact .admin-filter-field.wide,
+  .admin-filter-bar-items .admin-filter-field:first-child,
+  .admin-filter-bar-menubooks .admin-filter-field:first-child,
+  .admin-filter-bar.compact .admin-filter-field:first-child {
     grid-column: 1 / -1;
   }
 
-  .admin-filter-bar-items .admin-filter-actions {
+  .admin-filter-bar-items .admin-filter-actions,
+  .admin-filter-bar-menubooks .admin-filter-actions,
+  .admin-filter-bar.compact .admin-filter-actions {
     grid-column: 1 / -1;
     justify-content: flex-end;
+  }
+
+  /* --- General Master Maintenance Card Layout --- */
+  .admin-section-categories .admin-table,
+  .admin-section-subcategories .admin-table,
+  .admin-section-menuBooks .admin-table,
+  .admin-section-staff .admin-table,
+  .admin-section-tables .admin-table,
+  .admin-section-payment-methods .admin-table,
+  .admin-section-store .admin-table {
+    display: block !important;
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .admin-section-categories .admin-table colgroup,
+  .admin-section-categories .admin-table thead,
+  .admin-section-subcategories .admin-table colgroup,
+  .admin-section-subcategories .admin-table thead,
+  .admin-section-menuBooks .admin-table colgroup,
+  .admin-section-menuBooks .admin-table thead,
+  .admin-section-staff .admin-table colgroup,
+  .admin-section-staff .admin-table thead,
+  .admin-section-tables .admin-table colgroup,
+  .admin-section-tables .admin-table thead,
+  .admin-section-payment-methods .admin-table colgroup,
+  .admin-section-payment-methods .admin-table thead,
+  .admin-section-store .admin-table colgroup,
+  .admin-section-store .admin-table thead {
+    display: none !important;
+  }
+
+  .admin-section-categories .admin-table tbody,
+  .admin-section-subcategories .admin-table tbody,
+  .admin-section-menuBooks .admin-table tbody,
+  .admin-section-staff .admin-table tbody,
+  .admin-section-tables .admin-table tbody,
+  .admin-section-payment-methods .admin-table tbody,
+  .admin-section-store .admin-table tbody {
+    display: block !important;
+  }
+
+  .admin-section-categories .admin-table tbody tr,
+  .admin-section-subcategories .admin-table tbody tr,
+  .admin-section-menuBooks .admin-table tbody tr,
+  .admin-section-staff .admin-table tbody tr,
+  .admin-section-tables .admin-table tbody tr,
+  .admin-section-payment-methods .admin-table tbody tr,
+  .admin-section-store .admin-table tbody tr {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    background: var(--admin-surface, #ffffff);
+    border: 1px solid var(--admin-line, #e2e8f0) !important;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 6px 12px;
+  }
+
+  .admin-section-categories .admin-table tbody tr td:first-child,
+  .admin-section-subcategories .admin-table tbody tr td:first-child,
+  .admin-section-menuBooks .admin-table tbody tr td:first-child,
+  .admin-section-staff .admin-table tbody tr td:first-child,
+  .admin-section-tables .admin-table tbody tr td:first-child,
+  .admin-section-payment-methods .admin-table tbody tr td:first-child,
+  .admin-section-store .admin-table tbody tr td:first-child {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-main, #1e293b);
+    padding: 0 !important;
+    border: none !important;
+    flex: 1 1 auto;
+  }
+
+  .admin-section-categories .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-subcategories .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-menuBooks .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-staff .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-tables .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-payment-methods .admin-table tbody tr td:not(:first-child):not(:last-child),
+  .admin-section-store .admin-table tbody tr td:not(:first-child):not(:last-child) {
+    font-size: 0.85rem;
+    color: var(--text-sub, #64748b);
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .admin-section-categories .admin-table tbody tr td:last-child,
+  .admin-section-subcategories .admin-table tbody tr td:last-child,
+  .admin-section-menuBooks .admin-table tbody tr td:last-child,
+  .admin-section-staff .admin-table tbody tr td:last-child,
+  .admin-section-tables .admin-table tbody tr td:last-child,
+  .admin-section-payment-methods .admin-table tbody tr td:last-child,
+  .admin-section-store .admin-table tbody tr td:last-child {
+    width: 100% !important;
+    border-top: 1px solid var(--admin-line-soft, #f1f5f9) !important;
+    padding-top: 10px !important;
+    margin-top: 6px;
+    border-bottom: none !important;
+  }
+
+  .admin-section-categories .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-subcategories .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-menuBooks .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-staff .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-tables .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-payment-methods .admin-table tbody tr td:last-child .admin-table-actions,
+  .admin-section-store .admin-table tbody tr td:last-child .admin-table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .admin-section-categories .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-subcategories .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-menuBooks .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-staff .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-tables .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-payment-methods .admin-table tbody tr td:last-child .admin-table-actions button,
+  .admin-section-store .admin-table tbody tr td:last-child .admin-table-actions button {
+    flex: 1;
+    min-height: 38px;
+    font-size: 0.88rem;
   }
 
   /* --- Master Maintenance (Menu Items Card Layout) --- */
@@ -6055,4 +6189,5 @@ h1 {
     width: 17%;
   }
 }
+
 
