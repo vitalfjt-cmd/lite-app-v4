@@ -2200,7 +2200,10 @@ h1 {
 
 .placement-view-container {
   flex: 1;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
   gap: 16px;
   animation: placementFadeIn 0.3s ease-out;
 }
@@ -6434,7 +6437,38 @@ h1 {
     padding: 8px 4px !important;
     font-size: 0.82rem !important;
   }
+
+  /* Staff POS Mobile View Toggle (Fix empty ticket list on mobile) */
+  .staff-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    height: auto !important;
+    min-height: calc(100vh - 60px) !important;
+  }
+
+  .staff-layout.show-list .ticket-detail-pane {
+    display: none !important;
+  }
+
+  .staff-layout.show-list .ticket-list-pane {
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    flex: 1 !important;
+  }
+
+  .staff-layout.show-detail .ticket-list-pane {
+    display: none !important;
+  }
+
+  .staff-layout.show-detail .ticket-detail-pane {
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    flex: 1 !important;
+  }
 }
+
 
 
 
