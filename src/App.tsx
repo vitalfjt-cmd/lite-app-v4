@@ -551,46 +551,10 @@ export default function App() {
 
 
   function moveTo(nextView: AppView, tab?: string) {
-    if (nextView === 'customer' || nextView === 'cust-tablet') {
-      if (view === 'staff' || view === 'handy') {
-        if (liveTicketSummaries.length === 0) {
-          alert('伝票が存在しません。')
-          return
-        }
-        if (!selectedTicketId) {
-          alert('伝票を選択してください。')
-          return
-        }
-      }
-    }
-
-    // Both customer views (mobile and tablet) open in a new tab when there is store context available
-    if (nextView === 'customer' && view !== 'customer') {
-      const targetUrl = selectedCustomerUrl ?? buildCustomerUrl(window.location, publicStoreSlug, publicQrToken)
-      if (!targetUrl) return
-      window.open(targetUrl, '_blank', 'noopener,noreferrer')
-      return
-    }
-
-    if (nextView === 'cust-tablet') {
-      // Build a tablet URL similar to mobile: same store/qr/ticket params but view=cust-tablet
-      const storeSlug = liveStore?.slug || publicStoreSlug
-      const qrToken = selectedCustomerQrToken ?? publicQrToken
-      const ticketToken = selectedTicket?.customer_access_token ?? effectivePublicTicketToken
-      if (storeSlug && qrToken) {
-        const tabletUrl = new URL(window.location.origin + window.location.pathname)
-        tabletUrl.searchParams.set('view', 'cust-tablet')
-        tabletUrl.searchParams.set('store', storeSlug)
-        tabletUrl.searchParams.set('qr', qrToken)
-        if (ticketToken) tabletUrl.searchParams.set('ticket', ticketToken)
-        window.open(tabletUrl.toString(), '_blank', 'noopener,noreferrer')
-        return
-      }
-      // No store context - just navigate in-place (shows loading message)
-    }
+    const targetView = (nextView === 'customer' || nextView === 'cust-tablet') ? 'seats' : nextView
 
     const url = new URL(window.location.href)
-    url.searchParams.set('view', nextView)
+    url.searchParams.set('view', targetView)
     if (tab) {
       url.searchParams.set('tab', tab)
       setAdminTab(tab)
@@ -865,17 +829,9 @@ export default function App() {
             liveTables={liveTables}
             liveTicketSummaries={liveTicketSummaries}
             yen={yen}
-            onSelectTable={(tableLabel) => {
-              const ticket = liveTicketSummaries.find(t => t.tableName === tableLabel)
-              if (ticket) {
-                setSelectedTicketId(ticket.ticketId)
-              } else {
-                setSelectedTicketId(null)
-              }
-              moveTo('staff')
-            }}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             storeName={liveStore?.name ?? activeStore.name}
+            storeSlug={liveStore?.slug || publicStoreSlug}
           />
         ) : null}
         {view === 'kds' ? (

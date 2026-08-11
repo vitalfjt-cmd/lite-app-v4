@@ -4406,11 +4406,12 @@ h1 {
   grid-auto-columns: 240px;
   grid-auto-flow: column;
   gap: 12px;
-  padding: 12px 64px;
+  padding: 8px 64px 20px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   height: 100%;
   width: 100%;
+  box-sizing: border-box;
   scroll-behavior: smooth;
 }
 .tablet-menu-grid-container::-webkit-scrollbar { display: none; }
@@ -4422,18 +4423,18 @@ h1 {
 }
 .tablet-menu-card.sold-out { opacity: 0.6; }
 .tablet-menu-card:active { transform: scale(0.98); }
-.tablet-card-image { height: 120px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
+.tablet-card-image { height: 95px; background-size: cover; background-position: center; position: relative; flex-shrink: 0; }
 .tablet-qty-badge { position: absolute; top: 8px; right: 8px; background: #ff5a5f; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; font-weight: bold; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .tablet-sold-out-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.55); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; font-weight: bold; }
 
-.tablet-card-content { padding: 10px 12px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 0; }
-.tablet-card-text { display: flex; flex-direction: column; gap: 4px; }
-.tablet-item-name { font-size: 0.95rem; font-weight: 700; color: #333; margin: 0; line-height: 1.3; }
-.tablet-item-lead { font-size: 0.78rem; color: #888; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tablet-item-price { font-size: 1.1rem; font-weight: 900; color: #ff5a5f; margin: 4px 0 0; }
+.tablet-card-content { padding: 6px 10px; display: flex; flex-direction: column; flex: 1; justify-content: space-between; min-height: 0; }
+.tablet-card-text { display: flex; flex-direction: column; gap: 2px; }
+.tablet-item-name { font-size: 0.9rem; font-weight: 700; color: #333; margin: 0; line-height: 1.25; }
+.tablet-item-lead { font-size: 0.75rem; color: #888; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tablet-item-price { font-size: 1rem; font-weight: 900; color: #ff5a5f; margin: 2px 0 0; }
 
-.tablet-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
-.tablet-add-btn { background: #fcf1f1; color: #ff5a5f; border: 2px solid #ff5a5f; padding: 7px 10px; font-size: 0.85rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; transition: background 0.2s; }
+.tablet-actions { display: flex; justify-content: flex-end; margin-top: 4px; }
+.tablet-add-btn { background: #fcf1f1; color: #ff5a5f; border: 2px solid #ff5a5f; padding: 5px 8px; font-size: 0.82rem; font-weight: bold; border-radius: 8px; width: 100%; cursor: pointer; transition: background 0.2s; }
 .tablet-add-btn:hover { background: #ff5a5f; color: white; }
 .tablet-add-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 

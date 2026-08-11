@@ -1,13 +1,16 @@
 import { useState, useEffect, useMemo } from 'react'
 import type { LiveTableRef, TicketSummaryView } from '../types'
+import { TableQrModal } from '../components/TableQrModal'
+import { buildCustomerUrl } from '../lib/appUtils'
 
 type SeatsScreenProps = {
   liveTables: LiveTableRef[]
   liveTicketSummaries: TicketSummaryView[]
   yen: (value: number) => string
-  onSelectTable: (tableName: string) => void
+  onSelectTable?: (tableName: string) => void
   onOpenLauncher: () => void
   storeName: string
+  storeSlug?: string
 }
 
 export function SeatsScreen({
@@ -17,8 +20,10 @@ export function SeatsScreen({
   onSelectTable,
   onOpenLauncher,
   storeName,
+  storeSlug = 'demo-bbq',
 }: SeatsScreenProps) {
   const [now, setNow] = useState(() => new Date())
+  const [selectedTableForQr, setSelectedTableForQr] = useState<LiveTableRef | null>(null)
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -35,6 +40,23 @@ export function SeatsScreen({
       return a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' })
     })
   }, [liveTables])
+
+  const selectedTableTicket = useMemo(
+    () => liveTicketSummaries.find((t) => t.tableName === selectedTableForQr?.label),
+    [liveTicketSummaries, selectedTableForQr],
+  )
+
+  const selectedTableCustomerUrl = useMemo(
+    () =>
+      selectedTableForQr
+        ? buildCustomerUrl(window.location, storeSlug, selectedTableForQr.qr_token, selectedTableTicket?.customerUrl || null)
+        : null,
+    [selectedTableForQr, storeSlug, selectedTableTicket],
+  )
+
+  const handleTableClick = (table: LiveTableRef) => {
+    setSelectedTableForQr(table)
+  }
 
   return (
     <div className="seats-screen" data-testid="seats-screen">
@@ -78,7 +100,13 @@ export function SeatsScreen({
 
             if (!ticket) {
               return (
-                <div key={table.id} className="seat-card empty" data-testid={`seat-card-${table.label}`}>
+                <div
+                  key={table.id}
+                  className="seat-card empty"
+                  onClick={() => handleTableClick(table)}
+                  style={{ cursor: 'pointer' }}
+                  data-testid={`seat-card-${table.label}`}
+                >
                   <div className="seat-card-top">
                     <span className="seat-table-label">{table.label}</span>
                   </div>
@@ -106,7 +134,7 @@ export function SeatsScreen({
               <div
                 key={table.id}
                 className={`seat-card occupied ${colorClass}`}
-                onClick={() => onSelectTable(table.label)}
+                onClick={() => handleTableClick(table)}
                 data-testid={`seat-card-${table.label}`}
               >
                 <div className="seat-card-top">
@@ -124,6 +152,15 @@ export function SeatsScreen({
           })}
         </div>
       </div>
+
+      <TableQrModal
+        isOpen={Boolean(selectedTableForQr)}
+        storeName={storeName}
+        tableLabel={selectedTableForQr?.label ?? ''}
+        qrToken={selectedTableForQr?.qr_token ?? ''}
+        customerUrl={selectedTableCustomerUrl}
+        onClose={() => setSelectedTableForQr(null)}
+      />
     </div>
   )
 }
