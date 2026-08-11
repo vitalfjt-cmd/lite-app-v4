@@ -26,6 +26,7 @@ import { CustomerTabletScreen } from './screens/CustomerTabletScreen'
 import { KdsScreen } from './screens/KdsScreen'
 import { StaffScreen } from './screens/StaffScreen'
 import { SeatsScreen } from './screens/SeatsScreen'
+import { TableQrListScreen } from './screens/TableQrListScreen'
 import { LoginScreen } from './screens/LoginScreen'
 import type {
   ActiveStoreSummary,
@@ -551,7 +552,9 @@ export default function App() {
 
 
   function moveTo(nextView: AppView, tab?: string) {
-    const targetView = (nextView === 'customer' || nextView === 'cust-tablet') ? 'seats' : nextView
+    let targetView = nextView
+    if (nextView === 'customer') targetView = 'customer-qr'
+    if (nextView === 'cust-tablet') targetView = 'cust-tablet-qr'
 
     const url = new URL(window.location.href)
     url.searchParams.set('view', targetView)
@@ -637,7 +640,7 @@ export default function App() {
         />
       )}
       <main className="content">
-        {!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales' || view === 'seats') ? (
+        {!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales' || view === 'seats' || view === 'customer-qr' || view === 'cust-tablet-qr') ? (
           <LoginScreen
             email={email}
             onEmailChange={setEmail}
@@ -826,6 +829,25 @@ export default function App() {
         ) : null}
         {view === 'seats' ? (
           <SeatsScreen
+            liveTables={liveTables}
+            liveTicketSummaries={liveTicketSummaries}
+            yen={yen}
+            onSelectTable={(tableLabel) => {
+              const ticket = liveTicketSummaries.find(t => t.tableName === tableLabel)
+              if (ticket) {
+                setSelectedTicketId(ticket.ticketId)
+              } else {
+                setSelectedTicketId(null)
+              }
+              moveTo('staff')
+            }}
+            onOpenLauncher={() => setIsLauncherOpen(true)}
+            storeName={liveStore?.name ?? activeStore.name}
+          />
+        ) : null}
+        {view === 'customer-qr' || view === 'cust-tablet-qr' ? (
+          <TableQrListScreen
+            mode={view}
             liveTables={liveTables}
             liveTicketSummaries={liveTicketSummaries}
             yen={yen}
