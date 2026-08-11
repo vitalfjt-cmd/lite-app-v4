@@ -5801,6 +5801,12 @@ h1 {
   font-weight: 700;
 }
 
+.receipt-reissue-grid .admin-table-wrap {
+  height: auto !important;
+  max-height: 350px !important;
+  overflow: auto !important;
+}
+
 .admin-card-caption {
   color: var(--text-sub);
   font-size: 0.9rem;
@@ -6422,10 +6428,12 @@ h1 {
   }
 
   .receipt-reissue-grid .admin-table-wrap {
-    max-height: none !important;
+    height: auto !important;
+    max-height: 350px !important;
     border: none !important;
     border-radius: 0 !important;
     overflow-x: auto !important;
+    overflow-y: auto !important;
   }
 
   .receipt-reissue-grid .admin-table {
