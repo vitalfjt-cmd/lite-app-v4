@@ -5801,6 +5801,13 @@ h1 {
   font-weight: 700;
 }
 
+.receipt-reissue-grid {
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
 .receipt-reissue-grid .admin-table-wrap {
   height: auto !important;
   max-height: 350px !important;
