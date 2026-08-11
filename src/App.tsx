@@ -333,7 +333,7 @@ export default function App() {
   }, [staffMessage, setStaffMessage])
 
   useEffect(() => {
-    if (!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales')) {
+    if (!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales' || view === 'seats')) {
       setWasLoggingIn(true)
     }
   }, [session, view])
@@ -637,7 +637,7 @@ export default function App() {
         />
       )}
       <main className="content">
-        {!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales') ? (
+        {!session && (view === 'staff' || view === 'handy' || view === 'kds' || view === 'admin' || view === 'sales' || view === 'seats') ? (
           <LoginScreen
             email={email}
             onEmailChange={setEmail}
