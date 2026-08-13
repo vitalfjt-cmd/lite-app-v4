@@ -5802,15 +5802,18 @@ h1 {
 }
 
 .receipt-reissue-grid {
-  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) 400px;
+  gap: 24px;
+  align-items: stretch;
   height: 100%;
-  overflow-y: auto;
-  padding-right: 4px;
+  min-height: 0;
 }
 
 .receipt-reissue-grid .admin-table-wrap {
-  height: auto !important;
-  max-height: 350px !important;
+  min-height: 0;
+  height: 100%;
+  max-height: none !important;
   overflow: auto !important;
 }
 
@@ -6421,6 +6424,12 @@ h1 {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .receipt-reissue-grid .admin-search-compact {
+    grid-template-columns: 1fr !important;
   }
 
   /* Move receipt preview to top on mobile when loaded */

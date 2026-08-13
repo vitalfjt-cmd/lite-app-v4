@@ -87,74 +87,84 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
           </div>
         </div>
 
-        <div className="receipt-reissue-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 1fr) 400px', gap: '24px', alignItems: 'start' }}>
-          <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="admin-card">
-              <h4 className="admin-card-title">日付から検索</h4>
-              <div className="admin-filter-bar-dates">
-                <label className="admin-filter-field">
-                  <span>対象日付</span>
-                  <input
-                    type="date"
-                    value={targetDate}
-                    onChange={(e) => setTargetDate(e.target.value)}
-                  />
-                </label>
-                <div className="admin-filter-actions">
-                  <button
-                    className="primary-button"
-                    type="button"
-                    disabled={disabled || loadingList || !targetDate}
-                    onClick={handleSearch}
-                  >
-                    {loadingList ? '検索中...' : '検索'}
-                  </button>
+        <div className="receipt-reissue-grid">
+          <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', minHeight: 0 }}>
+            <div className="admin-card" style={{ padding: '16px 20px', marginBottom: 0, flexShrink: 0 }}>
+              <div className="admin-search-compact" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>日付から検索</span>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="date"
+                      value={targetDate}
+                      onChange={(e) => setTargetDate(e.target.value)}
+                      style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--admin-line)', borderRadius: '12px', fontSize: '0.9rem' }}
+                    />
+                    <button
+                      className="primary-button"
+                      type="button"
+                      disabled={disabled || loadingList || !targetDate}
+                      onClick={handleSearch}
+                      style={{ padding: '0 16px', minWidth: '72px' }}
+                    >
+                      {loadingList ? '検索中...' : '検索'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              
-              <div style={{ margin: '20px 0', borderTop: '1px solid var(--admin-line-soft)' }} />
 
-              <h4 className="admin-card-title">レシート番号で直接検索</h4>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  if (manualReceiptNo.trim()) handleLoadReceipt(manualReceiptNo.trim())
-                }}
-                style={{ display: 'flex', gap: '12px' }}
-              >
-                <input
-                  type="text"
-                  placeholder="例: 0001-12345"
-                  value={manualReceiptNo}
-                  onChange={(e) => setManualReceiptNo(e.target.value)}
-                  style={{ flex: 1, padding: '10px 14px', border: '0.75px solid var(--admin-line)', borderRadius: '14px', fontSize: '0.95rem' }}
-                />
-                <button
-                  type="submit"
-                  className="secondary-button"
-                  disabled={disabled || loadingDetail || !manualReceiptNo.trim()}
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    if (manualReceiptNo.trim()) handleLoadReceipt(manualReceiptNo.trim())
+                  }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
                 >
-                  詳細取得
-                </button>
-              </form>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>レシート番号で直接検索</span>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input
+                      type="text"
+                      placeholder="例: 0001-12345"
+                      value={manualReceiptNo}
+                      onChange={(e) => setManualReceiptNo(e.target.value)}
+                      style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--admin-line)', borderRadius: '12px', fontSize: '0.9rem' }}
+                    />
+                    <button
+                      type="submit"
+                      className="secondary-button"
+                      disabled={disabled || loadingDetail || !manualReceiptNo.trim()}
+                      style={{ padding: '0 16px', minWidth: '84px', whiteSpace: 'nowrap' }}
+                    >
+                      詳細取得
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
 
-            {transactions.length > 0 && (
-              <div className="admin-card">
-                <h4 className="admin-card-title">{targetDate} のお会計一覧</h4>
-                <div className="admin-table-wrap" style={{ maxHeight: '350px' }}>
-                  <table className="admin-table">
-                    <thead>
+            <div className="admin-card" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '16px 20px', marginBottom: 0 }}>
+              <h4 className="admin-card-title" style={{ marginBottom: '12px', flexShrink: 0 }}>
+                {targetDate ? `${targetDate} のお会計一覧` : 'お会計一覧'}
+              </h4>
+              <div className="admin-table-wrap" style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>時刻</th>
+                      <th>レシート番号</th>
+                      <th>決済</th>
+                      <th style={{ textAlign: 'right' }}>金額</th>
+                      <th style={{ textAlign: 'center' }}>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.length === 0 ? (
                       <tr>
-                        <th>時刻</th>
-                        <th>レシート番号</th>
-                        <th>決済</th>
-                        <th style={{ textAlign: 'right' }}>金額</th>
-                        <th style={{ textAlign: 'center' }}>操作</th>
+                        <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-sub)' }}>
+                          {loadingList ? '検索中...' : '日付を指定して検索するか、レシート番号を入力してください。'}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.map((tx, idx) => (
+                    ) : (
+                      transactions.map((tx, idx) => (
                         <tr key={idx} style={{ background: selectedReceiptNo === tx.receipt_no ? 'var(--admin-surface-hover)' : 'transparent' }}>
                           <td>{tx.paid_at.split('T')[1]?.substring(0, 5) || tx.paid_at}</td>
                           <td style={{ fontFamily: 'monospace', fontWeight: 'bold' }}>{tx.receipt_no}</td>
@@ -169,12 +179,12 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                             </button>
                           </td>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
-            )}
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch' }}>
