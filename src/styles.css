@@ -5803,6 +5803,19 @@ h1 {
   font-weight: 700;
 }
 
+/* Receipt Reissue Tab — outer wrapper (replaces ops-grid/panel to avoid mobile overflow:visible override) */
+.receipt-reissue-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
 .receipt-reissue-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(290px, 340px);
@@ -5813,6 +5826,7 @@ h1 {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .receipt-reissue-grid .receipt-paper {

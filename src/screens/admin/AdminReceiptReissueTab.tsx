@@ -79,8 +79,8 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
     : 0
 
   return (
-    <div className="ops-grid" style={{ width: '100%', maxWidth: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
-      <section className="panel admin-list-panel admin-list-panel-wide" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
+    <div className="receipt-reissue-wrapper">
+      <section className="admin-list-panel admin-list-panel-wide" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden' }}>
         <div className="admin-list-head no-print">
           <div>
             <h2>レシート再発行</h2>
