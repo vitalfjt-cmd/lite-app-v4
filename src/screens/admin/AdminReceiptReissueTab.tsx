@@ -79,8 +79,8 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
     : 0
 
   return (
-    <div className="ops-grid">
-      <section className="panel admin-list-panel admin-list-panel-wide">
+    <div className="ops-grid" style={{ width: '100%', maxWidth: '100%', overflowX: 'hidden', boxSizing: 'border-box' }}>
+      <section className="panel admin-list-panel admin-list-panel-wide" style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box' }}>
         <div className="admin-list-head no-print">
           <div>
             <h2>レシート再発行</h2>
@@ -89,23 +89,23 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
 
         <div className="receipt-reissue-grid">
           <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
-            <div className="admin-card" style={{ padding: '16px 20px', marginBottom: 0, flexShrink: 0 }}>
-              <div className="admin-search-compact" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div className="admin-card" style={{ padding: '14px 16px', marginBottom: 0, flexShrink: 0 }}>
+              <div className="admin-search-compact" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', alignItems: 'end' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                   <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>日付から検索</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <input
                       type="date"
                       value={targetDate}
                       onChange={(e) => setTargetDate(e.target.value)}
-                      style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--admin-line)', borderRadius: '12px', fontSize: '0.9rem' }}
+                      style={{ flex: 1, minWidth: 0, padding: '6px 10px', border: '1px solid var(--admin-line)', borderRadius: '10px', fontSize: '0.88rem' }}
                     />
                     <button
                       className="primary-button"
                       type="button"
                       disabled={disabled || loadingList || !targetDate}
                       onClick={handleSearch}
-                      style={{ padding: '0 16px', minWidth: '72px' }}
+                      style={{ padding: '0 12px', minWidth: '64px', fontSize: '0.88rem' }}
                     >
                       {loadingList ? '検索中...' : '検索'}
                     </button>
@@ -117,22 +117,22 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                     e.preventDefault()
                     if (manualReceiptNo.trim()) handleLoadReceipt(manualReceiptNo.trim())
                   }}
-                  style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
                 >
                   <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--text-sub)' }}>レシート番号で直接検索</span>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
                     <input
                       type="text"
                       placeholder="例: 0001-12345"
                       value={manualReceiptNo}
                       onChange={(e) => setManualReceiptNo(e.target.value)}
-                      style={{ flex: 1, padding: '8px 12px', border: '1px solid var(--admin-line)', borderRadius: '12px', fontSize: '0.9rem' }}
+                      style={{ flex: 1, minWidth: 0, padding: '6px 10px', border: '1px solid var(--admin-line)', borderRadius: '10px', fontSize: '0.88rem' }}
                     />
                     <button
                       type="submit"
                       className="secondary-button"
                       disabled={disabled || loadingDetail || !manualReceiptNo.trim()}
-                      style={{ padding: '0 16px', minWidth: '84px', whiteSpace: 'nowrap' }}
+                      style={{ padding: '0 12px', minWidth: '76px', whiteSpace: 'nowrap', fontSize: '0.88rem' }}
                     >
                       詳細取得
                     </button>
@@ -141,8 +141,8 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
               </div>
             </div>
 
-            <div className="admin-card" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '16px 20px', marginBottom: 0, overflow: 'hidden', boxSizing: 'border-box' }}>
-              <h4 className="admin-card-title" style={{ marginBottom: '12px', flexShrink: 0 }}>
+            <div className="admin-card" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: '14px 16px', marginBottom: 0, overflow: 'hidden', boxSizing: 'border-box' }}>
+              <h4 className="admin-card-title" style={{ marginBottom: '10px', flexShrink: 0, fontSize: '1rem' }}>
                 {targetDate ? `${targetDate} のお会計一覧` : 'お会計一覧'}
               </h4>
               <div className="admin-table-wrap" style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
@@ -159,7 +159,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-sub)' }}>
+                        <td colSpan={5} style={{ textAlign: 'center', padding: '20px', color: 'var(--text-sub)' }}>
                           {loadingList ? '検索中...' : '日付を指定して検索するか、レシート番号を入力してください。'}
                         </td>
                       </tr>
@@ -174,6 +174,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                             <button
                               className="secondary-button"
                               onClick={() => handleLoadReceipt(tx.receipt_no)}
+                              style={{ padding: '4px 10px', fontSize: '0.82rem' }}
                             >
                               選択
                             </button>
@@ -187,15 +188,15 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
             </div>
           </div>
 
-          <div className="receipt-reissue-preview-pane" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', height: '100%', minHeight: 0, minWidth: 0 }}>
+          <div className="receipt-reissue-preview-pane" style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'stretch', height: '100%', minHeight: 0, minWidth: 0, boxSizing: 'border-box', width: '100%' }}>
             {loadingDetail && (
-              <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)' }}>
+              <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)', padding: '16px' }}>
                 データ取得中...
               </div>
             )}
 
             {!loadingDetail && !ticketDetail && (
-              <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)', borderStyle: 'dashed' }}>
+              <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)', borderStyle: 'dashed', padding: '24px 16px' }}>
                 表示するレシートがありません。<br />レシートを選択するか、レシート番号を入力してください。
               </div>
             )}
@@ -204,24 +205,24 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
               <>
                 <button
                   className="primary-button no-print"
-                  style={{ padding: '14px', fontSize: '1.05rem', fontWeight: 'bold', flexShrink: 0 }}
+                  style={{ padding: '12px', fontSize: '1rem', fontWeight: 'bold', flexShrink: 0, width: '100%' }}
                   onClick={handlePrint}
                 >
                   🖨️ このレシートを再印刷
                 </button>
                 
-                <div className="receipt-paper" style={{ margin: 0, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                <div className="receipt-paper" style={{ margin: 0, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'hidden' }}>
                   {/* ヘッダー */}
-                  <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
+                  <div style={{ padding: '12px 14px 0', flexShrink: 0, boxSizing: 'border-box', width: '100%' }}>
                     <div
                       style={{
                         textAlign: 'center',
                         color: 'var(--admin-accent, #1b813e)',
                         fontWeight: 'bold',
-                        fontSize: '1rem',
-                        marginBottom: '10px',
+                        fontSize: '0.88rem',
+                        marginBottom: '8px',
                         border: '2px solid var(--admin-accent, #1b813e)',
-                        padding: '4px',
+                        padding: '3px',
                         borderRadius: '4px',
                         boxSizing: 'border-box',
                         width: '100%'
@@ -229,15 +230,15 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                     >
                       再発行領収書
                     </div>
-                    <h3 className="receipt-brand" style={{ margin: '0 0 6px' }}>店舗デモ</h3>
-                    <p className="receipt-meta" style={{ margin: '0 0 4px', fontSize: '0.88rem' }}>会計日時: {new Date(ticketDetail.payment_entries[0]?.paid_at || ticketDetail.ordered_at).toLocaleString('ja-JP')}</p>
-                    <p className="receipt-meta" style={{ margin: '0 0 4px', fontSize: '0.88rem' }}>レシート番号: {ticketDetail.receipt_no}</p>
-                    <p className="receipt-meta" style={{ margin: '0 0 8px', fontSize: '0.88rem' }}>卓番: {ticketDetail.table?.label || '-'} / 伝票番号: {ticketDetail.ticket_no}</p>
-                    <div className="receipt-divider" style={{ margin: '12px 0' }}></div>
+                    <h3 className="receipt-brand" style={{ margin: '0 0 4px', fontSize: '1.15rem', textAlign: 'center' }}>店舗デモ</h3>
+                    <p className="receipt-meta" style={{ margin: '0 0 2px', fontSize: '0.82rem', textAlign: 'center' }}>会計日時: {new Date(ticketDetail.payment_entries[0]?.paid_at || ticketDetail.ordered_at).toLocaleString('ja-JP')}</p>
+                    <p className="receipt-meta" style={{ margin: '0 0 2px', fontSize: '0.82rem', textAlign: 'center' }}>レシート番号: {ticketDetail.receipt_no}</p>
+                    <p className="receipt-meta" style={{ margin: '0 0 6px', fontSize: '0.82rem', textAlign: 'center' }}>卓番: {ticketDetail.table?.label || '-'} / 伝票番号: {ticketDetail.ticket_no}</p>
+                    <div className="receipt-divider" style={{ margin: '8px 0' }}></div>
                   </div>
 
-                  {/* 明細行リスト (通常と同じ receipt-item-row スタイル) */}
-                  <div style={{ flex: 1, padding: '0 20px', overflowY: 'auto', minHeight: 0 }}>
+                  {/* 明細行リスト */}
+                  <div style={{ flex: 1, padding: '0 14px', overflowY: 'auto', minHeight: 0, boxSizing: 'border-box', width: '100%' }}>
                     {ticketDetail.lines.map((line: any, idx: number) => {
                       const isReduced = line.tax_rate_type === 'REDUCED'
                       return (
@@ -251,8 +252,8 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                   </div>
 
                   {/* フッター */}
-                  <div style={{ padding: '0 20px 16px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd' }}>
-                    <div className="receipt-grand-total" style={{ margin: '12px 0 8px' }}>
+                  <div style={{ padding: '0 14px 12px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd', boxSizing: 'border-box', width: '100%' }}>
+                    <div className="receipt-grand-total" style={{ margin: '8px 0 6px' }}>
                       <span>ご請求額</span>
                       <span className="total-amount">{yen(orderSubtotal)}</span>
                     </div>
@@ -273,22 +274,22 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                       const tax8 = Math.round(total8 * redRate / (100 + redRate))
 
                       return (
-                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.88rem', color: '#555' }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                        <div style={{ marginTop: '6px', paddingTop: '6px', borderTop: '1px dashed #ccc', fontSize: '0.82rem', color: '#555' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                             <span>{stdRate}%対象金額</span>
                             <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{yen(total10)}</span>
                           </div>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '3px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '2px' }}>
                             <span>(内消費税額)</span>
                             <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(tax10)}</span>
                           </div>
                           {total8 > 0 && (
                             <>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', marginBottom: '3px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px', marginBottom: '2px' }}>
                                 <span>{redRate}%対象金額(※)</span>
                                 <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{yen(total8)}</span>
                               </div>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '3px' }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '2px' }}>
                                 <span>(内消費税額)</span>
                                 <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(tax8)}</span>
                               </div>
@@ -298,16 +299,16 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                       )
                     })()}
 
-                    <div className="receipt-divider" style={{ margin: '10px 0' }}></div>
+                    <div className="receipt-divider" style={{ margin: '8px 0' }}></div>
                     
                     {ticketDetail.payment_entries.map((entry: any, idx: number) => (
-                      <div key={idx} className="receipt-deposit-group" style={{ margin: '4px 0', padding: '8px 12px' }}>
-                        <div className="deposit-line" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
+                      <div key={idx} className="receipt-deposit-group" style={{ margin: '4px 0', padding: '6px 10px' }}>
+                        <div className="deposit-line" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>お預かり ({entry.payment_type_label || entry.payment_type})</span>
                           <span style={{ flexShrink: 0, fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}>{yen(entry.received_amount || entry.final_amount)}</span>
                         </div>
                         {entry.change_amount > 0 && (
-                          <div className="deposit-line change" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#666', marginTop: '4px', paddingTop: '4px', borderTop: '1px solid #dee2e6' }}>
+                          <div className="deposit-line change" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.84rem', color: '#666', marginTop: '3px', paddingTop: '3px', borderTop: '1px solid #dee2e6' }}>
                             <span>お釣り</span>
                             <span className="change-amount" style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(entry.change_amount)}</span>
                           </div>
