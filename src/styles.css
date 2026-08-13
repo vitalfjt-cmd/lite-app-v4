@@ -5813,70 +5813,6 @@ h1 {
   box-sizing: border-box;
 }
 
-.receipt-reissue-grid .receipt-paper {
-  box-sizing: border-box !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  margin: 0 !important;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif !important;
-  overflow-x: hidden !important;
-}
-
-.receipt-reissue-grid .receipt-paper * {
-  box-sizing: border-box;
-}
-
-.receipt-reissue-grid .receipt-item-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: baseline !important;
-  gap: 8px !important;
-  margin-bottom: 8px !important;
-  font-size: 0.92rem !important;
-  width: 100% !important;
-}
-
-.receipt-reissue-grid .receipt-item-name {
-  flex: 1 !important;
-  min-width: 0 !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-}
-
-.receipt-reissue-grid .receipt-item-qty {
-  flex-shrink: 0 !important;
-  color: #666 !important;
-  font-size: 0.85rem !important;
-  font-variant-numeric: tabular-nums !important;
-}
-
-.receipt-reissue-grid .receipt-item-price {
-  flex-shrink: 0 !important;
-  text-align: right !important;
-  font-weight: bold !important;
-  font-size: 0.92rem !important;
-  font-variant-numeric: tabular-nums !important;
-}
-
-.receipt-reissue-grid .receipt-grand-total {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: baseline !important;
-  font-size: 1.1rem !important;
-  font-weight: bold !important;
-  margin: 8px 0 4px !important;
-}
-
-.receipt-reissue-grid .receipt-grand-total .total-amount {
-  flex-shrink: 0 !important;
-  font-size: 1.3rem !important;
-  font-weight: bold !important;
-  color: #ff5a5f !important;
-  font-variant-numeric: tabular-nums !important;
-}
-
 .receipt-reissue-grid .admin-table-wrap {
   min-height: 0;
   height: 100%;
@@ -5893,6 +5829,52 @@ h1 {
     overflow-y: auto !important;
   }
 }
+
+/* ================================================================
+   Reissue Preview — 再発行プレビュー専用スタイル (BEM)
+   ================================================================ */
+.reissue-preview {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border-radius: 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+.reissue-preview *, .reissue-preview *::before, .reissue-preview *::after { box-sizing: border-box; }
+.reissue-preview__header { padding: 14px 14px 0; flex-shrink: 0; width: 100%; }
+.reissue-preview__badge { text-align: center; color: var(--admin-accent, #1b813e); font-weight: bold; font-size: 0.9rem; margin-bottom: 8px; border: 2px solid var(--admin-accent, #1b813e); padding: 3px; border-radius: 4px; width: 100%; }
+.reissue-preview__brand { text-align: center; font-size: 1.2rem; font-weight: bold; margin: 0 0 4px; font-family: inherit; }
+.reissue-preview__meta { text-align: center; color: #666; margin: 0 0 2px; font-size: 0.82rem; line-height: 1.4; word-break: break-all; }
+.reissue-preview__divider { border: none; border-top: 1px dashed #ccc; margin: 8px 0; }
+.reissue-preview__items { flex: 1; padding: 0 14px; overflow-y: auto; width: 100%; }
+.reissue-preview__item { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; margin-bottom: 6px; width: 100%; }
+.reissue-preview__item-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; }
+.reissue-preview__item-qty { flex-shrink: 0; color: #666; font-size: 0.82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.reissue-preview__item-price { flex-shrink: 0; text-align: right; font-weight: bold; font-size: 0.88rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.reissue-preview__footer { padding: 0 14px 14px; flex-shrink: 0; border-top: 2px dashed #aaa; background: #fdfdfd; width: 100%; }
+.reissue-preview__total { display: flex; justify-content: space-between; align-items: baseline; font-size: 1rem; font-weight: bold; margin: 8px 0 4px; gap: 6px; }
+.reissue-preview__total-amount { flex-shrink: 0; color: #ff5a5f; font-size: 1.2rem; font-weight: bold; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.reissue-preview__tax-block { margin-top: 6px; padding-top: 6px; border-top: 1px dashed #ccc; font-size: 0.8rem; color: #555; }
+.reissue-preview__tax-row { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.reissue-preview__tax-row--sub { padding-left: 8px; color: #777; }
+.reissue-preview__tax-amount { flex-shrink: 0; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.reissue-preview__payment { margin-bottom: 4px; }
+.reissue-preview__payment-row { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; font-size: 0.86rem; }
+.reissue-preview__payment-row--change { font-size: 0.8rem; color: #888; padding-left: 12px; margin-top: 1px; }
+.reissue-preview__payment-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.reissue-preview__payment-amount { flex-shrink: 0; font-weight: bold; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+
 
 .admin-card-caption {
   color: var(--text-sub);
