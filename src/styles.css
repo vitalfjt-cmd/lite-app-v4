@@ -5803,11 +5803,24 @@ h1 {
 
 .receipt-reissue-grid {
   display: grid;
-  grid-template-columns: minmax(320px, 1fr) 400px;
-  gap: 24px;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 380px);
+  gap: 20px;
   align-items: stretch;
   height: 100%;
   min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.receipt-reissue-grid .receipt-paper {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.receipt-reissue-grid .receipt-paper * {
+  box-sizing: border-box;
 }
 
 .receipt-reissue-grid .admin-table-wrap {
