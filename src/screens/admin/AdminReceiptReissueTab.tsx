@@ -88,7 +88,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
         </div>
 
         <div className="receipt-reissue-grid">
-          <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', minHeight: 0 }}>
+          <div className="no-print" style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
             <div className="admin-card" style={{ padding: '16px 20px', marginBottom: 0, flexShrink: 0 }}>
               <div className="admin-search-compact" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', alignItems: 'end' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -187,7 +187,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', height: '100%', minHeight: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', height: '100%', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
             {loadingDetail && (
               <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)' }}>
                 データ取得中...
