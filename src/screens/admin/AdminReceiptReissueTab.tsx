@@ -187,7 +187,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', height: '100%', minHeight: 0, minWidth: 0, overflow: 'hidden' }}>
+          <div className="receipt-reissue-preview-pane" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'stretch', height: '100%', minHeight: 0, minWidth: 0 }}>
             {loadingDetail && (
               <div className="admin-card" style={{ textAlign: 'center', color: 'var(--text-sub)' }}>
                 データ取得中...
@@ -203,40 +203,58 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
             {!loadingDetail && ticketDetail && (
               <>
                 <button
-                  className="primary-button"
+                  className="primary-button no-print"
                   style={{ padding: '14px', fontSize: '1.05rem', fontWeight: 'bold', flexShrink: 0 }}
                   onClick={handlePrint}
                 >
                   🖨️ このレシートを再印刷
                 </button>
                 
-                <div className="reissue-preview">
-                  <div className="reissue-preview__header">
-                    <div className="reissue-preview__badge">再発行領収書</div>
-                    <h3 className="reissue-preview__brand">店舗デモ</h3>
-                    <p className="reissue-preview__meta">会計日時: {new Date(ticketDetail.payment_entries[0]?.paid_at || ticketDetail.ordered_at).toLocaleString('ja-JP')}</p>
-                    <p className="reissue-preview__meta">レシート番号: {ticketDetail.receipt_no}</p>
-                    <p className="reissue-preview__meta">卓番: {ticketDetail.table?.label || '-'} / 伝票番号: {ticketDetail.ticket_no}</p>
-                    <div className="reissue-preview__divider"></div>
+                <div className="receipt-paper" style={{ margin: 0, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+                  {/* ヘッダー */}
+                  <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
+                    <div
+                      style={{
+                        textAlign: 'center',
+                        color: 'var(--admin-accent, #1b813e)',
+                        fontWeight: 'bold',
+                        fontSize: '1rem',
+                        marginBottom: '10px',
+                        border: '2px solid var(--admin-accent, #1b813e)',
+                        padding: '4px',
+                        borderRadius: '4px',
+                        boxSizing: 'border-box',
+                        width: '100%'
+                      }}
+                    >
+                      再発行領収書
+                    </div>
+                    <h3 className="receipt-brand" style={{ margin: '0 0 6px' }}>店舗デモ</h3>
+                    <p className="receipt-meta" style={{ margin: '0 0 4px', fontSize: '0.88rem' }}>会計日時: {new Date(ticketDetail.payment_entries[0]?.paid_at || ticketDetail.ordered_at).toLocaleString('ja-JP')}</p>
+                    <p className="receipt-meta" style={{ margin: '0 0 4px', fontSize: '0.88rem' }}>レシート番号: {ticketDetail.receipt_no}</p>
+                    <p className="receipt-meta" style={{ margin: '0 0 8px', fontSize: '0.88rem' }}>卓番: {ticketDetail.table?.label || '-'} / 伝票番号: {ticketDetail.ticket_no}</p>
+                    <div className="receipt-divider" style={{ margin: '12px 0' }}></div>
                   </div>
 
-                  <div className="reissue-preview__items">
+                  {/* 明細行リスト (通常と同じ receipt-item-row スタイル) */}
+                  <div style={{ flex: 1, padding: '0 20px', overflowY: 'auto', minHeight: 0 }}>
                     {ticketDetail.lines.map((line: any, idx: number) => {
                       const isReduced = line.tax_rate_type === 'REDUCED'
                       return (
-                        <div key={idx} className="reissue-preview__item">
-                          <span className="reissue-preview__item-name">{line.item_name_snapshot}{isReduced ? ' ※' : ''}</span>
-                          <span className="reissue-preview__item-qty">x{line.quantity}</span>
-                          <span className="reissue-preview__item-price">{yen(line.line_subtotal)}</span>
+                        <div key={idx} className="receipt-item-row">
+                          <span className="receipt-item-name">{line.item_name_snapshot}{isReduced ? ' ※' : ''}</span>
+                          <span className="receipt-item-qty">x{line.quantity}</span>
+                          <span className="receipt-item-price">{yen(line.line_subtotal)}</span>
                         </div>
                       )
                     })}
                   </div>
 
-                  <div className="reissue-preview__footer">
-                    <div className="reissue-preview__total">
+                  {/* フッター */}
+                  <div style={{ padding: '0 20px 16px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd' }}>
+                    <div className="receipt-grand-total" style={{ margin: '12px 0 8px' }}>
                       <span>ご請求額</span>
-                      <span className="reissue-preview__total-amount">{yen(orderSubtotal)}</span>
+                      <span className="total-amount">{yen(orderSubtotal)}</span>
                     </div>
 
                     {(() => {
@@ -255,24 +273,24 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                       const tax8 = Math.round(total8 * redRate / (100 + redRate))
 
                       return (
-                        <div className="reissue-preview__tax-block">
-                          <div className="reissue-preview__tax-row">
+                        <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed #ccc', fontSize: '0.88rem', color: '#555' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
                             <span>{stdRate}%対象金額</span>
-                            <span className="reissue-preview__tax-amount">{yen(total10)}</span>
+                            <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{yen(total10)}</span>
                           </div>
-                          <div className="reissue-preview__tax-row reissue-preview__tax-row--sub">
+                          <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '3px' }}>
                             <span>(内消費税額)</span>
-                            <span className="reissue-preview__tax-amount">{yen(tax10)}</span>
+                            <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(tax10)}</span>
                           </div>
                           {total8 > 0 && (
                             <>
-                              <div className="reissue-preview__tax-row">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4px', marginBottom: '3px' }}>
                                 <span>{redRate}%対象金額(※)</span>
-                                <span className="reissue-preview__tax-amount">{yen(total8)}</span>
+                                <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>{yen(total8)}</span>
                               </div>
-                              <div className="reissue-preview__tax-row reissue-preview__tax-row--sub">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', paddingLeft: '8px', color: '#777', marginBottom: '3px' }}>
                                 <span>(内消費税額)</span>
-                                <span className="reissue-preview__tax-amount">{yen(tax8)}</span>
+                                <span style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(tax8)}</span>
                               </div>
                             </>
                           )}
@@ -280,18 +298,18 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                       )
                     })()}
 
-                    <div className="reissue-preview__divider"></div>
+                    <div className="receipt-divider" style={{ margin: '10px 0' }}></div>
                     
                     {ticketDetail.payment_entries.map((entry: any, idx: number) => (
-                      <div key={idx} className="reissue-preview__payment">
-                        <div className="reissue-preview__payment-row">
-                          <span className="reissue-preview__payment-label">お預かり ({entry.payment_type_label || entry.payment_type})</span>
-                          <span className="reissue-preview__payment-amount">{yen(entry.received_amount || entry.final_amount)}</span>
+                      <div key={idx} className="receipt-deposit-group" style={{ margin: '4px 0', padding: '8px 12px' }}>
+                        <div className="deposit-line" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem' }}>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>お預かり ({entry.payment_type_label || entry.payment_type})</span>
+                          <span style={{ flexShrink: 0, fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}>{yen(entry.received_amount || entry.final_amount)}</span>
                         </div>
                         {entry.change_amount > 0 && (
-                          <div className="reissue-preview__payment-row reissue-preview__payment-row--change">
+                          <div className="deposit-line change" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', color: '#666', marginTop: '4px', paddingTop: '4px', borderTop: '1px solid #dee2e6' }}>
                             <span>お釣り</span>
-                            <span className="reissue-preview__payment-amount">{yen(entry.change_amount)}</span>
+                            <span className="change-amount" style={{ flexShrink: 0, fontVariantNumeric: 'tabular-nums' }}>{yen(entry.change_amount)}</span>
                           </div>
                         )}
                       </div>
