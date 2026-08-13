@@ -211,7 +211,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                   🖨️ このレシートを再印刷
                 </button>
                 
-                <div className="receipt-paper" style={{ margin: 0, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflowX: 'hidden' }}>
+                <div className="receipt-paper" style={{ margin: 0, flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', width: '100%', maxWidth: '100%', boxSizing: 'border-box', overflow: 'hidden', fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif', fontSize: '0.88rem' }}>
                   {/* ヘッダー */}
                   <div style={{ padding: '12px 14px 0', flexShrink: 0, boxSizing: 'border-box', width: '100%' }}>
                     <div
@@ -238,24 +238,24 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                   </div>
 
                   {/* 明細行リスト */}
-                  <div style={{ flex: 1, padding: '0 14px', overflowY: 'auto', minHeight: 0, boxSizing: 'border-box', width: '100%' }}>
+                  <div style={{ flex: 1, padding: '0 12px', overflowY: 'auto', minHeight: 0, boxSizing: 'border-box', width: '100%' }}>
                     {ticketDetail.lines.map((line: any, idx: number) => {
                       const isReduced = line.tax_rate_type === 'REDUCED'
                       return (
-                        <div key={idx} className="receipt-item-row">
-                          <span className="receipt-item-name">{line.item_name_snapshot}{isReduced ? ' ※' : ''}</span>
-                          <span className="receipt-item-qty">x{line.quantity}</span>
-                          <span className="receipt-item-price">{yen(line.line_subtotal)}</span>
+                        <div key={idx} style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 28px 72px', gap: '4px', alignItems: 'baseline', marginBottom: '6px', width: '100%', boxSizing: 'border-box' }}>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>{line.item_name_snapshot}{isReduced ? ' ※' : ''}</span>
+                          <span style={{ textAlign: 'center', color: '#666', whiteSpace: 'nowrap', fontSize: '0.82rem' }}>x{line.quantity}</span>
+                          <span style={{ textAlign: 'right', fontWeight: 'bold', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', fontSize: '0.88rem' }}>{yen(line.line_subtotal)}</span>
                         </div>
                       )
                     })}
                   </div>
 
                   {/* フッター */}
-                  <div style={{ padding: '0 14px 12px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd', boxSizing: 'border-box', width: '100%' }}>
-                    <div className="receipt-grand-total" style={{ margin: '8px 0 6px' }}>
+                  <div style={{ padding: '0 12px 12px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd', boxSizing: 'border-box', width: '100%' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontWeight: 'bold', fontSize: '1.05rem', margin: '8px 0 6px', width: '100%' }}>
                       <span>ご請求額</span>
-                      <span className="total-amount">{yen(orderSubtotal)}</span>
+                      <span style={{ fontSize: '1.3rem', color: '#ff5a5f', fontWeight: 'bold', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', flexShrink: 0 }}>{yen(orderSubtotal)}</span>
                     </div>
 
                     {(() => {
