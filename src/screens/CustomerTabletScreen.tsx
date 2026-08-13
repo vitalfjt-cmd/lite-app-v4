@@ -128,6 +128,9 @@ export function CustomerTabletScreen({
   const [setupStoreSlug, setSetupStoreSlug] = useState(() => {
     return new URLSearchParams(window.location.search).get('store') || window.localStorage.getItem('pos_tablet_store') || 'demo-bbq'
   })
+  const [setupPasscode, setSetupPasscode] = useState(() => {
+    return window.localStorage.getItem('pos_tablet_passcode') || '1234'
+  })
   const [tablesList, setTablesList] = useState<{ id: string; label: string; qr_token: string }[]>([])
   const [loadingTables, setLoadingTables] = useState(false)
   const [setupError, setSetupError] = useState<string | null>(null)
@@ -221,6 +224,7 @@ export function CustomerTabletScreen({
     // Save to localStorage
     window.localStorage.setItem('pos_tablet_store', setupStoreSlug)
     window.localStorage.setItem('pos_tablet_qr', selectedTableQr)
+    window.localStorage.setItem('pos_tablet_passcode', setupPasscode.trim() || '1234')
     
     // Redirect to clean url with store & qr params
     const url = new URL(window.location.href)
@@ -246,7 +250,8 @@ export function CustomerTabletScreen({
   }
 
   const handleVerifyPasscode = () => {
-    if (passcode === '1234') {
+    const savedPasscode = window.localStorage.getItem('pos_tablet_passcode') || '1234'
+    if (passcode === savedPasscode) {
       setShowPasscodeModal(false)
       setPasscode('')
       setPasscodeError('')
@@ -377,6 +382,27 @@ export function CustomerTabletScreen({
                 </select>
               </div>
             )}
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px', fontWeight: '600' }}>管理者パスコード (卓番5回タップ時の認証用)</label>
+              <input
+                type="password"
+                value={setupPasscode}
+                onChange={(e) => setSetupPasscode(e.target.value)}
+                placeholder="デフォルト: 1234"
+                style={{
+                  width: '100%',
+                  padding: '14px 18px',
+                  borderRadius: '12px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(15, 23, 42, 0.6)',
+                  color: 'white',
+                  fontSize: '1.1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
 
             <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
               {(activeStoreName || activeTableName) && (
