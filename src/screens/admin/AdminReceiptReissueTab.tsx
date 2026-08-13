@@ -210,7 +210,7 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
                   🖨️ このレシートを再印刷
                 </button>
                 
-                <div className="receipt-paper">
+                <div className="receipt-paper" style={{ margin: 0 }}>
                   <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
                     <div
                       style={{
