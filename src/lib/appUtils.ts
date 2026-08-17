@@ -161,9 +161,11 @@ export async function resizeMenuItemImage(file: File): Promise<File> {
       nextImage.src = imageUrl
     })
 
-    const maxDimension = 1600
+    const maxDimension = 400
     const longestSide = Math.max(image.naturalWidth, image.naturalHeight)
-    if (longestSide <= maxDimension && file.size <= 1024 * 1024) {
+    
+    // Always convert to WebP and compress if not already WebP, small, and within dimensions
+    if (file.type === 'image/webp' && longestSide <= maxDimension && file.size <= 30 * 1024) {
       return file
     }
 
@@ -180,17 +182,16 @@ export async function resizeMenuItemImage(file: File): Promise<File> {
 
     context.drawImage(image, 0, 0, width, height)
 
-    const outputType = file.type === 'image/png' ? 'image/png' : 'image/webp'
+    const outputType = 'image/webp'
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob((nextBlob) => {
         if (nextBlob) resolve(nextBlob)
         else reject(new Error('画像の変換に失敗しました。'))
-      }, outputType, outputType === 'image/png' ? undefined : 0.86)
+      }, outputType, 0.8)
     })
 
-    const extension = outputType === 'image/png' ? 'png' : 'webp'
     const fileName = file.name.replace(/\.[^.]+$/, '') || 'image'
-    return new File([blob], `${fileName}.${extension}`, {
+    return new File([blob], `${fileName}.webp`, {
       type: outputType,
       lastModified: Date.now(),
     })
