@@ -153,6 +153,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
         label: table.label,
         qr_token: table.qr_token,
         group_name: table.group_name ?? null,
+        floor_id: table.floor_id ?? null,
         sort_order: table.sort_order,
         is_active: table.is_active,
       })),
