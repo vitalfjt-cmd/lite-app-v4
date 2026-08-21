@@ -1,5 +1,5 @@
 import React from 'react'
-import { AdminMenuItem } from './types'
+import { AdminMenuItem, AdminLogicalPrinter } from './types'
 
 type Props = {
   isOpen: boolean
@@ -18,6 +18,8 @@ type Props = {
   adminItemIsActive: boolean
   adminItemIsSoldOut: boolean
   adminItemToppingIds: string[]
+  logicalPrinters: AdminLogicalPrinter[]
+  adminItemLogicalPrinterIds: string[]
   itemImageUploadBusy: boolean
   disabled: boolean
   itemCategoryOptions: { id: string; name: string }[]
@@ -37,6 +39,7 @@ type Props = {
   onItemIsActiveChange: (value: boolean) => void
   onItemIsSoldOutChange: (value: boolean) => void
   onItemToppingIdsChange: (value: string[]) => void
+  onItemLogicalPrinterIdsChange: (value: string[]) => void
   onCreateMenuItem: () => Promise<boolean>
   checkBox: (checked: boolean, onChange: (next: boolean) => void, disabled?: boolean) => React.ReactNode
 }
@@ -141,6 +144,33 @@ export function AdminItemModal(props: Props) {
           <label>表示順<input type="number" value={props.adminItemSortOrder} onChange={(event) => props.onItemSortOrderChange(event.target.value)} disabled={disabled} /></label>
           <label>有効{props.checkBox(props.adminItemIsActive, props.onItemIsActiveChange, disabled)}</label>
           <label>売切{props.checkBox(props.adminItemIsSoldOut, props.onItemIsSoldOutChange, disabled)}</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+            <span style={{ fontWeight: 'bold' }}>出力指示プリンター（部門別）</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+              {props.logicalPrinters.map((lp) => {
+                const isChecked = props.adminItemLogicalPrinterIds.includes(lp.id)
+                return (
+                  <label key={lp.id} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {lp.name} ({lp.code})
+                    {props.checkBox(
+                      isChecked,
+                      (nextChecked) => {
+                        if (nextChecked) {
+                          props.onItemLogicalPrinterIdsChange([...props.adminItemLogicalPrinterIds, lp.id])
+                        } else {
+                          props.onItemLogicalPrinterIdsChange(props.adminItemLogicalPrinterIds.filter(id => id !== lp.id))
+                        }
+                      },
+                      disabled
+                    )}
+                  </label>
+                )
+              })}
+              {props.logicalPrinters.length === 0 && (
+                <span style={{ color: '#d9534f' }}>※部門別プリンター設定がありません。</span>
+              )}
+            </div>
+          </div>
           <div className="admin-topping-select-section" style={{ marginTop: '16px', borderTop: '1px solid #eee', paddingTop: '16px' }}>
             <span style={{ fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>トッピング・オプション設定</span>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>

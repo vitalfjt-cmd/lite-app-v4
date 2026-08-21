@@ -3,6 +3,7 @@ import { AdminStoreSettings } from './types'
 
 type Props = {
   adminStoreName: string
+  adminStoreCode: string
   adminStoreSlug: string
   adminStoreTimezone: string
   adminStoreBusinessOffsetMinutes: string
@@ -14,6 +15,7 @@ type Props = {
   adminStoreTaxDisplayMode: 'INCLUDED' | 'EXCLUDED'
   disabled: boolean
   onStoreNameChange: (value: string) => void
+  onStoreCodeChange: (value: string) => void
   onStoreSlugChange: (value: string) => void
   onStoreTimezoneChange: (value: string) => void
   onStoreBusinessOffsetMinutesChange: (value: string) => void
@@ -39,6 +41,10 @@ export function AdminStoreTab(props: Props) {
           <label className="admin-store-field">
             <span>店舗名</span>
             <input value={props.adminStoreName} onChange={(event) => props.onStoreNameChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>店舗コード</span>
+            <input value={props.adminStoreCode} onChange={(event) => props.onStoreCodeChange(event.target.value)} disabled={props.disabled} />
           </label>
           <label className="admin-store-field">
             <span>店舗スラッグ (URL用)</span>

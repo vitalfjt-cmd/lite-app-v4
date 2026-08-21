@@ -1,11 +1,12 @@
 
 import { useMemo, useState } from 'react'
-import { AdminMenuItem } from './types'
+import { AdminMenuItem, AdminLogicalPrinter } from './types'
 
 type Props = {
   liveMenuItems: AdminMenuItem[]
   categoryNameMap: Map<string, string>
   itemCategoryOptions: { id: string; name: string }[]
+  logicalPrinters: AdminLogicalPrinter[]
   yen: (value: number) => string
   adminStoreTaxRate?: string | number
   adminStoreReducedTaxRate?: string | number
@@ -19,12 +20,12 @@ type Props = {
 export function AdminItemsTab(props: Props) {
   const [itemSearchDraft, setItemSearchDraft] = useState('')
   const [itemCategoryFilterDraft, setItemCategoryFilterDraft] = useState('')
-  const [itemSortKeyDraft, setItemSortKeyDraft] = useState<'sort_order' | 'name' | 'price'>('sort_order')
+  const [itemSortKeyDraft, setItemSortKeyDraft] = useState<'sort_order' | 'name' | 'price' | 'code'>('code')
   const [itemSortDirectionDraft, setItemSortDirectionDraft] = useState<'asc' | 'desc'>('asc')
   
   const [itemSearch, setItemSearch] = useState('')
   const [itemCategoryFilter, setItemCategoryFilter] = useState('')
-  const [itemSortKey, setItemSortKey] = useState<'sort_order' | 'name' | 'price'>('sort_order')
+  const [itemSortKey, setItemSortKey] = useState<'sort_order' | 'name' | 'price' | 'code'>('code')
   const [itemSortDirection, setItemSortDirection] = useState<'asc' | 'desc'>('asc')
 
   const filteredMenuItems = useMemo(() => {
@@ -37,6 +38,14 @@ export function AdminItemsTab(props: Props) {
     })
     rows.sort((a, b) => {
       const dir = itemSortDirection === 'asc' ? 1 : -1
+      if (itemSortKey === 'code') {
+        const codeA = a.code?.trim() || ''
+        const codeB = b.code?.trim() || ''
+        if (codeA === '' && codeB !== '') return 1
+        if (codeB === '' && codeA !== '') return -1
+        if (codeA === '' && codeB === '') return ((a.sort_order ?? 0) - (b.sort_order ?? 0)) * dir
+        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' }) * dir
+      }
       if (itemSortKey === 'name') return a.name.localeCompare(b.name, 'ja') * dir
       if (itemSortKey === 'price') return (a.price - b.price) * dir
       return ((a.sort_order ?? 0) - (b.sort_order ?? 0)) * dir
@@ -78,7 +87,8 @@ export function AdminItemsTab(props: Props) {
           </label>
           <label className="admin-filter-field">
             <span>並び替え</span>
-            <select value={itemSortKeyDraft} onChange={(event) => setItemSortKeyDraft(event.target.value as 'sort_order' | 'name' | 'price')}>
+            <select value={itemSortKeyDraft} onChange={(event) => setItemSortKeyDraft(event.target.value as 'sort_order' | 'name' | 'price' | 'code')}>
+              <option value="code">メニューコード</option>
               <option value="sort_order">表示順</option>
               <option value="name">メニュー名</option>
               <option value="price">価格</option>
@@ -110,11 +120,11 @@ export function AdminItemsTab(props: Props) {
               onClick={() => {
                 setItemSearchDraft('')
                 setItemCategoryFilterDraft('')
-                setItemSortKeyDraft('sort_order')
+                setItemSortKeyDraft('code')
                 setItemSortDirectionDraft('asc')
                 setItemSearch('')
                 setItemCategoryFilter('')
-                setItemSortKey('sort_order')
+                setItemSortKey('code')
                 setItemSortDirection('asc')
               }}
             >
@@ -132,6 +142,7 @@ export function AdminItemsTab(props: Props) {
               <col className="col-menu-price" />
               <col className="col-menu-tax" />
               <col className="col-menu-sort" />
+              <col className="col-menu-kp" />
               <col className="col-menu-status" />
               <col className="col-menu-actions" />
             </colgroup>
@@ -144,6 +155,7 @@ export function AdminItemsTab(props: Props) {
                 <th>価格</th>
                 <th>税区分</th>
                 <th>表示順</th>
+                <th>出力先</th>
                 <th>状態</th>
                 <th>操作</th>
               </tr>
@@ -173,6 +185,16 @@ export function AdminItemsTab(props: Props) {
                       : ` (${props.adminStoreTaxRate || '10'}%)`}
                   </td>
                   <td className="admin-cell-sort">{item.sort_order}</td>
+                  <td className="admin-cell-kp">
+                    {(() => {
+                      const itemLpIds = item.logical_printer_ids || []
+                      const codes = itemLpIds
+                        .map((id) => props.logicalPrinters.find((lp) => lp.id === id)?.code)
+                        .filter(Boolean) as string[]
+                      
+                      return codes.join(',') || '未設定'
+                    })()}
+                  </td>
                   <td className="admin-cell-status">{item.is_active ? (item.is_sold_out ? '売切' : '有効') : '無効'}</td>
                   <td className="admin-cell-actions">
                     <div className="admin-table-actions">

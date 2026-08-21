@@ -139,6 +139,10 @@ export default function App() {
     setLoadBusy, setError, setProfile, setLiveStore, setLiveTickets, setLiveLines, setLivePaymentEntries,
     setLiveTables, setLiveMenuBooks, setLiveMenuBookItems, setLiveCategories, setLiveSubcategories,
     setLiveBookCategories, setLiveBookCategorySubcategories, setLiveBookSubcategoryItems, setLiveItems, setLiveStaffUsers, setLivePaymentMethods,
+    setLivePhysicalPrinters: staffData.setLivePhysicalPrinters,
+    setLivePrinterRoutingRules: staffData.setLivePrinterRoutingRules,
+    setLiveFloors: staffData.setLiveFloors,
+    setLiveLogicalPrinters: staffData.setLiveLogicalPrinters,
     setNewTicketMenuBookId,
     setAdminMenuBookId: adminForm.setAdminMenuBookId,
     setAdminPlacementMenuBookId: adminForm.setAdminPlacementMenuBookId,
@@ -148,6 +152,7 @@ export default function App() {
     setAdminPlacementCategoryId: adminForm.setAdminPlacementCategoryId,
     setAdminPlacementItemId: adminForm.setAdminPlacementItemId,
     setAdminStoreName: adminForm.setAdminStoreName,
+    setAdminStoreCode: adminForm.setAdminStoreCode,
     setAdminStoreSlug: adminForm.setAdminStoreSlug,
     setAdminStoreTimezone: adminForm.setAdminStoreTimezone,
     setAdminStoreBusinessOffsetMinutes: adminForm.setAdminStoreBusinessOffsetMinutes,
@@ -895,7 +900,7 @@ export default function App() {
             liveStoreSettings={liveStore}
             liveMenuBooks={liveMenuBooks}
             liveParentCategories={adminTopCategories}
-            liveCategories={liveSubcategories.map((subcategory) => ({ id: subcategory.id, name: subcategory.name, sort_order: subcategory.sort_order, parent_category_id: subcategory.parent_category_id ?? null }))}
+            liveCategories={liveSubcategories.map((subcategory) => ({ id: subcategory.id, code: subcategory.code ?? null, name: subcategory.name, sort_order: subcategory.sort_order, parent_category_id: subcategory.parent_category_id ?? null }))}
             liveMenuItems={liveItems.map((item) => ({ ...item }))}
             visibleItems={adminVisibleItems}
             liveBookCategoryRows={adminBookCategories}
@@ -922,9 +927,11 @@ export default function App() {
             adminMenuBookLastOrderOffset={adminForm.adminMenuBookLastOrderOffset}
             editingMenuBookId={adminForm.editingMenuBookId}
             adminCategoryName={adminForm.adminCategoryName}
+            adminCategoryCode={adminForm.adminCategoryCode}
             adminCategorySortOrder={adminForm.adminCategorySortOrder}
             editingCategoryId={adminForm.editingCategoryId}
             adminSubCategoryName={adminForm.adminSubCategoryName}
+            adminSubCategoryCode={adminForm.adminSubCategoryCode}
             adminSubCategorySortOrder={adminForm.adminSubCategorySortOrder}
             adminSubCategoryParentCategoryId={adminForm.adminCategoryParentId}
             editingSubCategoryId={adminForm.editingSubCategoryId}
@@ -941,8 +948,29 @@ export default function App() {
             adminItemIsActive={adminForm.adminItemIsActive}
             adminItemIsSoldOut={adminForm.adminItemIsSoldOut}
             adminItemToppingIds={adminForm.adminItemToppingIds}
+            logicalPrinters={staffData.logicalPrinters}
+            adminLogicalPrinterCode={adminForm.adminLogicalPrinterCode}
+            adminLogicalPrinterName={adminForm.adminLogicalPrinterName}
+            adminLogicalPrinterSortOrder={adminForm.adminLogicalPrinterSortOrder}
+            adminLogicalPrinterIsReceiptPrinter={adminForm.adminLogicalPrinterIsReceiptPrinter}
+            editingLogicalPrinterId={adminForm.editingLogicalPrinterId}
+            adminItemLogicalPrinterIds={adminForm.adminItemLogicalPrinterIds}
             itemImageUploadBusy={adminForm.itemImageUploadBusy}
             editingMenuItemId={adminForm.editingMenuItemId}
+            livePhysicalPrinters={staffData.livePhysicalPrinters}
+            livePrinterRoutingRules={staffData.livePrinterRoutingRules}
+            liveFloors={staffData.liveFloors}
+            adminPrinterName={adminForm.adminPrinterName}
+            adminPrinterIp={adminForm.adminPrinterIp}
+            adminPrinterPort={adminForm.adminPrinterPort}
+            adminPrinterIsActive={adminForm.adminPrinterIsActive}
+            adminPrinterIsDefaultFallback={adminForm.adminPrinterIsDefaultFallback}
+            editingPhysicalPrinterId={adminForm.editingPhysicalPrinterId}
+            adminRuleAreaGroup={adminForm.adminRuleAreaGroup}
+            adminRuleFloorId={adminForm.adminRuleFloorId}
+            adminRuleLogicalPrinterCode={adminForm.adminRuleLogicalPrinterCode}
+            adminRulePhysicalPrinterId={adminForm.adminRulePhysicalPrinterId}
+            editingPrinterRoutingRuleId={adminForm.editingPrinterRoutingRuleId}
             adminPlacementMenuBookId={adminForm.adminPlacementMenuBookId}
             adminPlacementTopCategoryId={adminForm.adminPlacementTopCategoryId}
             adminPlacementCategoryId={adminForm.adminPlacementCategoryId}
@@ -951,6 +979,7 @@ export default function App() {
             adminPlacementDescriptionOverride={adminForm.adminPlacementDescriptionOverride}
             editingPlacementId={adminForm.editingPlacementId}
             adminStoreName={adminForm.adminStoreName}
+            adminStoreCode={adminForm.adminStoreCode}
             adminStoreSlug={adminForm.adminStoreSlug}
             adminStoreTimezone={adminForm.adminStoreTimezone}
             adminStoreBusinessOffsetMinutes={String(adminForm.adminStoreBusinessOffsetMinutes)}
@@ -963,6 +992,7 @@ export default function App() {
             adminTableLabel={adminForm.adminTableLabel}
             adminTableQrToken={adminForm.adminTableQrToken}
             adminTableGroupName={adminForm.adminTableGroupName}
+            adminTableFloorId={adminForm.adminTableFloorId}
             adminTableSortOrder={adminForm.adminTableSortOrder}
             adminTableIsActive={adminForm.adminTableIsActive}
             editingTableId={adminForm.editingTableId}
@@ -993,6 +1023,7 @@ export default function App() {
             onDeleteMenuBook={(id) => void adminOps.deleteMenuBook(id)}
             onCancelMenuBookEdit={adminForm.resetBook}
             onStoreNameChange={adminForm.setAdminStoreName}
+            onStoreCodeChange={adminForm.setAdminStoreCode}
             onStoreSlugChange={adminForm.setAdminStoreSlug}
             onStoreTimezoneChange={adminForm.setAdminStoreTimezone}
             onStoreBusinessOffsetMinutesChange={(v) => adminForm.setAdminStoreBusinessOffsetMinutes(Number(v))}
@@ -1019,6 +1050,7 @@ export default function App() {
             onTableLabelChange={adminForm.setAdminTableLabel}
             onTableQrTokenChange={adminForm.setAdminTableQrToken}
             onTableGroupNameChange={adminForm.setAdminTableGroupName}
+            onTableFloorIdChange={adminForm.setAdminTableFloorId}
             onTableSortOrderChange={adminForm.setAdminTableSortOrder}
             onTableIsActiveChange={adminForm.setAdminTableIsActive}
             onSaveTableRef={() => adminOps.saveTableRef()}
@@ -1040,6 +1072,7 @@ export default function App() {
             }}
             onCancelStaffUserEdit={adminForm.resetStaffUser}
             onCategoryNameChange={adminForm.setAdminCategoryName}
+            onCategoryCodeChange={adminForm.setAdminCategoryCode}
             onCategorySortOrderChange={adminForm.setAdminCategorySortOrder}
             onCreateCategory={() => adminOps.createCategory()}
             onEditCategory={(id) => {
@@ -1049,6 +1082,7 @@ export default function App() {
             onDeleteCategory={(id) => void adminOps.deleteCategory(id)}
             onCancelCategoryEdit={adminForm.resetCategory}
             onSubCategoryNameChange={adminForm.setAdminSubCategoryName}
+            onSubCategoryCodeChange={adminForm.setAdminSubCategoryCode}
             onSubCategorySortOrderChange={adminForm.setAdminSubCategorySortOrder}
             onSubCategoryParentCategoryChange={adminForm.setAdminCategoryParentId}
             onCreateSubCategory={() => adminOps.createSubCategory()}
@@ -1071,6 +1105,7 @@ export default function App() {
             onItemIsActiveChange={adminForm.setAdminItemIsActive}
             onItemIsSoldOutChange={adminForm.setAdminItemIsSoldOut}
             onItemToppingIdsChange={adminForm.setAdminItemToppingIds}
+            onItemLogicalPrinterIdsChange={adminForm.setAdminItemLogicalPrinterIds}
             onUploadItemImage={(file) => adminOps.uploadMenuItemImage(file)}
             onClearItemImage={() => adminOps.clearMenuItemImage()}
             onCreateMenuItem={() => adminOps.createMenuItem()}
@@ -1100,7 +1135,56 @@ export default function App() {
             onSaveBookCategorySort={(id, sortOrder) => void adminOps.saveBookCategorySort(id, sortOrder)}
             onSaveBookCategorySubcategorySort={(id, sortOrder) => void adminOps.saveBookCategorySubcategorySort(id, sortOrder)}
             onSavePlacementSort={(id, sortOrder) => void adminOps.savePlacementSort(id, sortOrder)}
+            onPrinterNameChange={adminForm.setAdminPrinterName}
+            onPrinterIpChange={adminForm.setAdminPrinterIp}
+            onPrinterPortChange={adminForm.setAdminPrinterPort}
+            onPrinterIsActiveChange={adminForm.setAdminPrinterIsActive}
+            onPrinterBackupPrinterIdChange={adminForm.setAdminPrinterBackupPrinterId}
+            onPrinterIsDefaultFallbackChange={adminForm.setAdminPrinterIsDefaultFallback}
+            adminPrinterBackupPrinterId={adminForm.adminPrinterBackupPrinterId}
+            onSavePrinter={() => adminOps.savePhysicalPrinter()}
+            onDeletePrinter={(id) => void adminOps.deletePhysicalPrinter(id)}
+            onEditPrinter={(id) => {
+              const printer = staffData.livePhysicalPrinters.find((p) => p.id === id)
+              if (printer) adminForm.startEditPhysicalPrinter(printer)
+            }}
+            onCancelPrinterEdit={adminForm.resetPhysicalPrinter}
+            onRuleAreaGroupChange={adminForm.setAdminRuleAreaGroup}
+            onRuleFloorIdChange={adminForm.setAdminRuleFloorId}
+            adminRuleLogicalPrinterId={adminForm.adminRuleLogicalPrinterId}
+            onRuleLogicalPrinterIdChange={adminForm.setAdminRuleLogicalPrinterId}
+            onRuleLogicalPrinterCodeChange={adminForm.setAdminRuleLogicalPrinterCode}
+            onRulePhysicalPrinterIdChange={adminForm.setAdminRulePhysicalPrinterId}
+            onSaveRule={() => adminOps.savePrinterRoutingRule()}
+            onDeleteRule={(id) => void adminOps.deletePrinterRoutingRule(id)}
+            onEditRule={(id) => {
+              const rule = staffData.livePrinterRoutingRules.find((r) => r.id === id)
+              if (rule) adminForm.startEditPrinterRoutingRule(rule)
+            }}
+            onCancelRuleEdit={adminForm.resetPrinterRoutingRule}
+            onLogicalPrinterCodeChange={adminForm.setAdminLogicalPrinterCode}
+            onLogicalPrinterNameChange={adminForm.setAdminLogicalPrinterName}
+            onLogicalPrinterSortOrderChange={adminForm.setAdminLogicalPrinterSortOrder}
+            onLogicalPrinterIsReceiptPrinterChange={adminForm.setAdminLogicalPrinterIsReceiptPrinter}
+            onSaveLogicalPrinter={() => adminOps.saveLogicalPrinter()}
+            onDeleteLogicalPrinter={(id) => void adminOps.deleteLogicalPrinter(id)}
+            onEditLogicalPrinter={(lp) => adminForm.startEditLogicalPrinter(lp)}
+            onCancelLogicalPrinterEdit={adminForm.resetLogicalPrinter}
             onCancelPlacementEdit={adminForm.resetPlacement}
+            adminFloorName={adminForm.adminFloorName}
+            adminFloorSortOrder={adminForm.adminFloorSortOrder}
+            adminFloorIsActive={adminForm.adminFloorIsActive}
+            editingFloorId={adminForm.editingFloorId}
+            onFloorNameChange={adminForm.setAdminFloorName}
+            onFloorSortOrderChange={adminForm.setAdminFloorSortOrder}
+            onFloorIsActiveChange={adminForm.setAdminFloorIsActive}
+            onSaveFloor={adminOps.saveFloor}
+            onDeleteFloor={adminOps.deleteFloor}
+            onEditFloor={(id) => {
+              const floor = staffData.liveFloors.find((f) => f.id === id)
+              if (floor) adminForm.startEditFloor(floor)
+            }}
+            onCancelFloorEdit={adminForm.resetFloor}
           />
         ) : null}
           </>

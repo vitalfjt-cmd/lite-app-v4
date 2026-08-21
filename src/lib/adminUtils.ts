@@ -24,21 +24,25 @@ export function resetAdminBookForm(
 
 export function resetAdminCategoryForm(
   setEditingCategoryId: (value: string | null) => void,
+  setAdminCategoryCode: (value: string) => void,
   setAdminCategoryName: (value: string) => void,
   setAdminCategorySortOrder: (value: string) => void,
 ) {
   setEditingCategoryId(null)
+  setAdminCategoryCode('')
   setAdminCategoryName('')
   setAdminCategorySortOrder('10')
 }
 
 export function resetAdminSubCategoryForm(
   setEditingSubCategoryId: (value: string | null) => void,
+  setAdminSubCategoryCode: (value: string) => void,
   setAdminSubCategoryName: (value: string) => void,
   setAdminSubCategorySortOrder: (value: string) => void,
   setAdminCategoryParentId: (value: string) => void,
 ) {
   setEditingSubCategoryId(null)
+  setAdminSubCategoryCode('')
   setAdminSubCategoryName('')
   setAdminSubCategorySortOrder('10')
   setAdminCategoryParentId('')

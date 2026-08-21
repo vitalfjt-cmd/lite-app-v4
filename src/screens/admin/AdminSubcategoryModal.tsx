@@ -5,12 +5,14 @@ type Props = {
   isOpen: boolean
   editingSubCategoryId: string | null
   adminSubCategoryName: string
+  adminSubCategoryCode: string
   adminSubCategoryParentCategoryId?: string
   adminSubCategorySortOrder: string
   liveParentCategories: AdminCategory[]
   disabled: boolean
   onClose: () => void
   onSubCategoryNameChange: (value: string) => void
+  onSubCategoryCodeChange: (value: string) => void
   onSubCategoryParentCategoryChange: (value: string) => void
   onSubCategorySortOrderChange: (value: string) => void
   onCreateSubCategory: () => void
@@ -24,12 +26,13 @@ export function AdminSubcategoryModal(props: Props) {
       <section className="panel admin-modal-panel">
         <div className="admin-modal-head admin-modal-head-subcategories">
           <div>
-<h2>{props.editingSubCategoryId ? 'サブカテゴリ編集' : 'サブカテゴリ登録'}</h2>
+            <h2>{props.editingSubCategoryId ? 'サブカテゴリ編集' : 'サブカテゴリ登録'}</h2>
           </div>
           <button className="secondary-button" type="button" onClick={props.onClose}>閉じる</button>
         </div>
         <div className="form-stack">
           <label>サブカテゴリ名<input value={props.adminSubCategoryName} onChange={(event) => props.onSubCategoryNameChange(event.target.value)} disabled={props.disabled} /></label>
+          <label>サブカテゴリコード<input value={props.adminSubCategoryCode} onChange={(event) => props.onSubCategoryCodeChange(event.target.value)} disabled={props.disabled} /></label>
           <label>
             親カテゴリ
             <select value={props.adminSubCategoryParentCategoryId ?? ''} onChange={(event) => props.onSubCategoryParentCategoryChange(event.target.value)} disabled={props.disabled}>

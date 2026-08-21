@@ -17,8 +17,20 @@ export function AdminCategoriesTab(props: Props) {
   const filteredCategories = useMemo(() => {
     const search = categorySearch.trim().toLowerCase()
     return props.liveParentCategories
-      .filter((category) => !search || category.name.toLowerCase().includes(search))
-      .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name, 'ja'))
+      .filter((category) => {
+        if (!search) return true
+        return category.name.toLowerCase().includes(search) || (category.code ?? '').toLowerCase().includes(search)
+      })
+      .sort((a, b) => {
+        const codeA = a.code?.trim() || ''
+        const codeB = b.code?.trim() || ''
+        if (codeA === '' && codeB !== '') return 1
+        if (codeB === '' && codeA !== '') return -1
+        if (codeA === '' && codeB === '') {
+          return (a.sort_order ?? 0) - (b.sort_order ?? 0) || a.name.localeCompare(b.name, 'ja')
+        }
+        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' })
+      })
   }, [categorySearch, props.liveParentCategories])
 
   return (
@@ -26,7 +38,7 @@ export function AdminCategoriesTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-categories">
         <div className="admin-list-head">
           <div>
-<h2>カテゴリ一覧</h2>
+            <h2>カテゴリ一覧</h2>
           </div>
           <div className="admin-list-actions">
             <button
@@ -42,7 +54,7 @@ export function AdminCategoriesTab(props: Props) {
         <div className="admin-filter-bar compact">
           <label className="admin-filter-field wide">
             <span>検索</span>
-            <input value={categorySearchDraft} onChange={(event) => setCategorySearchDraft(event.target.value)} placeholder="カテゴリ名で検索" />
+            <input value={categorySearchDraft} onChange={(event) => setCategorySearchDraft(event.target.value)} placeholder="カテゴリ名・コードで検索" />
           </label>
           <div className="admin-filter-actions">
             <button className="primary-button" type="button" onClick={() => setCategorySearch(categorySearchDraft)}>検索</button>
@@ -56,6 +68,7 @@ export function AdminCategoriesTab(props: Props) {
           <table className="admin-table">
             <thead>
               <tr>
+                <th>コード</th>
                 <th>カテゴリ名</th>
                 <th>表示順</th>
                 <th>操作</th>
@@ -64,6 +77,7 @@ export function AdminCategoriesTab(props: Props) {
             <tbody>
               {filteredCategories.map((category) => (
                 <tr key={category.id}>
+                  <td>{category.code || '-'}</td>
                   <td>{category.name}</td>
                   <td>{category.sort_order ?? 0}</td>
                   <td>

@@ -2651,14 +2651,15 @@ h1 {
 
 .admin-table-menu-items {
   table-layout: fixed;
+  min-width: 900px;
 }
 
 .admin-table-menu-items .col-menu-thumb {
-  width: 7%;
+  width: 6%;
 }
 
 .admin-table-menu-items .col-menu-name {
-  width: 16%;
+  width: 18%;
 }
 
 .admin-table-menu-items .col-menu-code {
@@ -2666,7 +2667,7 @@ h1 {
 }
 
 .admin-table-menu-items .col-menu-category {
-  width: 14%;
+  width: 12%;
 }
 
 .admin-table-menu-items .col-menu-price {
@@ -2674,19 +2675,23 @@ h1 {
 }
 
 .admin-table-menu-items .col-menu-tax {
-  width: 10%;
+  width: 12%;
 }
 
 .admin-table-menu-items .col-menu-sort {
-  width: 7%;
+  width: 6%;
+}
+
+.admin-table-menu-items .col-menu-kp {
+  width: 8%;
 }
 
 .admin-table-menu-items .col-menu-status {
-  width: 7%;
+  width: 6%;
 }
 
 .admin-table-menu-items .col-menu-actions {
-  width: 26%;
+  width: 16%;
 }
 
 .admin-cell-thumb {

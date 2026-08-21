@@ -21,6 +21,14 @@ import {
   deleteAdminPrototypePlacement,
   saveAdminPrototypePaymentMethod,
   deleteAdminPrototypePaymentMethod,
+  saveAdminPrototypePhysicalPrinter,
+  deleteAdminPrototypePhysicalPrinter,
+  saveAdminPrototypePrinterRoutingRule,
+  deleteAdminPrototypePrinterRoutingRule,
+  saveAdminPrototypeFloor,
+  deleteAdminPrototypeFloor,
+  saveAdminPrototypeLogicalPrinter,
+  deleteAdminPrototypeLogicalPrinter,
   staffReadApiEnabled,
   staffReadStoreSlugOverride
 } from '../lib/staffReadApi'
@@ -153,6 +161,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         await saveAdminPrototypeStore(storeSlug, {
           storeId: liveStore.id,
           name: adminForm.adminStoreName.trim(),
+          code: adminForm.adminStoreCode.trim(),
           slug: adminForm.adminStoreSlug.trim(),
           timezone: adminForm.adminStoreTimezone.trim() || 'Asia/Tokyo',
           businessDateOffsetMinutes: Number(adminForm.adminStoreBusinessOffsetMinutes) || 0,
@@ -194,6 +203,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           label: adminForm.adminTableLabel.trim(),
           qrToken: generatedQrToken,
           groupName: adminForm.adminTableGroupName.trim() || null,
+          floorId: adminForm.adminTableFloorId.trim() || null,
           sortOrder: Number.isFinite(nextSortOrder) ? nextSortOrder : 0,
           isActive: adminForm.adminTableIsActive,
         })
@@ -312,6 +322,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         await saveAdminPrototypeCategory(storeSlug, {
           categoryId: adminForm.editingCategoryId ?? undefined,
           name: adminForm.adminCategoryName.trim(),
+          code: adminForm.adminCategoryCode.trim(),
           sortOrder: nextSortOrder,
           isActive: true,
           parentCategoryId: null,
@@ -343,6 +354,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         await saveAdminPrototypeSubcategory(storeSlug, {
           subcategoryId: adminForm.editingSubCategoryId ?? undefined,
           name: adminForm.adminSubCategoryName.trim(),
+          code: adminForm.adminSubCategoryCode.trim(),
           parentCategoryId: adminForm.adminCategoryParentId || null,
           sortOrder: nextSortOrder,
           isActive: true,
@@ -386,6 +398,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           isActive: adminForm.adminItemIsActive,
           isSoldOut: adminForm.adminItemIsSoldOut,
           toppingIds: adminForm.adminItemToppingIds,
+          logicalPrinterIds: adminForm.adminItemLogicalPrinterIds,
         })
         await refreshAdminData()
       }
@@ -557,6 +570,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           sortOrder: item.sort_order,
           isActive: item.is_active,
           toppingIds: item.toppings?.map((t: any) => t.id),
+          logicalPrinterIds: item.logical_printer_ids,
         })
         await refreshAdminData()
       }
@@ -720,6 +734,214 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     }
   }
 
+  const savePhysicalPrinter = async (): Promise<boolean> => {
+    if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminPrinterName.trim() || !adminForm.adminPrinterIp.trim()) return false
+    setMutationBusy('admin-printer')
+    setAdminMessage(null)
+    try {
+      const port = Number(adminForm.adminPrinterPort)
+      if (!Number.isFinite(port) || port < 0 || port > 65535) {
+        setAdminMessage('ポート番号を正しく入力してください。')
+        return false
+      }
+
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await saveAdminPrototypePhysicalPrinter(storeSlug, {
+          id: adminForm.editingPhysicalPrinterId ?? undefined,
+          name: adminForm.adminPrinterName.trim(),
+          ipAddress: adminForm.adminPrinterIp.trim(),
+          port: port,
+          isActive: adminForm.adminPrinterIsActive,
+          backupPrinterId: adminForm.adminPrinterBackupPrinterId || null,
+          isDefaultFallback: adminForm.adminPrinterIsDefaultFallback,
+        })
+        await refreshAdminData()
+      }
+      adminForm.resetPhysicalPrinter()
+      setAdminMessage(adminForm.editingPhysicalPrinterId ? 'プリンター情報を更新しました。' : 'プリンターを追加しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const deletePhysicalPrinter = async (id: string) => {
+    if (!profile || profile.role_type !== 'ADMIN') return
+    if (!window.confirm('このプリンター設定を削除しますか？')) return
+    setMutationBusy('admin-printer')
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await deleteAdminPrototypePhysicalPrinter(storeSlug, id)
+        await refreshAdminData()
+      }
+      setAdminMessage('プリンターを削除しました。')
+    } catch (err) {
+      window.alert(formatError(err))
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const savePrinterRoutingRule = async (): Promise<boolean> => {
+    if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminRuleFloorId || !adminForm.adminRulePhysicalPrinterId) return false
+    setMutationBusy('admin-printer-rule')
+    setAdminMessage(null)
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await saveAdminPrototypePrinterRoutingRule(storeSlug, {
+          id: adminForm.editingPrinterRoutingRuleId ?? undefined,
+          floorId: adminForm.adminRuleFloorId,
+          logicalPrinterId: adminForm.adminRuleLogicalPrinterId,
+          physicalPrinterId: adminForm.adminRulePhysicalPrinterId,
+        })
+        await refreshAdminData()
+      }
+      adminForm.resetPrinterRoutingRule()
+      setAdminMessage(adminForm.editingPrinterRoutingRuleId ? 'ルーティングルールを更新しました。' : 'ルーティングルールを追加しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const deletePrinterRoutingRule = async (id: string) => {
+    if (!profile || profile.role_type !== 'ADMIN') return
+    if (!window.confirm('このルーティングルールを削除しますか？')) return
+    setMutationBusy('admin-printer-rule')
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await deleteAdminPrototypePrinterRoutingRule(storeSlug, id)
+        await refreshAdminData()
+      }
+      setAdminMessage('ルーティングルールを削除しました。')
+    } catch (err) {
+      window.alert(formatError(err))
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const saveFloor = async (): Promise<boolean> => {
+    if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminFloorName.trim()) return false
+    setMutationBusy('admin-floor')
+    setAdminMessage(null)
+    try {
+      const nextSortOrder = Number.parseInt(adminForm.adminFloorSortOrder || '0', 10)
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await saveAdminPrototypeFloor(storeSlug, {
+          floorId: adminForm.editingFloorId ?? undefined,
+          name: adminForm.adminFloorName.trim(),
+          sortOrder: Number.isFinite(nextSortOrder) ? nextSortOrder : 0,
+          isActive: adminForm.adminFloorIsActive,
+        })
+        await refreshAdminData()
+      }
+      adminForm.resetFloor()
+      setAdminMessage(adminForm.editingFloorId ? 'フロアを更新しました。' : 'フロアを追加しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const saveLogicalPrinter = async (): Promise<boolean> => {
+    if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminLogicalPrinterName.trim()) return false
+    setMutationBusy('admin-logical-printer')
+    setAdminMessage(null)
+    try {
+      const sortOrder = Number(adminForm.adminLogicalPrinterSortOrder)
+      if (!Number.isFinite(sortOrder)) {
+        setAdminMessage('表示順を正しく入力してください。')
+        return false
+      }
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await saveAdminPrototypeLogicalPrinter(storeSlug, {
+          id: adminForm.editingLogicalPrinterId ?? undefined,
+          code: adminForm.adminLogicalPrinterCode.trim(),
+          name: adminForm.adminLogicalPrinterName.trim(),
+          sortOrder,
+          isReceiptPrinter: adminForm.adminLogicalPrinterIsReceiptPrinter,
+        })
+        await refreshAdminData()
+      }
+      adminForm.resetLogicalPrinter()
+      setAdminMessage(adminForm.editingLogicalPrinterId ? '部門別出力プリンター設定を更新しました。' : '部門別出力プリンター設定を追加しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const deleteLogicalPrinter = async (id: string) => {
+    if (!profile || profile.role_type !== 'ADMIN') return
+    if (!window.confirm('この部門別出力プリンター設定を削除しますか？商品の印刷指定やルーティング設定に影響する場合があります。')) return
+    setMutationBusy('admin-logical-printer')
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await deleteAdminPrototypeLogicalPrinter(storeSlug, id)
+        await refreshAdminData()
+      }
+      setAdminMessage('部門別出力プリンター設定を削除しました。')
+    } catch (err) {
+      window.alert(formatError(err))
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
+  const deleteFloor = async (floorId: string) => {
+    if (!profile || profile.role_type !== 'ADMIN') return
+    if (!window.confirm('このフロアを削除しますか？紐付いているテーブルやルーティング設定に影響する場合があります。')) return
+    setMutationBusy('admin-floor')
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await deleteAdminPrototypeFloor(storeSlug, floorId)
+        await refreshAdminData()
+      }
+      setAdminMessage('フロアを削除しました。')
+    } catch (err) {
+      window.alert(formatError(err))
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   const saveBookCategorySort = async (id: string, sortOrder: string) => {
     if (!profile || profile.role_type !== 'ADMIN') return
     const row = liveBookCategoryRows.find((r) => r.id === id)
@@ -831,5 +1053,13 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     saveBookCategorySort,
     saveBookCategorySubcategorySort,
     savePlacementSort,
+    savePhysicalPrinter,
+    deletePhysicalPrinter,
+    savePrinterRoutingRule,
+    deletePrinterRoutingRule,
+    saveLogicalPrinter,
+    deleteLogicalPrinter,
+    saveFloor,
+    deleteFloor,
   }
 }

@@ -1,4 +1,4 @@
-export type AppView = 'customer' | 'cust-tablet' | 'staff' | 'kds' | 'admin' | 'handy' | 'sales' | 'seats' | 'customer-qr' | 'cust-tablet-qr'
+export type AppView = 'customer' | 'cust-tablet' | 'staff' | 'kds' | 'admin' | 'setup' | 'handy' | 'sales' | 'seats' | 'customer-qr' | 'cust-tablet-qr'
 
 export type MenuCategory = {
   id: string
@@ -43,7 +43,7 @@ export type StaffProfile = {
   password_configured?: boolean
 }
 
-export type LiveCategory = { id: string; name: string; sort_order: number; is_active: boolean; parent_category_id?: string | null }
+export type LiveCategory = { id: string; code?: string | null; name: string; sort_order: number; is_active: boolean; parent_category_id?: string | null }
 export type LiveMenuBook = {
   id: string
   code: string
@@ -59,7 +59,7 @@ export type LiveMenuBook = {
   last_order_offset_minutes: number | null
 }
 export type LiveMenuBookItem = { id: string; menu_book_id: string; menu_category_id: string; menu_item_id: string; sort_order: number; is_active: boolean }
-export type LiveSubcategory = { id: string; name: string; sort_order: number; parent_category_id?: string | null; is_active: boolean }
+export type LiveSubcategory = { id: string; code?: string | null; name: string; sort_order: number; parent_category_id?: string | null; is_active: boolean }
 export type LiveBookCategorySubcategory = {
   id: string
   menu_book_id: string
@@ -103,10 +103,12 @@ export type LiveMenuItem = {
   sort_order: number
   is_active: boolean
   toppings?: { id: string; name: string; name_en?: string | null; price: number; is_sold_out: boolean }[]
+  logical_printer_ids?: string[]
 }
 export type LiveStore = {
   id: string
   tenant_id: string
+  code?: string | null
   name: string
   slug: string
   timezone: string
@@ -120,7 +122,38 @@ export type LiveStore = {
   open_business_date?: string | null
   today_business_date?: string
 }
-export type LiveTableRef = { id: string; label: string; qr_token: string; group_name?: string | null; sort_order?: number; is_active: boolean }
+export type LiveTableRef = { id: string; label: string; qr_token: string; group_name?: string | null; floor_id?: string | null; sort_order?: number; is_active: boolean }
+export type LivePhysicalPrinter = {
+  id: string
+  name: string
+  ip_address: string
+  port: number
+  is_active: boolean
+  backup_printer_id?: string | null
+  is_default_fallback?: boolean
+}
+export type LiveLogicalPrinter = {
+  id: string
+  store_id: string
+  code: string
+  name: string
+  sort_order: number
+  is_receipt_printer?: boolean
+}
+export type LivePrinterRoutingRule = {
+  id: string
+  floor_id?: string | null
+  area_group: string
+  logical_printer_id?: string | null
+  logical_printer_code?: string | null
+  physical_printer_id: string
+}
+export type LiveFloor = {
+  id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+}
 export type LiveTicket = {
   id: string
   ticket_no: string

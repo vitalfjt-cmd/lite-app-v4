@@ -1,4 +1,4 @@
-import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem , AdminPaymentMethod } from '../types'
+import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem , AdminPaymentMethod, LivePhysicalPrinter, LivePrinterRoutingRule, LiveFloor, LiveLogicalPrinter } from '../types'
 import { fetchStaffPrototypeSession, fetchStaffPrototypeBootstrap, fetchStaffTicketList, fetchAdminPrototypeBootstrap, staffReadStoreSlugOverride, staffReadApiEnabled } from '../lib/staffReadApi'
 import { fetchPublicMenu } from '../lib/publicCustomerApi'
 import { formatError, syncCustomerTicketInUrl, readCustomerAccessParams, readViewFromHash } from '../lib/appUtils'
@@ -22,6 +22,10 @@ export type DataLoadingSetters = {
   setLiveItems: (items: LiveMenuItem[]) => void
   setLiveStaffUsers: (users: LiveStaffUser[]) => void
   setLivePaymentMethods: (methods: AdminPaymentMethod[]) => void
+  setLivePhysicalPrinters?: (printers: LivePhysicalPrinter[]) => void
+  setLivePrinterRoutingRules?: (rules: LivePrinterRoutingRule[]) => void
+  setLiveFloors?: (floors: LiveFloor[]) => void
+  setLiveLogicalPrinters?: (printers: LiveLogicalPrinter[]) => void
   setNewTicketMenuBookId: (updater: string | ((current: string) => string)) => void
   setAdminMenuBookId: (updater: string | ((current: string) => string)) => void
   setAdminPlacementMenuBookId: (updater: string | ((current: string) => string)) => void
@@ -31,6 +35,7 @@ export type DataLoadingSetters = {
   setAdminPlacementCategoryId: (updater: string | ((current: string) => string)) => void
   setAdminPlacementItemId: (updater: string | ((current: string) => string)) => void
   setAdminStoreName: (name: string) => void
+  setAdminStoreCode: (code: string) => void
   setAdminStoreSlug: (slug: string) => void
   setAdminStoreTimezone: (tz: string) => void
   setAdminStoreBusinessOffsetMinutes: (min: any) => void
@@ -58,9 +63,10 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setLoadBusy, setError, setProfile, setLiveStore, setLiveTickets, setLiveLines, setLivePaymentEntries,
     setLiveTables, setLiveMenuBooks, setLiveMenuBookItems, setLiveCategories, setLiveSubcategories,
     setLiveBookCategories, setLiveBookCategorySubcategories, setLiveBookSubcategoryItems, setLiveItems, setLiveStaffUsers, setLivePaymentMethods,
+    setLivePhysicalPrinters, setLivePrinterRoutingRules, setLiveFloors, setLiveLogicalPrinters,
     setNewTicketMenuBookId, setAdminMenuBookId, setAdminPlacementMenuBookId, setAdminCategoryParentId,
     setAdminItemCategoryId, setAdminPlacementTopCategoryId, setAdminPlacementCategoryId, setAdminPlacementItemId,
-    setAdminStoreName, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
+    setAdminStoreName, setAdminStoreCode, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
     setAdminStorePaymentTimingMode, setAdminStoreTicketNoResetMode, setAdminStoreTicketNoDigits,
     setAdminStoreTaxRate, setAdminStoreReducedTaxRate, setAdminStoreTaxDisplayMode,
     setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
@@ -177,6 +183,10 @@ export function useDataLoading(setters: DataLoadingSetters) {
       })),
     )
     setLivePaymentMethods(bootstrap.payment_methods)
+    setLivePhysicalPrinters?.(bootstrap.physical_printers)
+    setLivePrinterRoutingRules?.(bootstrap.printer_routing_rules)
+    setLiveFloors?.(bootstrap.floors || [])
+    setLiveLogicalPrinters?.((bootstrap.logical_printers || []).map(lp => ({ ...lp, store_id: bootstrap.store.id })))
     setNewTicketMenuBookId((current) =>
       typeof current === 'function' ? (current as any)(bootstrap.menu_books) : // Fallback if it's not a function
       current && bootstrap.menu_books.some((menuBook) => menuBook.id === current)
@@ -194,6 +204,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setAdminPlacementItemId(bootstrap.items[0]?.id ?? '')
 
     setAdminStoreName(bootstrap.store.name)
+    setAdminStoreCode(bootstrap.store.code ?? '')
     setAdminStoreSlug(bootstrap.store.slug)
     setAdminStoreTimezone(bootstrap.store.timezone)
     setAdminStoreBusinessOffsetMinutes(bootstrap.store.business_date_offset_minutes)

@@ -16,6 +16,7 @@ export type AdminMenuBook = {
 
 export type AdminCategory = {
   id: string
+  code?: string | null
   name: string
   sort_order?: number
   parent_category_id?: string | null
@@ -34,6 +35,7 @@ export type AdminMenuItem = {
   is_active: boolean
   is_sold_out: boolean
   toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
+  logical_printer_ids?: string[]
 }
 
 export type AdminPlacementRow = {
@@ -74,6 +76,7 @@ export type AdminBookCategorySubcategoryRow = {
 export type AdminStoreSettings = {
   id: string
   tenant_id: string
+  code?: string | null
   name: string
   slug: string
   timezone: string
@@ -116,4 +119,39 @@ export type AdminPaymentMethod = {
   is_change_allowed: boolean
 }
 
-export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue' | 'categorySales' | 'subcategorySales' | 'hourlySalesHistory'
+export type AdminPhysicalPrinter = {
+  id: string
+  name: string
+  ip_address: string
+  port: number
+  is_active: boolean
+  backup_printer_id?: string | null
+  is_default_fallback?: boolean
+}
+
+export type AdminLogicalPrinter = {
+  id: string
+  store_id: string
+  code: string
+  name: string
+  sort_order: number
+  is_receipt_printer?: boolean
+}
+
+export type AdminPrinterRoutingRule = {
+  id: string
+  floor_id?: string | null
+  area_group: string
+  logical_printer_id?: string | null
+  logical_printer_code?: string | null
+  physical_printer_id: string
+}
+
+export type AdminFloor = {
+  id: string
+  name: string
+  sort_order: number
+  is_active: boolean
+}
+
+export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue' | 'categorySales' | 'subcategorySales' | 'hourlySalesHistory' | 'printers' | 'floors' | 'logicalPrinters'

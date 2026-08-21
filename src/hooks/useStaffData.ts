@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import type { LiveTicket, LiveLine, LivePaymentEntry, LiveStore, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveStaffUser, TicketSummaryView, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LiveMenuBookItem, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, AdminPaymentMethod } from '../types'
+import type { LiveTicket, LiveLine, LivePaymentEntry, LiveStore, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveStaffUser, TicketSummaryView, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LiveMenuBookItem, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, AdminPaymentMethod, LivePhysicalPrinter, LivePrinterRoutingRule, LiveFloor, LiveLogicalPrinter } from '../types'
 import { ticketStatusFromLines } from '../lib/staffUtils'
 
 export function useStaffData() {
@@ -18,6 +18,10 @@ export function useStaffData() {
   const [liveStaffUsers, setLiveStaffUsers] = useState<LiveStaffUser[]>([])
   const [liveItems, setLiveItems] = useState<LiveMenuItem[]>([]);
   const [livePaymentMethods, setLivePaymentMethods] = useState<AdminPaymentMethod[]>([]);
+  const [livePhysicalPrinters, setLivePhysicalPrinters] = useState<LivePhysicalPrinter[]>([])
+  const [livePrinterRoutingRules, setLivePrinterRoutingRules] = useState<LivePrinterRoutingRule[]>([])
+  const [liveFloors, setLiveFloors] = useState<LiveFloor[]>([])
+  const [logicalPrinters, setLogicalPrinters] = useState<LiveLogicalPrinter[]>([])
 
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [staffDirectAction, setStaffDirectAction] = useState<'HANDY' | 'PAYMENT' | null>(null)
@@ -152,6 +156,10 @@ export function useStaffData() {
     liveStaffUsers, setLiveStaffUsers,
     liveItems, setLiveItems,
     livePaymentMethods, setLivePaymentMethods,
+    livePhysicalPrinters, setLivePhysicalPrinters,
+    livePrinterRoutingRules, setLivePrinterRoutingRules,
+    liveFloors, setLiveFloors,
+    logicalPrinters, setLiveLogicalPrinters: setLogicalPrinters,
     selectedTicketId, setSelectedTicketId,
     staffDirectAction, setStaffDirectAction,
     staffHandyTopCategories: staffHandyTopCategoriesMemo, setStaffHandyTopCategories,

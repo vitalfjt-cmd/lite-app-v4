@@ -35,8 +35,11 @@ const ADMIN_SUB_MENU_ITEMS = [
   { id: 'placements', label: 'メニューブック構成' },
   { id: 'store', label: '店舗' },
   { id: 'tables', label: 'テーブル' },
+  { id: 'floors', label: 'フロア設定' },
   { id: 'staff', label: 'スタッフ' },
   { id: 'paymentMethods', label: '決済種別' },
+  { id: 'logicalPrinters', label: '部門別プリンター設定' },
+  { id: 'printers', label: 'プリンター設定' },
 ]
 
 const SALES_SUB_MENU_ITEMS = [

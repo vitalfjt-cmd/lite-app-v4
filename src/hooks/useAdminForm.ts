@@ -24,10 +24,12 @@ export function useAdminForm() {
   const [adminMenuBookLastOrderOffset, setAdminMenuBookLastOrderOffset] = useState('')
 
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
+  const [adminCategoryCode, setAdminCategoryCode] = useState('')
   const [adminCategoryName, setAdminCategoryName] = useState('')
   const [adminCategorySortOrder, setAdminCategorySortOrder] = useState('10')
 
   const [editingSubCategoryId, setEditingSubCategoryId] = useState<string | null>(null)
+  const [adminSubCategoryCode, setAdminSubCategoryCode] = useState('')
   const [adminSubCategoryName, setAdminSubCategoryName] = useState('')
   const [adminSubCategorySortOrder, setAdminSubCategorySortOrder] = useState('10')
   const [adminCategoryParentId, setAdminCategoryParentId] = useState('')
@@ -45,6 +47,7 @@ export function useAdminForm() {
   const [adminItemIsActive, setAdminItemIsActive] = useState(true)
   const [adminItemIsSoldOut, setAdminItemIsSoldOut] = useState(false)
   const [adminItemToppingIds, setAdminItemToppingIds] = useState<string[]>([])
+  const [adminItemLogicalPrinterIds, setAdminItemLogicalPrinterIds] = useState<string[]>([])
 
   const [editingPlacementId, setEditingPlacementId] = useState<string | null>(null)
   const [adminPlacementMenuBookId, setAdminPlacementMenuBookId] = useState('')
@@ -58,6 +61,7 @@ export function useAdminForm() {
   const [adminTableLabel, setAdminTableLabel] = useState('')
   const [adminTableQrToken, setAdminTableQrToken] = useState('')
   const [adminTableGroupName, setAdminTableGroupName] = useState('')
+  const [adminTableFloorId, setAdminTableFloorId] = useState('')
   const [adminTableSortOrder, setAdminTableSortOrder] = useState('10')
   const [adminTableIsActive, setAdminTableIsActive] = useState(true)
 
@@ -73,8 +77,35 @@ export function useAdminForm() {
   const [adminStaffDisplayName, setAdminStaffDisplayName] = useState('')
   const [adminStaffRoleType, setAdminStaffRoleType] = useState<'ADMIN' | 'STAFF' | 'KDS'>('STAFF')
   const [adminStaffIsActive, setAdminStaffIsActive] = useState(true)
+ 
+  const [editingPhysicalPrinterId, setEditingPhysicalPrinterId] = useState<string | null>(null)
+  const [adminPrinterName, setAdminPrinterName] = useState('')
+  const [adminPrinterIp, setAdminPrinterIp] = useState('')
+  const [adminPrinterPort, setAdminPrinterPort] = useState('9100')
+  const [adminPrinterIsActive, setAdminPrinterIsActive] = useState(true)
+  const [adminPrinterBackupPrinterId, setAdminPrinterBackupPrinterId] = useState('')
+  const [adminPrinterIsDefaultFallback, setAdminPrinterIsDefaultFallback] = useState(false)
+
+  const [editingPrinterRoutingRuleId, setEditingPrinterRoutingRuleId] = useState<string | null>(null)
+  const [adminRuleAreaGroup, setAdminRuleAreaGroup] = useState('')
+  const [adminRuleFloorId, setAdminRuleFloorId] = useState('')
+  const [adminRuleLogicalPrinterCode, setAdminRuleLogicalPrinterCode] = useState('KP1')
+  const [adminRuleLogicalPrinterId, setAdminRuleLogicalPrinterId] = useState('')
+  const [adminRulePhysicalPrinterId, setAdminRulePhysicalPrinterId] = useState('')
+
+  const [editingLogicalPrinterId, setEditingLogicalPrinterId] = useState<string | null>(null)
+  const [adminLogicalPrinterCode, setAdminLogicalPrinterCode] = useState('KP1')
+  const [adminLogicalPrinterName, setAdminLogicalPrinterName] = useState('')
+  const [adminLogicalPrinterSortOrder, setAdminLogicalPrinterSortOrder] = useState('10')
+  const [adminLogicalPrinterIsReceiptPrinter, setAdminLogicalPrinterIsReceiptPrinter] = useState(false)
+
+  const [editingFloorId, setEditingFloorId] = useState<string | null>(null)
+  const [adminFloorName, setAdminFloorName] = useState('')
+  const [adminFloorSortOrder, setAdminFloorSortOrder] = useState('10')
+  const [adminFloorIsActive, setAdminFloorIsActive] = useState(true)
 
   const [adminStoreName, setAdminStoreName] = useState('')
+  const [adminStoreCode, setAdminStoreCode] = useState('')
   const [adminStoreSlug, setAdminStoreSlug] = useState('')
   const [adminStoreTimezone, setAdminStoreTimezone] = useState('Asia/Tokyo')
   const [adminStoreBusinessOffsetMinutes, setAdminStoreBusinessOffsetMinutes] = useState(0)
@@ -103,10 +134,37 @@ export function useAdminForm() {
     setAdminMenuBookLastOrderOffset('')
   }
 
-  const resetCategory = () => resetAdminCategoryForm(setEditingCategoryId, setAdminCategoryName, setAdminCategorySortOrder)
+  const resetCategory = () => resetAdminCategoryForm(setEditingCategoryId, setAdminCategoryCode, setAdminCategoryName, setAdminCategorySortOrder)
+
+  const resetPhysicalPrinter = () => {
+    setEditingPhysicalPrinterId(null)
+    setAdminPrinterName('')
+    setAdminPrinterIp('')
+    setAdminPrinterPort('9100')
+    setAdminPrinterIsActive(true)
+    setAdminPrinterBackupPrinterId('')
+    setAdminPrinterIsDefaultFallback(false)
+  }
+
+  const resetPrinterRoutingRule = () => {
+    setEditingPrinterRoutingRuleId(null)
+    setAdminRuleAreaGroup('')
+    setAdminRuleFloorId('')
+    setAdminRuleLogicalPrinterCode('KP1')
+    setAdminRuleLogicalPrinterId('')
+    setAdminRulePhysicalPrinterId('')
+  }
+
+  const resetLogicalPrinter = () => {
+    setEditingLogicalPrinterId(null)
+    setAdminLogicalPrinterCode('KP1')
+    setAdminLogicalPrinterName('')
+    setAdminLogicalPrinterSortOrder('10')
+    setAdminLogicalPrinterIsReceiptPrinter(false)
+  }
 
   const resetSubCategory = () =>
-    resetAdminSubCategoryForm(setEditingSubCategoryId, setAdminSubCategoryName, setAdminSubCategorySortOrder, setAdminCategoryParentId)
+    resetAdminSubCategoryForm(setEditingSubCategoryId, setAdminSubCategoryCode, setAdminSubCategoryName, setAdminSubCategorySortOrder, setAdminCategoryParentId)
 
   const resetItem = () => {
     resetAdminItemForm(
@@ -124,6 +182,7 @@ export function useAdminForm() {
     setAdminItemNameEn('')
     setAdminItemTaxRateType('STANDARD')
     setAdminItemToppingIds([])
+    setAdminItemLogicalPrinterIds([])
   }
 
   const resetPlacement = () =>
@@ -142,8 +201,16 @@ export function useAdminForm() {
     setAdminTableLabel('')
     setAdminTableQrToken('')
     setAdminTableGroupName('')
+    setAdminTableFloorId('')
     setAdminTableSortOrder('10')
     setAdminTableIsActive(true)
+  }
+
+  const resetFloor = () => {
+    setEditingFloorId(null)
+    setAdminFloorName('')
+    setAdminFloorSortOrder('10')
+    setAdminFloorIsActive(true)
   }
 
   const resetPaymentMethod = () => {
@@ -182,12 +249,14 @@ export function useAdminForm() {
 
   const startEditCategory = (category: any) => {
     setEditingCategoryId(category.id)
+    setAdminCategoryCode(category.code ?? '')
     setAdminCategoryName(category.name)
     setAdminCategorySortOrder(String(category.sort_order))
   }
 
   const startEditSubCategory = (subcategory: any) => {
     setEditingSubCategoryId(subcategory.id)
+    setAdminSubCategoryCode(subcategory.code ?? '')
     setAdminSubCategoryName(subcategory.name)
     setAdminSubCategorySortOrder(String(subcategory.sort_order))
     setAdminCategoryParentId(subcategory.parent_category_id ?? '')
@@ -207,6 +276,7 @@ export function useAdminForm() {
     setAdminItemIsActive(item.is_active)
     setAdminItemIsSoldOut(item.is_sold_out)
     setAdminItemToppingIds(item.toppings?.map((t: any) => t.id) || [])
+    setAdminItemLogicalPrinterIds(item.logical_printer_ids || [])
   }
 
   const startEditPlacement = (placement: AdminPlacementRow) => {
@@ -224,8 +294,43 @@ export function useAdminForm() {
     setAdminTableLabel(tableRef.label)
     setAdminTableQrToken(tableRef.qr_token)
     setAdminTableGroupName(tableRef.group_name ?? '')
+    setAdminTableFloorId(tableRef.floor_id ?? '')
     setAdminTableSortOrder(String(tableRef.sort_order ?? 0))
     setAdminTableIsActive(tableRef.is_active)
+  }
+
+  const startEditPhysicalPrinter = (printer: any) => {
+    setEditingPhysicalPrinterId(printer.id)
+    setAdminPrinterName(printer.name)
+    setAdminPrinterIp(printer.ip_address)
+    setAdminPrinterPort(String(printer.port))
+    setAdminPrinterIsActive(printer.is_active)
+    setAdminPrinterBackupPrinterId(printer.backup_printer_id ?? '')
+    setAdminPrinterIsDefaultFallback(Boolean(printer.is_default_fallback))
+  }
+
+  const startEditPrinterRoutingRule = (rule: any) => {
+    setEditingPrinterRoutingRuleId(rule.id)
+    setAdminRuleAreaGroup(rule.area_group)
+    setAdminRuleFloorId(rule.floor_id ?? '')
+    setAdminRuleLogicalPrinterCode(rule.logical_printer_code ?? '')
+    setAdminRuleLogicalPrinterId(rule.logical_printer_id ?? '')
+    setAdminRulePhysicalPrinterId(rule.physical_printer_id)
+  }
+
+  const startEditLogicalPrinter = (lp: any) => {
+    setEditingLogicalPrinterId(lp.id)
+    setAdminLogicalPrinterCode(lp.code)
+    setAdminLogicalPrinterName(lp.name)
+    setAdminLogicalPrinterSortOrder(String(lp.sort_order ?? 0))
+    setAdminLogicalPrinterIsReceiptPrinter(Boolean(lp.is_receipt_printer))
+  }
+
+  const startEditFloor = (floor: any) => {
+    setEditingFloorId(floor.id)
+    setAdminFloorName(floor.name)
+    setAdminFloorSortOrder(String(floor.sort_order ?? 0))
+    setAdminFloorIsActive(floor.is_active)
   }
 
   const beginEditPaymentMethod = (pm: any) => {
@@ -262,11 +367,13 @@ export function useAdminForm() {
     resetBook,
 
     editingCategoryId, setEditingCategoryId,
+    adminCategoryCode, setAdminCategoryCode,
     adminCategoryName, setAdminCategoryName,
     adminCategorySortOrder, setAdminCategorySortOrder,
     resetCategory,
 
     editingSubCategoryId, setEditingSubCategoryId,
+    adminSubCategoryCode, setAdminSubCategoryCode,
     adminSubCategoryName, setAdminSubCategoryName,
     adminSubCategorySortOrder, setAdminSubCategorySortOrder,
     adminCategoryParentId, setAdminCategoryParentId,
@@ -285,6 +392,7 @@ export function useAdminForm() {
     adminItemIsActive, setAdminItemIsActive,
     adminItemIsSoldOut, setAdminItemIsSoldOut,
     adminItemToppingIds, setAdminItemToppingIds,
+    adminItemLogicalPrinterIds, setAdminItemLogicalPrinterIds,
     resetItem,
 
     editingPlacementId, setEditingPlacementId,
@@ -302,6 +410,7 @@ export function useAdminForm() {
     adminTableGroupName, setAdminTableGroupName,
     adminTableSortOrder, setAdminTableSortOrder,
     adminTableIsActive, setAdminTableIsActive,
+    adminTableFloorId, setAdminTableFloorId,
     resetTable,
 
     editingPaymentMethodId, setEditingPaymentMethodId,
@@ -320,6 +429,7 @@ export function useAdminForm() {
     resetStaffUser,
 
     adminStoreName, setAdminStoreName,
+    adminStoreCode, setAdminStoreCode,
     adminStoreSlug, setAdminStoreSlug,
     adminStoreTimezone, setAdminStoreTimezone,
     adminStoreBusinessOffsetMinutes, setAdminStoreBusinessOffsetMinutes,
@@ -338,5 +448,39 @@ export function useAdminForm() {
     startEditTable,
     beginEditPaymentMethod,
     startEditStaffUser,
+ 
+    editingPhysicalPrinterId, setEditingPhysicalPrinterId,
+    adminPrinterName, setAdminPrinterName,
+    adminPrinterIp, setAdminPrinterIp,
+    adminPrinterPort, setAdminPrinterPort,
+    adminPrinterIsActive, setAdminPrinterIsActive,
+    adminPrinterBackupPrinterId, setAdminPrinterBackupPrinterId,
+    adminPrinterIsDefaultFallback, setAdminPrinterIsDefaultFallback,
+    resetPhysicalPrinter,
+    startEditPhysicalPrinter,
+
+    editingPrinterRoutingRuleId, setEditingPrinterRoutingRuleId,
+    adminRuleAreaGroup, setAdminRuleAreaGroup,
+    adminRuleFloorId, setAdminRuleFloorId,
+    adminRuleLogicalPrinterCode, setAdminRuleLogicalPrinterCode,
+    adminRuleLogicalPrinterId, setAdminRuleLogicalPrinterId,
+    adminRulePhysicalPrinterId, setAdminRulePhysicalPrinterId,
+    resetPrinterRoutingRule,
+    startEditPrinterRoutingRule,
+
+    editingLogicalPrinterId, setEditingLogicalPrinterId,
+    adminLogicalPrinterCode, setAdminLogicalPrinterCode,
+    adminLogicalPrinterName, setAdminLogicalPrinterName,
+    adminLogicalPrinterSortOrder, setAdminLogicalPrinterSortOrder,
+    adminLogicalPrinterIsReceiptPrinter, setAdminLogicalPrinterIsReceiptPrinter,
+    resetLogicalPrinter,
+    startEditLogicalPrinter,
+
+    editingFloorId, setEditingFloorId,
+    adminFloorName, setAdminFloorName,
+    adminFloorSortOrder, setAdminFloorSortOrder,
+    adminFloorIsActive, setAdminFloorIsActive,
+    resetFloor,
+    startEditFloor,
   }
 }

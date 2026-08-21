@@ -27,7 +27,14 @@ import { AdminReceiptReissueTab } from './admin/AdminReceiptReissueTab'
 import { AdminCategorySalesTab } from './admin/AdminCategorySalesTab'
 import { AdminSubcategorySalesTab } from './admin/AdminSubcategorySalesTab'
 import { AdminHourlySalesHistoryTab } from './admin/AdminHourlySalesHistoryTab'
-import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminTab } from './admin/types'
+import { AdminPrintersTab } from './admin/AdminPrintersTab'
+import { AdminPhysicalPrinterModal } from './admin/AdminPhysicalPrinterModal'
+import { AdminPrinterRoutingRuleModal } from './admin/AdminPrinterRoutingRuleModal'
+import { AdminFloorsTab } from './admin/AdminFloorsTab'
+import { AdminFloorModal } from './admin/AdminFloorModal'
+import { AdminLogicalPrintersTab } from './admin/AdminLogicalPrintersTab'
+import { AdminLogicalPrinterModal } from './admin/AdminLogicalPrinterModal'
+import { AdminCategory, AdminMenuBook, AdminMenuItem, AdminPlacementRow, AdminBookCategoryRow, AdminBookCategorySubcategoryRow, AdminStoreSettings, AdminTableRow, AdminStaffUserRow, AdminPaymentMethod, AdminPhysicalPrinter, AdminPrinterRoutingRule, AdminTab, AdminFloor, AdminLogicalPrinter } from './admin/types'
 
 
 const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
@@ -47,11 +54,14 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'receiptReissue', label: 'レシート再発行', caption: '指定した日付のレシートの再発行・印刷' },
   { id: 'store', label: '店舗', caption: '店舗設定' },
   { id: 'tables', label: 'テーブル', caption: '席・QR管理' },
+  { id: 'floors', label: 'フロア設定', caption: 'フロアマスタ管理' },
   { id: 'staff', label: 'スタッフ', caption: '認証・権限管理' },
   { id: 'paymentMethods', label: '決済種別', caption: 'マスタ・表示順設定' },
+  { id: 'logicalPrinters', label: '部門別プリンター設定', caption: '出力部門マスタ定義' },
+  { id: 'printers', label: 'プリンター設定', caption: '物理プリンター・出力ルール設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'hourlySalesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'floors', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'hourlySalesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue', 'printers', 'logicalPrinters']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -92,9 +102,11 @@ type Props = {
   adminMenuBookLastOrderOffset: string
   editingMenuBookId: string | null
   adminCategoryName: string
+  adminCategoryCode: string
   adminCategorySortOrder: string
   editingCategoryId: string | null
   adminSubCategoryName: string
+  adminSubCategoryCode: string
   adminSubCategorySortOrder: string
   adminSubCategoryParentCategoryId?: string
   editingSubCategoryId: string | null
@@ -121,6 +133,7 @@ type Props = {
   adminPlacementDescriptionOverride: string
   editingPlacementId: string | null
   adminStoreName: string
+  adminStoreCode: string
   adminStoreSlug: string
   adminStoreTimezone: string
   adminStoreBusinessOffsetMinutes: string
@@ -133,6 +146,7 @@ type Props = {
   adminTableLabel: string
   adminTableQrToken: string
   adminTableGroupName: string
+  adminTableFloorId?: string
   adminTableSortOrder: string
   adminTableIsActive: boolean
   editingTableId: string | null
@@ -166,10 +180,12 @@ type Props = {
   onCreateMenuBook?: () => Promise<boolean | void> | boolean | void
   onCancelMenuBookEdit: () => void
   onCategoryNameChange: (value: string) => void
+  onCategoryCodeChange: (value: string) => void
   onCategorySortOrderChange: (value: string) => void
   onCreateCategory: () => void
   onCancelCategoryEdit: () => void
   onSubCategoryNameChange: (value: string) => void
+  onSubCategoryCodeChange: (value: string) => void
   onSubCategorySortOrderChange: (value: string) => void
   onSubCategoryParentCategoryChange: (value: string) => void
   onCreateSubCategory: () => void
@@ -202,6 +218,7 @@ type Props = {
   onCreateBookCategorySubcategory: () => Promise<boolean>
   onCancelPlacementEdit: () => void
   onStoreNameChange: (value: string) => void
+  onStoreCodeChange: (value: string) => void
   onStoreSlugChange: (value: string) => void
   onStoreTimezoneChange: (value: string) => void
   onStoreBusinessOffsetMinutesChange: (value: string) => void
@@ -215,6 +232,7 @@ type Props = {
   onTableLabelChange: (value: string) => void
   onTableQrTokenChange: (value: string) => void
   onTableGroupNameChange: (value: string) => void
+  onTableFloorIdChange?: (value: string) => void
   onTableSortOrderChange: (value: string) => void
   onTableIsActiveChange: (value: boolean) => void
   onSaveTableRef: () => Promise<boolean>
@@ -249,6 +267,74 @@ type Props = {
   onOpenLauncher?: () => void
   activeTab?: AdminTab
   onTabChange?: (tab: AdminTab) => void
+
+  livePhysicalPrinters: AdminPhysicalPrinter[]
+  livePrinterRoutingRules: AdminPrinterRoutingRule[]
+  adminPrinterName: string
+  adminPrinterIp: string
+  adminPrinterPort: string
+  adminPrinterIsActive: boolean
+  adminPrinterBackupPrinterId: string
+  onPrinterBackupPrinterIdChange: (value: string) => void
+  adminPrinterIsDefaultFallback: boolean
+  onPrinterIsDefaultFallbackChange: (value: boolean) => void
+  editingPhysicalPrinterId: string | null
+  adminRuleAreaGroup: string
+  adminRuleFloorId?: string
+  adminRuleLogicalPrinterCode: string
+  adminRuleLogicalPrinterId: string
+  onRuleLogicalPrinterIdChange: (value: string) => void
+  adminRulePhysicalPrinterId: string
+  editingPrinterRoutingRuleId: string | null
+
+  logicalPrinters: AdminLogicalPrinter[]
+  adminLogicalPrinterCode: string
+  adminLogicalPrinterName: string
+  adminLogicalPrinterSortOrder: string
+  adminLogicalPrinterIsReceiptPrinter: boolean
+  editingLogicalPrinterId: string | null
+  onLogicalPrinterCodeChange: (value: string) => void
+  onLogicalPrinterNameChange: (value: string) => void
+  onLogicalPrinterSortOrderChange: (value: string) => void
+  onLogicalPrinterIsReceiptPrinterChange: (value: boolean) => void
+  onSaveLogicalPrinter: () => Promise<boolean>
+  onDeleteLogicalPrinter: (id: string) => void
+  onEditLogicalPrinter: (lp: AdminLogicalPrinter) => void
+  onCancelLogicalPrinterEdit: () => void
+
+  adminItemLogicalPrinterIds: string[]
+  onItemLogicalPrinterIdsChange: (value: string[]) => void
+
+  onPrinterNameChange: (value: string) => void
+  onPrinterIpChange: (value: string) => void
+  onPrinterPortChange: (value: string) => void
+  onPrinterIsActiveChange: (value: boolean) => void
+  onSavePrinter: () => Promise<boolean>
+  onDeletePrinter: (id: string) => void
+  onEditPrinter: (id: string) => void
+  onCancelPrinterEdit: () => void
+
+  onRuleAreaGroupChange: (value: string) => void
+  onRuleFloorIdChange?: (value: string) => void
+  onRuleLogicalPrinterCodeChange: (value: string) => void
+  onRulePhysicalPrinterIdChange: (value: string) => void
+  onSaveRule: () => Promise<boolean>
+  onDeleteRule: (id: string) => void
+  onEditRule: (id: string) => void
+  onCancelRuleEdit: () => void
+
+  liveFloors: AdminFloor[]
+  adminFloorName: string
+  adminFloorSortOrder: string
+  adminFloorIsActive: boolean
+  editingFloorId: string | null
+  onFloorNameChange: (value: string) => void
+  onFloorSortOrderChange: (value: string) => void
+  onFloorIsActiveChange: (value: boolean) => void
+  onSaveFloor: () => Promise<boolean>
+  onDeleteFloor: (id: string) => void
+  onEditFloor: (id: string) => void
+  onCancelFloorEdit: () => void
 }
 
 function checkBox(checked: boolean, onChange: (next: boolean) => void, disabled = false) {
@@ -283,8 +369,12 @@ export function AdminScreen(props: Props) {
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [paymentMethodModalOpen, setPaymentMethodModalOpen] = useState(false);
   const [placementModalOpen, setPlacementModalOpen] = useState(false)
+  const [floorModalOpen, setFloorModalOpen] = useState(false)
   const [placementCategoryModalOpen, setPlacementCategoryModalOpen] = useState(false)
   const [placementSubcategoryModalOpen, setPlacementSubcategoryModalOpen] = useState(false)
+  const [printerModalOpen, setPrinterModalOpen] = useState(false)
+  const [ruleModalOpen, setRuleModalOpen] = useState(false)
+  const [logicalPrinterModalOpen, setLogicalPrinterModalOpen] = useState(false)
 
   const [scopedPlacementBookId, setScopedPlacementBookId] = useState('')
   const [scopedPlacementCategoryId, setScopedPlacementCategoryId] = useState('')
@@ -330,6 +420,16 @@ export function AdminScreen(props: Props) {
     () => props.liveTables.find((table) => table.id === tableQrModalTableId) ?? null,
     [props.liveTables, tableQrModalTableId],
   )
+
+  const areaGroups = useMemo(() => {
+    const groups = new Set<string>()
+    for (const rule of props.livePrinterRoutingRules) {
+      if (rule.area_group.trim()) {
+        groups.add(rule.area_group.trim())
+      }
+    }
+    return Array.from(groups).sort()
+  }, [props.livePrinterRoutingRules])
 
   return (
     <section className="admin-shell">
@@ -400,6 +500,7 @@ export function AdminScreen(props: Props) {
               liveMenuItems={props.liveMenuItems}
               categoryNameMap={categoryNameMap}
               itemCategoryOptions={itemCategoryOptions}
+              logicalPrinters={props.logicalPrinters}
               yen={props.yen}
               adminStoreTaxRate={props.adminStoreTaxRate}
               adminStoreReducedTaxRate={props.adminStoreReducedTaxRate}
@@ -466,6 +567,7 @@ export function AdminScreen(props: Props) {
           {activeTab === 'store' ? (
             <AdminStoreTab
               adminStoreName={props.adminStoreName}
+              adminStoreCode={props.adminStoreCode}
               adminStoreSlug={props.adminStoreSlug}
               adminStoreTimezone={props.adminStoreTimezone}
               adminStoreBusinessOffsetMinutes={props.adminStoreBusinessOffsetMinutes}
@@ -477,6 +579,7 @@ export function AdminScreen(props: Props) {
               adminStoreTaxDisplayMode={props.adminStoreTaxDisplayMode}
               disabled={disabled}
               onStoreNameChange={props.onStoreNameChange}
+              onStoreCodeChange={props.onStoreCodeChange}
               onStoreSlugChange={props.onStoreSlugChange}
               onStoreTimezoneChange={props.onStoreTimezoneChange}
               onStoreBusinessOffsetMinutesChange={props.onStoreBusinessOffsetMinutesChange}
@@ -536,6 +639,65 @@ export function AdminScreen(props: Props) {
               onOpenModal={() => {
                 props.onCancelPaymentMethodEdit()
                 setPaymentMethodModalOpen(true)
+              }}
+            />
+          ) : null}
+
+          {activeTab === 'floors' ? (
+            <AdminFloorsTab
+              liveFloors={props.liveFloors}
+              disabled={disabled}
+              onEditFloor={(id) => {
+                props.onEditFloor(id)
+                setFloorModalOpen(true)
+              }}
+              onDeleteFloor={props.onDeleteFloor}
+              onOpenModal={() => {
+                props.onCancelFloorEdit()
+                setFloorModalOpen(true)
+              }}
+            />
+          ) : null}
+
+          {activeTab === 'logicalPrinters' ? (
+            <AdminLogicalPrintersTab
+              logicalPrinters={props.logicalPrinters}
+              disabled={disabled}
+              onEditLogicalPrinter={(lp) => {
+                props.onEditLogicalPrinter(lp)
+                setLogicalPrinterModalOpen(true)
+              }}
+              onDeleteLogicalPrinter={props.onDeleteLogicalPrinter}
+              onOpenModal={() => {
+                props.onCancelLogicalPrinterEdit()
+                setLogicalPrinterModalOpen(true)
+              }}
+            />
+          ) : null}
+
+          {activeTab === 'printers' ? (
+            <AdminPrintersTab
+              physicalPrinters={props.livePhysicalPrinters}
+              routingRules={props.livePrinterRoutingRules}
+              logicalPrinters={props.logicalPrinters}
+              disabled={disabled}
+              onEditPrinter={(id) => {
+                props.onEditPrinter(id)
+                setPrinterModalOpen(true)
+              }}
+              onDeletePrinter={props.onDeletePrinter}
+              onOpenPrinterModal={() => {
+                props.onCancelPrinterEdit()
+                setPrinterModalOpen(true)
+              }}
+              onEditRule={(id) => {
+                props.onEditRule(id)
+                setRuleModalOpen(true)
+              }}
+              onDeleteRule={props.onDeleteRule}
+              onOpenRuleModal={() => {
+                props.onCancelRuleEdit()
+                setRuleModalOpen(true)
               }}
             />
           ) : null}
@@ -641,6 +803,8 @@ export function AdminScreen(props: Props) {
             adminItemIsActive={props.adminItemIsActive}
             adminItemIsSoldOut={props.adminItemIsSoldOut}
             adminItemToppingIds={props.adminItemToppingIds}
+            logicalPrinters={props.logicalPrinters}
+            adminItemLogicalPrinterIds={props.adminItemLogicalPrinterIds}
             itemImageUploadBusy={props.itemImageUploadBusy}
             disabled={disabled}
             itemCategoryOptions={itemCategoryOptions}
@@ -663,6 +827,7 @@ export function AdminScreen(props: Props) {
             onItemIsActiveChange={props.onItemIsActiveChange}
             onItemIsSoldOutChange={props.onItemIsSoldOutChange}
             onItemToppingIdsChange={props.onItemToppingIdsChange}
+            onItemLogicalPrinterIdsChange={props.onItemLogicalPrinterIdsChange}
             onCreateMenuItem={props.onCreateMenuItem}
             checkBox={checkBox}
           />
@@ -713,6 +878,7 @@ export function AdminScreen(props: Props) {
             isOpen={activeTab === 'categories' && categoryModalOpen}
             editingCategoryId={props.editingCategoryId}
             adminCategoryName={props.adminCategoryName}
+            adminCategoryCode={props.adminCategoryCode}
             adminCategorySortOrder={props.adminCategorySortOrder}
             disabled={disabled}
             onClose={() => {
@@ -720,6 +886,7 @@ export function AdminScreen(props: Props) {
               props.onCancelCategoryEdit()
             }}
             onCategoryNameChange={props.onCategoryNameChange}
+            onCategoryCodeChange={props.onCategoryCodeChange}
             onCategorySortOrderChange={props.onCategorySortOrderChange}
             onCreateCategory={props.onCreateCategory}
           />
@@ -728,6 +895,7 @@ export function AdminScreen(props: Props) {
             isOpen={activeTab === 'subcategories' && subcategoryModalOpen}
             editingSubCategoryId={props.editingSubCategoryId}
             adminSubCategoryName={props.adminSubCategoryName}
+            adminSubCategoryCode={props.adminSubCategoryCode}
             adminSubCategoryParentCategoryId={props.adminSubCategoryParentCategoryId}
             adminSubCategorySortOrder={props.adminSubCategorySortOrder}
             liveParentCategories={props.liveParentCategories}
@@ -737,6 +905,7 @@ export function AdminScreen(props: Props) {
               props.onCancelSubCategoryEdit()
             }}
             onSubCategoryNameChange={props.onSubCategoryNameChange}
+            onSubCategoryCodeChange={props.onSubCategoryCodeChange}
             onSubCategoryParentCategoryChange={props.onSubCategoryParentCategoryChange}
             onSubCategorySortOrderChange={props.onSubCategorySortOrderChange}
             onCreateSubCategory={props.onCreateSubCategory}
@@ -747,9 +916,10 @@ export function AdminScreen(props: Props) {
             editingTableId={props.editingTableId}
             adminTableLabel={props.adminTableLabel}
             adminTableQrToken={props.adminTableQrToken}
-            adminTableGroupName={props.adminTableGroupName}
+            adminTableFloorId={props.adminTableFloorId || ''}
             adminTableSortOrder={props.adminTableSortOrder}
             adminTableIsActive={props.adminTableIsActive}
+            liveFloors={props.liveFloors}
             disabled={disabled}
             onClose={() => {
               setTableModalOpen(false)
@@ -757,7 +927,7 @@ export function AdminScreen(props: Props) {
             }}
             onTableLabelChange={props.onTableLabelChange}
             onTableQrTokenChange={props.onTableQrTokenChange}
-            onTableGroupNameChange={props.onTableGroupNameChange}
+            onTableFloorIdChange={props.onTableFloorIdChange || (() => {})}
             onTableSortOrderChange={props.onTableSortOrderChange}
             onTableIsActiveChange={props.onTableIsActiveChange}
             onSaveTableRef={props.onSaveTableRef}
@@ -869,6 +1039,88 @@ export function AdminScreen(props: Props) {
             onPlacementTopCategoryChange={props.onPlacementTopCategoryChange}
             onPlacementCategoryChange={props.onPlacementCategoryChange}
             onCreateBookCategorySubcategory={props.onCreateBookCategorySubcategory}
+          />
+
+          <AdminPhysicalPrinterModal
+            isOpen={activeTab === 'printers' && printerModalOpen}
+            editingPhysicalPrinterId={props.editingPhysicalPrinterId}
+            adminPrinterName={props.adminPrinterName}
+            adminPrinterIp={props.adminPrinterIp}
+            adminPrinterPort={props.adminPrinterPort}
+            adminPrinterIsActive={props.adminPrinterIsActive}
+            adminPrinterBackupPrinterId={props.adminPrinterBackupPrinterId}
+            adminPrinterIsDefaultFallback={props.adminPrinterIsDefaultFallback}
+            physicalPrinters={props.livePhysicalPrinters}
+            disabled={disabled}
+            onClose={() => {
+              setPrinterModalOpen(false)
+              props.onCancelPrinterEdit()
+            }}
+            onPrinterNameChange={props.onPrinterNameChange}
+            onPrinterIpChange={props.onPrinterIpChange}
+            onPrinterPortChange={props.onPrinterPortChange}
+            onPrinterIsActiveChange={props.onPrinterIsActiveChange}
+            onPrinterBackupPrinterIdChange={props.onPrinterBackupPrinterIdChange}
+            onPrinterIsDefaultFallbackChange={props.onPrinterIsDefaultFallbackChange}
+            onSavePrinter={props.onSavePrinter}
+            checkBox={checkBox}
+          />
+
+          <AdminPrinterRoutingRuleModal
+            isOpen={activeTab === 'printers' && ruleModalOpen}
+            editingPrinterRoutingRuleId={props.editingPrinterRoutingRuleId}
+            adminRuleFloorId={props.adminRuleFloorId || ''}
+            adminRuleLogicalPrinterId={props.adminRuleLogicalPrinterId}
+            adminRulePhysicalPrinterId={props.adminRulePhysicalPrinterId}
+            physicalPrinters={props.livePhysicalPrinters}
+            liveFloors={props.liveFloors}
+            logicalPrinters={props.logicalPrinters}
+            disabled={disabled}
+            onClose={() => {
+              setRuleModalOpen(false)
+              props.onCancelRuleEdit()
+            }}
+            onRuleFloorIdChange={props.onRuleFloorIdChange || (() => {})}
+            onRuleLogicalPrinterIdChange={props.onRuleLogicalPrinterIdChange}
+            onRulePhysicalPrinterIdChange={props.onRulePhysicalPrinterIdChange}
+            onSaveRule={props.onSaveRule}
+          />
+
+          <AdminLogicalPrinterModal
+            isOpen={activeTab === 'logicalPrinters' && logicalPrinterModalOpen}
+            editingLogicalPrinterId={props.editingLogicalPrinterId}
+            adminLogicalPrinterCode={props.adminLogicalPrinterCode}
+            adminLogicalPrinterName={props.adminLogicalPrinterName}
+            adminLogicalPrinterSortOrder={props.adminLogicalPrinterSortOrder}
+            adminLogicalPrinterIsReceiptPrinter={props.adminLogicalPrinterIsReceiptPrinter}
+            disabled={disabled}
+            onClose={() => {
+              setLogicalPrinterModalOpen(false)
+              props.onCancelLogicalPrinterEdit()
+            }}
+            onLogicalPrinterCodeChange={props.onLogicalPrinterCodeChange}
+            onLogicalPrinterNameChange={props.onLogicalPrinterNameChange}
+            onLogicalPrinterSortOrderChange={props.onLogicalPrinterSortOrderChange}
+            onLogicalPrinterIsReceiptPrinterChange={props.onLogicalPrinterIsReceiptPrinterChange}
+            onSaveLogicalPrinter={props.onSaveLogicalPrinter}
+          />
+
+          <AdminFloorModal
+            isOpen={activeTab === 'floors' && floorModalOpen}
+            editingFloorId={props.editingFloorId}
+            adminFloorName={props.adminFloorName}
+            adminFloorSortOrder={props.adminFloorSortOrder}
+            adminFloorIsActive={props.adminFloorIsActive}
+            disabled={disabled}
+            onClose={() => {
+              setFloorModalOpen(false)
+              props.onCancelFloorEdit()
+            }}
+            onFloorNameChange={props.onFloorNameChange}
+            onFloorSortOrderChange={props.onFloorSortOrderChange}
+            onFloorIsActiveChange={props.onFloorIsActiveChange}
+            onSaveFloor={props.onSaveFloor}
+            checkBox={checkBox}
           />
 
           <TableQrModal
