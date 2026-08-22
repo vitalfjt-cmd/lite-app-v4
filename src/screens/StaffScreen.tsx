@@ -217,11 +217,13 @@ export function StaffScreen({
     const totalSubtotal = allTickets.reduce((sum, t) => sum + t.subtotal, 0)
     const tableNames = allTickets.map(t => t.tableName).join(' + ')
     const ticketNos = allTickets.map(t => t.ticketNo).join(' + ')
+    const totalCustomerCount = allTickets.reduce((sum, t) => sum + (t.customerCount || 0), 0)
     return {
       ...selectedSummary,
       tableName: tableNames,
       ticketNo: ticketNos,
       subtotal: totalSubtotal,
+      customerCount: totalCustomerCount > 0 ? totalCustomerCount : null,
     }
   }, [selectedSummary, liveTicketSummaries, combinedTicketIds])
 
@@ -507,18 +509,38 @@ export function StaffScreen({
     let billedAmt = inputVal
     let receivedAmt = inputVal
     let nextTargetAmt: number | null = null
-    let nextPersonLabel = currentPersonLabel
+    let updatedPersonLabel: string | null = null
 
     if (targetPaymentAmount !== null) {
       if (inputVal < targetPaymentAmount) {
         billedAmt = inputVal
         receivedAmt = inputVal
         nextTargetAmt = targetPaymentAmount - inputVal
+        updatedPersonLabel = currentPersonLabel
       } else {
         billedAmt = Math.min(targetPaymentAmount, remainingTotal)
         receivedAmt = isChangeAllowed ? Math.max(inputVal, billedAmt) : billedAmt
-        nextTargetAmt = null
-        nextPersonLabel = null
+        
+        // Check if this was a split session payment
+        if (currentPersonLabel && currentPersonLabel.includes('割勘分')) {
+          const match = currentPersonLabel.match(/\((\d+)人目\)/)
+          const currentPersonNum = match ? parseInt(match[1], 10) : 1
+          const remainingSplitCount = splitCount - currentPersonNum
+          
+          const nextPaidTotal = paidTotal + billedAmt
+          const nextRemainingTotal = Math.max(0, finalBilledAmount - nextPaidTotal)
+          
+          if (remainingSplitCount > 0 && nextRemainingTotal > 0) {
+            nextTargetAmt = Math.floor(nextRemainingTotal / remainingSplitCount)
+            updatedPersonLabel = `割勘分 (${currentPersonNum + 1}人目)`
+          } else {
+            nextTargetAmt = null
+            updatedPersonLabel = null
+          }
+        } else {
+          nextTargetAmt = null
+          updatedPersonLabel = null
+        }
       }
     } else {
       if (inputVal > remainingTotal) {
@@ -600,9 +622,14 @@ export function StaffScreen({
         label
       }
     ])
-    setCurrentPaymentInput('')
+    if (nextTargetAmt !== null) {
+      setCurrentPaymentInput(String(nextTargetAmt))
+      setInputSource('modal')
+    } else {
+      setCurrentPaymentInput('')
+    }
     setTargetPaymentAmount(nextTargetAmt)
-    setCurrentPersonLabel(nextTargetAmt !== null ? label : nextPersonLabel)
+    setCurrentPersonLabel(updatedPersonLabel)
   }
   
   const applyDiscountAmount = () => {

@@ -727,10 +727,42 @@ export function StaffPaymentView({
                 </button>
                 <button
                   onClick={() => {
-                    setPayments((prev) => prev.slice(0, -1))
-                    setTargetPaymentAmount(null)
-                    setCurrentPersonLabel(null)
+                    const nextPayments = payments.slice(0, -1)
+                    setPayments(nextPayments)
                     setPendingPaymentItems([])
+
+                    // Check if remaining payments have split history to restore split session
+                    const splitHistory = nextPayments.filter(p => p.label && p.label.includes('割勘分'))
+                    if (splitHistory.length > 0) {
+                      let maxPersonNum = 0
+                      for (const p of splitHistory) {
+                        const match = p.label!.match(/\((\d+)人目\)/)
+                        if (match) {
+                          const num = parseInt(match[1], 10)
+                          if (num > maxPersonNum) maxPersonNum = num
+                        }
+                      }
+                      const nextPersonNum = maxPersonNum + 1
+                      const remainingSplitCount = splitCount - maxPersonNum
+                      const paidTotalInHistory = nextPayments.reduce((sum, p) => sum + p.amount, 0)
+                      const nextRemainingTotal = Math.max(0, finalBilledAmount - paidTotalInHistory)
+
+                      if (remainingSplitCount > 0 && nextRemainingTotal > 0) {
+                        const nextAmt = Math.floor(nextRemainingTotal / remainingSplitCount)
+                        setTargetPaymentAmount(nextAmt)
+                        setCurrentPersonLabel(`割勘分 (${nextPersonNum}人目)`)
+                        setCurrentPaymentInput(String(nextAmt))
+                        setInputSource('modal')
+                      } else {
+                        setTargetPaymentAmount(null)
+                        setCurrentPersonLabel(null)
+                        setCurrentPaymentInput('')
+                      }
+                    } else {
+                      setTargetPaymentAmount(null)
+                      setCurrentPersonLabel(null)
+                      setCurrentPaymentInput('')
+                    }
                   }}
                   style={{ background: 'transparent', border: 'none', color: '#fa5252', fontSize: '1.2rem', cursor: 'pointer', textDecoration: 'underline' }}
                 >
@@ -836,7 +868,7 @@ export function StaffPaymentView({
                     {targetPaymentAmount !== null ? (
                       <>
                         <div style={{ fontSize: '1rem', color: '#868e96', display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '4px' }}>
-                          <span>お会計額:</span>
+                          <span>{currentPersonLabel || 'お会計額'}:</span>
                           <span style={{ fontWeight: 'bold', color: '#495057' }}>{yen(targetPaymentAmount)}</span>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'baseline' }}>
@@ -994,7 +1026,10 @@ export function StaffPaymentView({
                       }}
                       onClick={() => {
                         setCalcMode('split')
-                        setSplitCount(2)
+                        const defaultCount = selectedSummary.customerCount && selectedSummary.customerCount > 1
+                          ? selectedSummary.customerCount
+                          : 2;
+                        setSplitCount(defaultCount)
                       }}
                     >
                       ➗ 単純割勘
@@ -1158,7 +1193,7 @@ export function StaffPaymentView({
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                   <span style={{ fontSize: '1.3rem', color: '#666' }}>1人あたり: </span>
-                  <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#ff5a5f' }}>{yen(Math.ceil(remainingTotal / splitCount))}</span>
+                  <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#ff5a5f' }}>{yen(Math.floor(remainingTotal / splitCount))}</span>
                 </div>
                 <button
                   style={{
@@ -1174,7 +1209,7 @@ export function StaffPaymentView({
                     boxShadow: '0 4px 12px rgba(27,129,62,0.3)',
                   }}
                   onClick={() => {
-                    const amt = Math.ceil(remainingTotal / splitCount);
+                    const amt = Math.floor(remainingTotal / splitCount);
                     setCurrentPaymentInput(String(amt))
                     setTargetPaymentAmount(amt)
                     const personNum = getNextPersonNumber()
@@ -1183,7 +1218,7 @@ export function StaffPaymentView({
                     setInputSource('modal')
                   }}
                 >
-                  この金額をテンキー入力
+                  この金額で割勘を開始
                 </button>
               </div>
             )}
