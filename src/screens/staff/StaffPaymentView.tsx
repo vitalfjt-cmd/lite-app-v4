@@ -64,6 +64,7 @@ type StaffPaymentViewProps = {
   setInputSource: React.Dispatch<React.SetStateAction<'modal' | 'manual'>>
   onReceiptClosed: () => void
   onAbortPayment: () => void
+  onPrintReceipt?: (ticketId: string) => Promise<boolean>
   targetPaymentAmount: number | null
   setTargetPaymentAmount: React.Dispatch<React.SetStateAction<number | null>>
   currentPersonLabel: string | null
@@ -122,6 +123,7 @@ export function StaffPaymentView({
   setInputSource,
   onReceiptClosed,
   onAbortPayment,
+  onPrintReceipt,
   targetPaymentAmount,
   setTargetPaymentAmount,
   currentPersonLabel,
@@ -628,7 +630,13 @@ export function StaffPaymentView({
                 </div>
 
                 <button
-                  onClick={() => window.print()}
+                  onClick={async () => {
+                    if (onPrintReceipt) {
+                      await onPrintReceipt(selectedSummary.ticketId)
+                    } else {
+                      window.print()
+                    }
+                  }}
                   style={{
                     width: '100%',
                     padding: '12px',

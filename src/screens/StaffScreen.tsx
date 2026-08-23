@@ -68,6 +68,7 @@ type StaffScreenProps = {
   }) => Promise<boolean>
   onCloseTicket: (ticketId?: string) => Promise<string | null>
   onAbortPayment: () => void
+  onPrintReceipt?: (ticketId: string) => Promise<boolean>
   directAction?: 'HANDY' | 'PAYMENT' | null
   onClearDirectAction?: () => void
   terminalName?: string
@@ -133,6 +134,7 @@ export function StaffScreen({
   onSavePaymentEntry,
   onCloseTicket,
   onAbortPayment,
+  onPrintReceipt,
   directAction,
   onClearDirectAction,
   terminalName,
@@ -839,6 +841,7 @@ export function StaffScreen({
           setPaymentFinalized={setPaymentFinalized}
           onSavePaymentEntry={onSavePaymentEntry}
           onCloseTicket={onCloseTicket}
+          onPrintReceipt={onPrintReceipt}
           handleNumpadPayment={handleNumpadPayment}
           addPaymentMethod={addPaymentMethod}
           applyDiscountAmount={applyDiscountAmount}

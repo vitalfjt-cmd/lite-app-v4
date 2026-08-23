@@ -1020,6 +1020,14 @@ export function closeStaffPrototypeTicket(storeSlug: string, ticketId: string, t
   })
 }
 
+export function printStaffPrototypeReceipt(storeSlug: string, ticketId: string) {
+  return invoke<{ success: boolean; error?: string }>({
+    action: 'print-receipt',
+    storeSlug,
+    ticketId,
+  })
+}
+
 export function cancelStaffPrototypeLine(storeSlug: string, lineId: string) {
   return invoke<{
     store: { id: string; slug: string; name: string }
