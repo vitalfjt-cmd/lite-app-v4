@@ -888,6 +888,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           name: adminForm.adminLogicalPrinterName.trim(),
           sortOrder,
           isReceiptPrinter: adminForm.adminLogicalPrinterIsReceiptPrinter,
+          isOrderPrinter: adminForm.adminLogicalPrinterIsOrderPrinter,
         })
         await refreshAdminData()
       }

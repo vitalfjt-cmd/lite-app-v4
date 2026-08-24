@@ -72,9 +72,14 @@ export function AdminLogicalPrintersTab(props: Props) {
                   <td>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       {lp.name}
+                      {lp.is_order_printer && (
+                        <span style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', fontSize: '11px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          会計伝票
+                        </span>
+                      )}
                       {lp.is_receipt_printer && (
                         <span style={{ backgroundColor: '#e3f2fd', color: '#0d47a1', fontSize: '11px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
-                          会計伝票
+                          領収書レシート
                         </span>
                       )}
                     </span>

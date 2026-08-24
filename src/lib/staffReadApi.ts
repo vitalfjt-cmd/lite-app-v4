@@ -867,6 +867,7 @@ export function saveAdminPrototypeLogicalPrinter(
     name: string
     sortOrder: number
     isReceiptPrinter?: boolean
+    isOrderPrinter?: boolean
   },
 ) {
   return invoke<{
@@ -877,6 +878,7 @@ export function saveAdminPrototypeLogicalPrinter(
       name: string
       sort_order: number
       is_receipt_printer?: boolean
+      is_order_printer?: boolean
     }
   }>({ action: 'admin-save-logical-printer', storeSlug, ...payload })
 }

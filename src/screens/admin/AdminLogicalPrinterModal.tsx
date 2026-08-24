@@ -7,12 +7,14 @@ type Props = {
   adminLogicalPrinterName: string
   adminLogicalPrinterSortOrder: string
   adminLogicalPrinterIsReceiptPrinter: boolean
+  adminLogicalPrinterIsOrderPrinter: boolean
   disabled: boolean
   onClose: () => void
   onLogicalPrinterCodeChange: (value: string) => void
   onLogicalPrinterNameChange: (value: string) => void
   onLogicalPrinterSortOrderChange: (value: string) => void
   onLogicalPrinterIsReceiptPrinterChange: (value: boolean) => void
+  onLogicalPrinterIsOrderPrinterChange: (value: boolean) => void
   onSaveLogicalPrinter: () => Promise<boolean>
 }
 
@@ -36,11 +38,21 @@ export function AdminLogicalPrinterModal(props: Props) {
             <input
               type="checkbox"
               style={{ width: 'auto', margin: 0 }}
+              checked={props.adminLogicalPrinterIsOrderPrinter}
+              onChange={(event) => props.onLogicalPrinterIsOrderPrinterChange(event.target.checked)}
+              disabled={props.disabled}
+            />
+            <span>会計伝票（会計前伝票）を出力する</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: '8px 0' }}>
+            <input
+              type="checkbox"
+              style={{ width: 'auto', margin: 0 }}
               checked={props.adminLogicalPrinterIsReceiptPrinter}
               onChange={(event) => props.onLogicalPrinterIsReceiptPrinterChange(event.target.checked)}
               disabled={props.disabled}
             />
-            <span>会計伝票（レシート）を出力する</span>
+            <span>領収書レシートを出力する</span>
           </label>
           <div className="button-row">
             <button className="primary-button" onClick={async () => {
