@@ -65,6 +65,7 @@ type StaffScreenProps = {
     voucherAmount: number
     finalAmount: number
     receivedAmount: number
+    memo?: string
   }) => Promise<boolean>
   onCloseTicket: (ticketId?: string) => Promise<string | null>
   onAbortPayment: () => void
@@ -692,7 +693,8 @@ export function StaffScreen({
         method: p.method,
         amount: p.amount,
         received: p.received,
-        change: p.change
+        change: p.change,
+        label: p.label || '',
       }))
 
       const ticketPaymentEntries: Array<{
@@ -702,6 +704,7 @@ export function StaffScreen({
           discountAmount: number
           finalAmount: number
           receivedAmount: number
+          memo?: string
         }>
       }> = targetTickets.map((t) => ({
         ticketId: t.ticketId,
@@ -718,7 +721,8 @@ export function StaffScreen({
             paymentType: 'CASH',
             discountAmount: discountApplied,
             finalAmount: 0,
-            receivedAmount: 0
+            receivedAmount: 0,
+            memo: '',
           })
           continue
         }
@@ -736,6 +740,7 @@ export function StaffScreen({
             discountAmount: discountApplied,
             finalAmount: takeAmount,
             receivedAmount: takeReceived,
+            memo: p.label,
           })
 
           p.amount -= takeAmount
@@ -756,6 +761,7 @@ export function StaffScreen({
             voucherAmount: 0,
             finalAmount: entry.finalAmount,
             receivedAmount: entry.receivedAmount,
+            memo: entry.memo,
           })
           if (!saved) {
             alert('支払い情報の保存に失敗しました。画面上のエラーメッセージを確認してください。')

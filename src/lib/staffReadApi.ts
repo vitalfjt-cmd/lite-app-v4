@@ -1022,11 +1022,12 @@ export function closeStaffPrototypeTicket(storeSlug: string, ticketId: string, t
   })
 }
 
-export function printStaffPrototypeReceipt(storeSlug: string, ticketId: string) {
+export function printStaffPrototypeReceipt(storeSlug: string, ticketId: string, paymentEntryMemo?: string | null) {
   return invoke<{ success: boolean; error?: string }>({
     action: 'print-receipt',
     storeSlug,
     ticketId,
+    paymentEntryMemo,
   })
 }
 

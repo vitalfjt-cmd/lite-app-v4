@@ -597,14 +597,14 @@ export default function App() {
     }
   }
 
-  const handlePrintReceipt = async (ticketId: string): Promise<boolean> => {
+  const handlePrintReceipt = async (ticketId: string, paymentEntryMemo?: string | null): Promise<boolean> => {
     setMutationBusy('print-receipt')
     setStaffMessage(null)
     setError(null)
     try {
       const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
       if (!storeSlug) throw new Error('staff_store_slug_missing')
-      const res = await printStaffPrototypeReceipt(storeSlug, ticketId)
+      const res = await printStaffPrototypeReceipt(storeSlug, ticketId, paymentEntryMemo)
       if (!res.success) {
         alert(res.error || 'レシートの印刷に失敗しました')
         return false

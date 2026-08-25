@@ -324,6 +324,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     voucherAmount: number
     finalAmount: number
     receivedAmount: number
+    memo?: string
   }): Promise<boolean> => {
     const targetTicket = payload.ticketId
       ? liveTickets.find((t) => t.id === payload.ticketId)
@@ -354,6 +355,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
         voucherAmount: payload.voucherAmount,
         finalAmount: payload.finalAmount,
         receivedAmount: payload.receivedAmount,
+        memo: payload.memo,
       })
       setLivePaymentEntries((current: any) => [
         ...current,
