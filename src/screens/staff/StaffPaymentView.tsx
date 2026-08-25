@@ -506,8 +506,6 @@ export function StaffPaymentView({
         <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
           {activePrintGroup ? (
             renderReceiptPaper(activePrintGroup, false)
-          ) : hasSplitPayments ? (
-            groupedPayments.filter(g => g.label !== '').map((g, idx, arr) => renderReceiptPaper(g, idx < arr.length - 1))
           ) : (
             renderReceiptPaper(null, false)
           )}
