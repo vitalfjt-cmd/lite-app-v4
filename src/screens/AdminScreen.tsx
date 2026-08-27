@@ -157,6 +157,7 @@ type Props = {
   adminStaffIsActive: boolean
   editingStaffUserId: string | null
   yen: (value: number) => string
+  onPrintReceipt?: (ticketId: string, paymentEntryMemo?: string | null) => Promise<boolean>
   messageTone: (message: string | null) => 'success' | 'error'
   onPaymentMethodNameChange: (value: string) => void
   onPaymentMethodSortOrderChange: (value: string) => void
@@ -785,6 +786,7 @@ export function AdminScreen(props: Props) {
               taxRate={props.liveStoreSettings?.tax_rate}
               reducedTaxRate={props.liveStoreSettings?.reduced_tax_rate}
               setError={(msg) => msg ? alert(msg) : null}
+              onPrintReceipt={props.onPrintReceipt}
             />
           ) : null}
 

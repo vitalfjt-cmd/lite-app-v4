@@ -8,9 +8,10 @@ type Props = {
   taxRate?: number
   reducedTaxRate?: number
   setError: (msg: string | null) => void
+  onPrintReceipt?: (ticketId: string, paymentEntryMemo?: string | null) => Promise<boolean>
 }
 
-export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, reducedTaxRate, setError }: Props) {
+export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, reducedTaxRate, setError, onPrintReceipt }: Props) {
   const [targetDate, setTargetDate] = useState('')
   const [loadingList, setLoadingList] = useState(false)
   const [loadingDetail, setLoadingDetail] = useState(false)
@@ -70,8 +71,10 @@ export function AdminReceiptReissueTab({ storeSlug, disabled, yen, taxRate, redu
     }
   }
 
-  const handlePrint = () => {
-    window.print()
+  const handlePrint = async () => {
+    if (onPrintReceipt && ticketDetail) {
+      await onPrintReceipt(ticketDetail.id)
+    }
   }
 
   const orderSubtotal = ticketDetail

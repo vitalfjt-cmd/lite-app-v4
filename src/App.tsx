@@ -1031,6 +1031,7 @@ export default function App() {
             adminStaffIsActive={adminForm.adminStaffIsActive}
             editingStaffUserId={adminForm.editingStaffUserId}
             yen={yen}
+            onPrintReceipt={handlePrintReceipt}
             messageTone={messageTone}
             onMenuBookNameChange={adminForm.setAdminMenuBookName}
             onMenuBookCodeChange={adminForm.setAdminMenuBookCode}
