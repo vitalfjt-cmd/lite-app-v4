@@ -155,4 +155,4 @@ export type AdminFloor = {
   is_active: boolean
 }
 
-export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue' | 'categorySales' | 'subcategorySales' | 'hourlySalesHistory' | 'printers' | 'floors' | 'logicalPrinters'
+export type AdminTab = 'menuBooks' | 'categories' | 'subcategories' | 'items' | 'placements' | 'store' | 'tables' | 'staff' | 'sales' | 'salesHistory' | 'paymentHistory' | 'accountingHistory' | 'productSalesHistory' | 'paymentMethods' | 'receiptReissue' | 'categorySales' | 'subcategorySales' | 'hourlySalesHistory' | 'printers' | 'floors' | 'logicalPrinters' | string

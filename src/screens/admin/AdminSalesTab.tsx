@@ -16,6 +16,12 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   const [loading, setLoading] = useState(false)
   const [businessDateStr, setBusinessDateStr] = useState<string>('')
   const [activeSubTab, setActiveSubTab] = useState<'status' | 'void' | 'summary' | 'hourly' | 'items' | 'category' | 'subcategory'>(initialSubTab || 'status')
+
+  useEffect(() => {
+    if (initialSubTab) {
+      setActiveSubTab(initialSubTab)
+    }
+  }, [initialSubTab])
   
   const [voidReceiptNo, setVoidReceiptNo] = useState('')
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')

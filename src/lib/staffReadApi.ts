@@ -287,6 +287,7 @@ export function fetchStaffPrototypeBootstrap(storeSlug: string) {
       valid_to: string | null
       time_limit_minutes: number | null
       last_order_offset_minutes: number | null
+      category_display_mode?: 'SINGLE' | 'DOUBLE' | null
     }[]
     payment_methods: {
       id: string
@@ -339,6 +340,7 @@ export function fetchAdminPrototypeBootstrap(storeSlug: string) {
       valid_to: string | null
       time_limit_minutes: number | null
       last_order_offset_minutes: number | null
+      category_display_mode?: 'SINGLE' | 'DOUBLE' | null
     }[]
     categories: {
       id: string
@@ -499,6 +501,7 @@ export function saveAdminPrototypeMenuBook(
     validTo?: string | null
     timeLimitMinutes?: number | null
     lastOrderOffsetMinutes?: number | null
+    categoryDisplayMode?: 'SINGLE' | 'DOUBLE' | null
   },
 ) {
   return invoke<{
@@ -515,6 +518,7 @@ export function saveAdminPrototypeMenuBook(
       valid_to: string | null
       time_limit_minutes: number | null
       last_order_offset_minutes: number | null
+      category_display_mode?: 'SINGLE' | 'DOUBLE' | null
     }
   }>({
     action: 'admin-save-menu-book',

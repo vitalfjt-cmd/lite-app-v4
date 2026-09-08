@@ -15,6 +15,7 @@ type Props = {
   adminMenuBookIsActive: boolean
   adminMenuBookTimeLimit: string
   adminMenuBookLastOrderOffset: string
+  adminMenuBookCategoryDisplayMode: 'SINGLE' | 'DOUBLE'
   disabled: boolean
   onClose: () => void
   onMenuBookCodeChange: (value: string) => void
@@ -28,6 +29,7 @@ type Props = {
   onMenuBookIsActiveChange: (value: boolean) => void
   onMenuBookTimeLimitChange: (value: string) => void
   onMenuBookLastOrderOffsetChange: (value: string) => void
+  onMenuBookCategoryDisplayModeChange: (value: 'SINGLE' | 'DOUBLE') => void
   onCreateMenuBook: () => void
   checkBox: (checked: boolean, onChange: (next: boolean) => void, disabled?: boolean) => React.ReactNode
 }
@@ -61,6 +63,18 @@ export function AdminMenuBookModal(props: Props) {
           <label>終了日<input type="date" value={props.adminMenuBookValidTo} onChange={(event) => props.onMenuBookValidToChange(event.target.value)} disabled={props.disabled} /></label>
           <label>制限時間（分）<input type="number" placeholder="例: 90 (無制限は空欄)" value={props.adminMenuBookTimeLimit} onChange={(event) => props.onMenuBookTimeLimitChange(event.target.value)} disabled={props.disabled} /></label>
           <label>ラストオーダー警告（終了何分前）<input type="number" placeholder="例: 30 (警告なしは空欄)" value={props.adminMenuBookLastOrderOffset} onChange={(event) => props.onMenuBookLastOrderOffsetChange(event.target.value)} disabled={props.disabled} /></label>
+          <label>
+            カテゴリ表示形式
+            <select
+              value={props.adminMenuBookCategoryDisplayMode || 'DOUBLE'}
+              onChange={(event) => props.onMenuBookCategoryDisplayModeChange(event.target.value as 'SINGLE' | 'DOUBLE')}
+              disabled={props.disabled}
+              style={{ padding: '8px', borderRadius: '6px', border: '1px solid #ccc', fontSize: '0.95rem' }}
+            >
+              <option value="DOUBLE">2階層表示 (大カテゴリ ➔ 小カテゴリ)</option>
+              <option value="SINGLE">1階層表示 (大カテゴリのみ)</option>
+            </select>
+          </label>
           <label>有効{props.checkBox(props.adminMenuBookIsActive, props.onMenuBookIsActiveChange, props.disabled)}</label>
           <div className="button-row">
             <button className="primary-button" onClick={props.onCreateMenuBook} disabled={props.disabled}>{props.editingMenuBookId ? '保存' : '追加'}</button>

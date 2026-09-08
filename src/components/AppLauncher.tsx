@@ -42,16 +42,49 @@ const ADMIN_SUB_MENU_ITEMS = [
   { id: 'printers', label: 'プリンター設定' },
 ]
 
-const SALES_SUB_MENU_ITEMS = [
-  { id: 'sales', label: 'レジ締め・売上状況' },
-  { id: 'salesHistory', label: '売上データ参照' },
-  { id: 'hourlySalesHistory', label: '時間帯別売上参照' },
-  { id: 'paymentHistory', label: '会計種別データ参照' },
-  { id: 'accountingHistory', label: '会計データ参照' },
-  { id: 'productSalesHistory', label: '商品注文データ参照' },
-  { id: 'categorySales', label: 'カテゴリ別売上' },
-  { id: 'subcategorySales', label: 'サブカテゴリ別売上' },
-  { id: 'receiptReissue', label: 'レシート再発行' },
+type SalesMenuItem = { id: string; label: string }
+type SalesSubGroup = { title: string; items: SalesMenuItem[] }
+type SalesGroup = { title: string; items?: SalesMenuItem[]; subGroups?: SalesSubGroup[] }
+
+const SALES_MENU_GROUPS: SalesGroup[] = [
+  {
+    title: '日次業務',
+    items: [
+      { id: 'sales:status', label: '開店処理' },
+      { id: 'sales:status', label: '閉店処理' },
+    ],
+    subGroups: [
+      {
+        title: '点検',
+        items: [
+          { id: 'sales:void', label: 'VOID・会計変更' },
+          { id: 'sales:summary', label: '売上サマリ' },
+          { id: 'sales:hourly', label: '時間帯売上' },
+          { id: 'sales:items', label: '商品別注文数' },
+          { id: 'sales:category', label: 'カテゴリ別売上' },
+          { id: 'sales:subcategory', label: 'サブカテゴリ別売上' },
+        ],
+      },
+    ],
+  },
+  {
+    title: 'レシート再発行',
+    items: [
+      { id: 'receiptReissue', label: 'レシート再発行' },
+    ],
+  },
+  {
+    title: '期間集計',
+    items: [
+      { id: 'salesHistory', label: '売上データ参照' },
+      { id: 'hourlySalesHistory', label: '時間帯別売上参照' },
+      { id: 'paymentHistory', label: '会計種別データ参照' },
+      { id: 'accountingHistory', label: '会計データ参照' },
+      { id: 'productSalesHistory', label: '商品注文データ参照' },
+      { id: 'categorySales', label: 'カテゴリ別売上' },
+      { id: 'subcategorySales', label: 'サブカテゴリ別売上' },
+    ],
+  },
 ]
 
 function CaretIcon({ expanded }: { expanded: boolean }) {
@@ -123,7 +156,6 @@ export function AppLauncher({
               {VIEWS.map((view) => {
                 const hasSubmenu = view.id === 'admin' || view.id === 'sales'
                 const isExpanded = !!expandedMenus[view.id]
-                const submenuItems = view.id === 'admin' ? ADMIN_SUB_MENU_ITEMS : SALES_SUB_MENU_ITEMS
 
                 return (
                   <div key={view.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
@@ -148,20 +180,72 @@ export function AppLauncher({
                     </button>
                     {hasSubmenu && isExpanded && (
                       <div className="launcher-submenu">
-                        {submenuItems.map((subItem) => (
-                          <button
-                            key={subItem.id}
-                            className={`launcher-submenu-item ${
-                              currentView === view.id && activeTab === subItem.id ? 'active' : ''
-                            }`}
-                            onClick={() => {
-                              onMove(view.id, subItem.id)
-                              onClose()
-                            }}
-                          >
-                            {subItem.label}
-                          </button>
-                        ))}
+                        {view.id === 'admin' ? (
+                          ADMIN_SUB_MENU_ITEMS.map((subItem) => (
+                            <button
+                              key={subItem.id}
+                              className={`launcher-submenu-item ${
+                                currentView === view.id && activeTab === subItem.id ? 'active' : ''
+                              }`}
+                              onClick={() => {
+                                onMove(view.id, subItem.id)
+                                onClose()
+                              }}
+                            >
+                              {subItem.label}
+                            </button>
+                          ))
+                        ) : (
+                          SALES_MENU_GROUPS.map((group, gIdx) => (
+                            <div key={gIdx} className="launcher-submenu-group">
+                              <div className="launcher-submenu-group-title">
+                                {group.title}
+                              </div>
+                              {group.items?.map((subItem, itemIdx) => {
+                                const isActive = currentView === 'sales' && (
+                                  activeTab === subItem.id ||
+                                  (subItem.id === 'sales:status' && (activeTab === 'sales' || activeTab === 'sales:status'))
+                                )
+                                return (
+                                  <button
+                                    key={`${subItem.id}-${itemIdx}`}
+                                    className={`launcher-submenu-item ${isActive ? 'active' : ''}`}
+                                    style={{ paddingLeft: '40px' }}
+                                    onClick={() => {
+                                      onMove('sales', subItem.id)
+                                      onClose()
+                                    }}
+                                  >
+                                    {subItem.label}
+                                  </button>
+                                )
+                              })}
+                              {group.subGroups?.map((subGroup, sgIdx) => (
+                                <div key={sgIdx} className="launcher-submenu-subgroup">
+                                  <div className="launcher-submenu-subgroup-title">
+                                    {subGroup.title}
+                                  </div>
+                                  {subGroup.items.map((subItem) => {
+                                    const isActive = currentView === 'sales' && activeTab === subItem.id
+                                    return (
+                                      <button
+                                        key={subItem.id}
+                                        className={`launcher-submenu-item ${isActive ? 'active' : ''}`}
+                                        style={{ paddingLeft: '56px' }}
+                                        onClick={() => {
+                                          onMove('sales', subItem.id)
+                                          onClose()
+                                        }}
+                                      >
+                                        {subItem.label}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              ))}
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
                   </div>

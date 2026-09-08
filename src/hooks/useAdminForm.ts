@@ -22,6 +22,7 @@ export function useAdminForm() {
   const [adminMenuBookValidTo, setAdminMenuBookValidTo] = useState('')
   const [adminMenuBookTimeLimit, setAdminMenuBookTimeLimit] = useState('')
   const [adminMenuBookLastOrderOffset, setAdminMenuBookLastOrderOffset] = useState('')
+  const [adminMenuBookCategoryDisplayMode, setAdminMenuBookCategoryDisplayMode] = useState<'SINGLE' | 'DOUBLE'>('DOUBLE')
 
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null)
   const [adminCategoryCode, setAdminCategoryCode] = useState('')
@@ -133,6 +134,7 @@ export function useAdminForm() {
     )
     setAdminMenuBookTimeLimit('')
     setAdminMenuBookLastOrderOffset('')
+    setAdminMenuBookCategoryDisplayMode('DOUBLE')
   }
 
   const resetCategory = () => resetAdminCategoryForm(setEditingCategoryId, setAdminCategoryCode, setAdminCategoryName, setAdminCategorySortOrder)
@@ -247,6 +249,7 @@ export function useAdminForm() {
     const lastOrderOffset = menuBook.last_order_offset_minutes ?? menuBook.lastOrderOffsetMinutes
     setAdminMenuBookTimeLimit(timeLimit !== undefined && timeLimit !== null && String(timeLimit).trim() !== '' ? String(timeLimit) : '')
     setAdminMenuBookLastOrderOffset(lastOrderOffset !== undefined && lastOrderOffset !== null && String(lastOrderOffset).trim() !== '' ? String(lastOrderOffset) : '')
+    setAdminMenuBookCategoryDisplayMode(menuBook.category_display_mode ?? menuBook.categoryDisplayMode ?? 'DOUBLE')
   }
 
   const startEditCategory = (category: any) => {
@@ -367,6 +370,7 @@ export function useAdminForm() {
     adminMenuBookValidTo, setAdminMenuBookValidTo,
     adminMenuBookTimeLimit, setAdminMenuBookTimeLimit,
     adminMenuBookLastOrderOffset, setAdminMenuBookLastOrderOffset,
+    adminMenuBookCategoryDisplayMode, setAdminMenuBookCategoryDisplayMode,
     resetBook,
 
     editingCategoryId, setEditingCategoryId,

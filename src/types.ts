@@ -57,6 +57,7 @@ export type LiveMenuBook = {
   valid_to: string | null
   time_limit_minutes: number | null
   last_order_offset_minutes: number | null
+  category_display_mode?: 'SINGLE' | 'DOUBLE' | null
 }
 export type LiveMenuBookItem = { id: string; menu_book_id: string; menu_category_id: string; menu_item_id: string; sort_order: number; is_active: boolean }
 export type LiveSubcategory = { id: string; code?: string | null; name: string; sort_order: number; parent_category_id?: string | null; is_active: boolean }

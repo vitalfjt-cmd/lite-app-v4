@@ -11,6 +11,8 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 - `staff`: スタッフ向け伝票一覧・作成・明細・会計画面
 - `customer`: スマートフォン向け QR 注文画面
 - `cust-tablet`: 10インチタブレット向け QR 注文画面 (高度化されたUIレイアウト・トッピング選択・多言語対応)
+- `customer-qr`: モバイル向け 卓別 QR コード発行・表示画面 (`TableQrListScreen`)
+- `cust-tablet-qr`: タブレット向け 卓別 QR コード発行・表示画面 (`TableQrListScreen`)
 - `kds`: キッチン向け調理・提供管理画面 (Kitchen Display System)
 - `seats`: 店舗座席稼働モニター画面
 - `admin`: マスタメンテナンス & 売上分析画面 (メニュー、カテゴリ、サブカテゴリ、トッピング、店舗、スタッフ、決済種別、卓配置、売上集計、レシート再発行)

@@ -100,6 +100,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         valid_to: adminForm.adminMenuBookValidTo || null,
         time_limit_minutes: timeLimitMinutes,
         last_order_offset_minutes: lastOrderOffsetMinutes,
+        category_display_mode: adminForm.adminMenuBookCategoryDisplayMode || 'DOUBLE',
       }
 
       if (staffReadApiEnabled) {
@@ -118,6 +119,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           validTo: adminForm.adminMenuBookValidTo || null,
           timeLimitMinutes: timeLimitMinutes,
           lastOrderOffsetMinutes: lastOrderOffsetMinutes,
+          categoryDisplayMode: adminForm.adminMenuBookCategoryDisplayMode || 'DOUBLE',
         })
         if (res?.menu_book && setLiveMenuBooks) {
           setLiveMenuBooks((prev: any[]) => {

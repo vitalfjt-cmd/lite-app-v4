@@ -952,6 +952,7 @@ export default function App() {
             adminMenuBookValidTo={adminForm.adminMenuBookValidTo}
             adminMenuBookTimeLimit={adminForm.adminMenuBookTimeLimit}
             adminMenuBookLastOrderOffset={adminForm.adminMenuBookLastOrderOffset}
+            adminMenuBookCategoryDisplayMode={adminForm.adminMenuBookCategoryDisplayMode}
             editingMenuBookId={adminForm.editingMenuBookId}
             adminCategoryName={adminForm.adminCategoryName}
             adminCategoryCode={adminForm.adminCategoryCode}
@@ -1044,6 +1045,7 @@ export default function App() {
             onMenuBookValidToChange={adminForm.setAdminMenuBookValidTo}
             onMenuBookTimeLimitChange={adminForm.setAdminMenuBookTimeLimit}
             onMenuBookLastOrderOffsetChange={adminForm.setAdminMenuBookLastOrderOffset}
+            onMenuBookCategoryDisplayModeChange={adminForm.setAdminMenuBookCategoryDisplayMode}
             onCreateMenuBook={() => adminOps.createMenuBook()}
             onEditMenuBook={(id) => {
               const book = liveMenuBooks.find((b) => b.id === id)

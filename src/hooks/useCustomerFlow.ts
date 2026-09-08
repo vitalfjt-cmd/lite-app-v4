@@ -40,6 +40,7 @@ export function useCustomerFlow(view: AppView) {
     available_to_time?: string | null
     time_limit_minutes: number | null
     last_order_offset_minutes: number | null
+    category_display_mode?: 'SINGLE' | 'DOUBLE'
   } | null>(null)
 
   const [selectedCustomerTopCategoryId, setSelectedCustomerTopCategoryId] = useState<string | null>(null)
@@ -53,6 +54,8 @@ export function useCustomerFlow(view: AppView) {
   const publicTicketToken = customerAccess.ticketToken
   const hasPublicCustomerAccess = Boolean(publicStoreSlug && publicQrToken)
   const effectivePublicTicketToken = publicTicketToken || publicOpenTicket?.customer_access_token || null
+
+  const isSingleLevelCategory = publicMenuBook?.category_display_mode === 'SINGLE'
 
   // Memoized values
   const customerCategories = useMemo<CustomerCategory[]>(() => {
@@ -87,9 +90,27 @@ export function useCustomerFlow(view: AppView) {
   }, [publicItems])
 
   const customerTopCategories = useMemo(() => {
+    if (isSingleLevelCategory) {
+      const leafCategories = customerCategories.filter((category) => {
+        if (category.parentId) return true
+        const hasChildren = customerCategories.some((c) => c.parentId === category.id)
+        return !hasChildren
+      })
+      const baseCategories = leafCategories.length > 0 ? leafCategories : customerCategories
+      const uniqueByName: CustomerCategory[] = []
+      const seenNames = new Set<string>()
+
+      for (const cat of baseCategories) {
+        if (!seenNames.has(cat.name)) {
+          seenNames.add(cat.name)
+          uniqueByName.push(cat)
+        }
+      }
+      return uniqueByName
+    }
     const hierarchicalTop = customerCategories.filter((category) => !category.parentId)
     return hierarchicalTop.length > 0 ? hierarchicalTop : customerCategories
-  }, [customerCategories])
+  }, [customerCategories, isSingleLevelCategory])
 
   const hasCustomerCategoryHierarchy = useMemo(
     () => customerCategories.some((category) => Boolean(category.parentId)),
@@ -97,10 +118,11 @@ export function useCustomerFlow(view: AppView) {
   )
 
   const customerSubCategories = useMemo(() => {
+    if (isSingleLevelCategory) return []
     if (!hasCustomerCategoryHierarchy) return customerCategories
     if (!selectedCustomerTopCategoryId) return []
     return customerCategories.filter((category) => category.parentId === selectedCustomerTopCategoryId)
-  }, [customerCategories, hasCustomerCategoryHierarchy, selectedCustomerTopCategoryId])
+  }, [customerCategories, hasCustomerCategoryHierarchy, selectedCustomerTopCategoryId, isSingleLevelCategory])
 
   const cartItems = useMemo(() => {
     return Object.entries(cart)
@@ -140,7 +162,12 @@ export function useCustomerFlow(view: AppView) {
   const cartCount = useMemo(() => cartItems.reduce((acc, item) => acc + item.qty, 0), [cartItems])
   const cartSubtotal = useMemo(() => cartItems.reduce((acc, item) => acc + item.qty * item.price, 0), [cartItems])
 
-  const selectedCustomerTopCategoryIdSafe = selectedCustomerTopCategoryId ?? (customerTopCategories[0]?.id || null)
+  const selectedCustomerTopCategoryIdSafe = useMemo(() => {
+    if (!selectedCustomerTopCategoryId) return customerTopCategories[0]?.id || null
+    const exists = customerTopCategories.some((c) => c.id === selectedCustomerTopCategoryId)
+    return exists ? selectedCustomerTopCategoryId : customerTopCategories[0]?.id || null
+  }, [selectedCustomerTopCategoryId, customerTopCategories])
+
   const selectedCustomerCategoryIdSafe = selectedCustomerCategoryId ?? (customerSubCategories[0]?.id || null)
 
   const firstCategoryWithItems = useMemo(() => {
@@ -148,8 +175,48 @@ export function useCustomerFlow(view: AppView) {
   }, [customerSubCategories, customerMenuItems])
 
   const visibleCustomerItems = useMemo(() => {
-    return customerMenuItems.filter((item) => item.categoryId === selectedCustomerCategoryIdSafe)
-  }, [customerMenuItems, selectedCustomerCategoryIdSafe])
+    if (isSingleLevelCategory) {
+      if (!selectedCustomerTopCategoryIdSafe) return customerMenuItems
+      const selectedCat = customerTopCategories.find((c) => c.id === selectedCustomerTopCategoryIdSafe)
+      if (!selectedCat) return customerMenuItems
+
+      const matchingCategoryIds = new Set(
+        customerCategories
+          .filter((c) => c.name === selectedCat.name)
+          .map((c) => c.id)
+      )
+
+      const filtered = customerMenuItems.filter((item) => {
+        const itemCat = customerCategories.find((c) => c.id === item.categoryId)
+        return (
+          matchingCategoryIds.has(item.categoryId) ||
+          (itemCat && matchingCategoryIds.has(itemCat.id)) ||
+          (itemCat && itemCat.name === selectedCat.name)
+        )
+      })
+
+      const uniqueItems: CustomerMenuItem[] = []
+      const seenItemIds = new Set<string>()
+      for (const item of filtered) {
+        if (!seenItemIds.has(item.id)) {
+          seenItemIds.add(item.id)
+          uniqueItems.push(item)
+        }
+      }
+      return uniqueItems
+    }
+
+    const filtered = customerMenuItems.filter((item) => item.categoryId === selectedCustomerCategoryIdSafe)
+    const uniqueItems: CustomerMenuItem[] = []
+    const seenItemIds = new Set<string>()
+    for (const item of filtered) {
+      if (!seenItemIds.has(item.id)) {
+        seenItemIds.add(item.id)
+        uniqueItems.push(item)
+      }
+    }
+    return uniqueItems
+  }, [customerMenuItems, selectedCustomerCategoryIdSafe, selectedCustomerTopCategoryIdSafe, isSingleLevelCategory, customerCategories, customerTopCategories])
 
   // Effects
   useEffect(() => {

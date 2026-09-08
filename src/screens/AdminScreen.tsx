@@ -100,6 +100,7 @@ type Props = {
   adminMenuBookValidTo: string
   adminMenuBookTimeLimit: string
   adminMenuBookLastOrderOffset: string
+  adminMenuBookCategoryDisplayMode: 'SINGLE' | 'DOUBLE'
   editingMenuBookId: string | null
   adminCategoryName: string
   adminCategoryCode: string
@@ -178,6 +179,7 @@ type Props = {
   onMenuBookValidToChange: (value: string) => void
   onMenuBookTimeLimitChange: (value: string) => void
   onMenuBookLastOrderOffsetChange: (value: string) => void
+  onMenuBookCategoryDisplayModeChange: (value: 'SINGLE' | 'DOUBLE') => void
   onCreateMenuBook?: () => Promise<boolean | void> | boolean | void
   onCancelMenuBookEdit: () => void
   onCategoryNameChange: (value: string) => void
@@ -705,13 +707,18 @@ export function AdminScreen(props: Props) {
             />
           ) : null}
 
-          {activeTab === 'sales' ? (
+          {activeTab === 'sales' || activeTab.startsWith('sales:') ? (
             <AdminSalesTab
               storeSlug={props.adminStoreSlug}
               disabled={disabled}
               yen={props.yen}
               setAdminMessage={(msg) => msg ? alert(msg) : null}
               setError={(msg) => msg ? alert(msg) : null}
+              initialSubTab={
+                activeTab.includes(':')
+                  ? (activeTab.split(':')[1] as any)
+                  : 'status'
+              }
             />
           ) : null}
 
@@ -849,6 +856,7 @@ export function AdminScreen(props: Props) {
             adminMenuBookValidTo={props.adminMenuBookValidTo}
             adminMenuBookTimeLimit={props.adminMenuBookTimeLimit}
             adminMenuBookLastOrderOffset={props.adminMenuBookLastOrderOffset}
+            adminMenuBookCategoryDisplayMode={props.adminMenuBookCategoryDisplayMode}
             adminMenuBookIsActive={props.adminMenuBookIsActive}
             disabled={disabled}
             onClose={() => {
@@ -865,6 +873,7 @@ export function AdminScreen(props: Props) {
             onMenuBookValidToChange={props.onMenuBookValidToChange}
             onMenuBookTimeLimitChange={props.onMenuBookTimeLimitChange}
             onMenuBookLastOrderOffsetChange={props.onMenuBookLastOrderOffsetChange}
+            onMenuBookCategoryDisplayModeChange={props.onMenuBookCategoryDisplayModeChange}
             onMenuBookIsActiveChange={props.onMenuBookIsActiveChange}
             onCreateMenuBook={async () => {
               if (props.onCreateMenuBook) {
