@@ -65,19 +65,66 @@ export function useStaffData() {
     if (staffHandyTopCategories.length > 0) return staffHandyTopCategories
     const menuBookId = selectedTicket?.menu_book_id
     if (!menuBookId) return []
-    return liveBookCategories
-      .filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
+    const menuBook = liveMenuBooks.find((b) => b.id === menuBookId)
+    const bookCategoryRelations = liveBookCategories.filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
+    const firstCatName = liveCategories.find((c) => c.id === bookCategoryRelations[0]?.menu_category_id)?.name
+
+    const isSingleLevel = menuBook?.category_display_mode === 'SINGLE' || (bookCategoryRelations.length === 1 && firstCatName === 'サブカテゴリのみ')
+
+    if (isSingleLevel) {
+      const subcatRelations = liveBookCategorySubcategories.filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
+      const list = subcatRelations
+        .map((relation) => {
+          const subcategory = liveSubcategories.find((item) => item.id === relation.menu_subcategory_id && item.is_active)
+          if (!subcategory) return null
+          return {
+            id: subcategory.id,
+            name: subcategory.name,
+            sortOrder: relation.sort_order,
+          }
+        })
+        .filter((item): item is { id: string; name: string; sortOrder: number } => Boolean(item))
+        .sort((a, b) => a.sortOrder - b.sortOrder)
+
+      const uniqueByName: StaffPrototypeTopCategory[] = []
+      const seenNames = new Set<string>()
+      for (const cat of list) {
+        if (!seenNames.has(cat.name)) {
+          seenNames.add(cat.name)
+          uniqueByName.push({ id: cat.id, name: cat.name })
+        }
+      }
+      return uniqueByName
+    }
+
+    const categories = bookCategoryRelations
       .map((relation) => liveCategories.find((category) => category.id === relation.menu_category_id && category.is_active))
       .filter((category): category is LiveCategory => Boolean(category))
       .sort((a, b) => a.sort_order - b.sort_order)
-      .map((category) => ({ id: category.id, name: category.name }))
-  }, [liveBookCategories, liveCategories, selectedTicket, staffHandyTopCategories])
+
+    const uniqueTopCats: StaffPrototypeTopCategory[] = []
+    const seenCatIds = new Set<string>()
+    for (const cat of categories) {
+      if (!seenCatIds.has(cat.id)) {
+        seenCatIds.add(cat.id)
+        uniqueTopCats.push({ id: cat.id, name: cat.name })
+      }
+    }
+    return uniqueTopCats
+  }, [liveBookCategories, liveCategories, liveBookCategorySubcategories, liveSubcategories, liveMenuBooks, selectedTicket, staffHandyTopCategories])
 
   const staffHandySubCategoriesMemo = useMemo(() => {
     if (staffHandySubCategories.length > 0) return staffHandySubCategories
     const menuBookId = selectedTicket?.menu_book_id
     if (!menuBookId) return []
-    return liveBookCategorySubcategories
+    const menuBook = liveMenuBooks.find((b) => b.id === menuBookId)
+    const bookCategoryRelations = liveBookCategories.filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
+    const firstCatName = liveCategories.find((c) => c.id === bookCategoryRelations[0]?.menu_category_id)?.name
+
+    const isSingleLevel = menuBook?.category_display_mode === 'SINGLE' || (bookCategoryRelations.length === 1 && firstCatName === 'サブカテゴリのみ')
+    if (isSingleLevel) return []
+
+    const subcats = liveBookCategorySubcategories
       .filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
       .map((relation) => {
         const subcategory = liveSubcategories.find((item) => item.id === relation.menu_subcategory_id && item.is_active)
@@ -91,13 +138,24 @@ export function useStaffData() {
       })
       .filter((item): item is { id: string; name: string; parentId: string; sortOrder: number } => Boolean(item))
       .sort((a, b) => a.sortOrder - b.sortOrder)
-  }, [liveBookCategorySubcategories, liveSubcategories, selectedTicket, staffHandySubCategories])
+
+    const uniqueSubCats: StaffPrototypeSubCategory[] = []
+    const seenSubKeys = new Set<string>()
+    for (const sub of subcats) {
+      const key = `${sub.parentId}:${sub.id}`
+      if (!seenSubKeys.has(key)) {
+        seenSubKeys.add(key)
+        uniqueSubCats.push(sub)
+      }
+    }
+    return uniqueSubCats
+  }, [liveBookCategorySubcategories, liveSubcategories, liveBookCategories, liveCategories, liveMenuBooks, selectedTicket, staffHandySubCategories])
 
   const staffHandyItemsMemo = useMemo(() => {
     if (staffHandyItems.length > 0) return staffHandyItems
     const menuBookId = selectedTicket?.menu_book_id
     if (!menuBookId) return []
-    return liveBookSubcategoryItems
+    const rawItems = liveBookSubcategoryItems
       .filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
       .map((relation) => {
         const item = liveItems.find((candidate) => candidate.id === relation.menu_item_id && candidate.is_active && !candidate.is_sold_out)
@@ -112,11 +170,19 @@ export function useStaffData() {
           toppings: item.toppings,
         } as StaffPrototypeItem
       })
-      .filter(
-        (item): item is StaffPrototypeItem =>
-          Boolean(item),
-      )
+      .filter((item): item is StaffPrototypeItem => Boolean(item))
       .sort((a, b) => a.name.localeCompare(b.name, 'ja'))
+
+    const uniqueItems: StaffPrototypeItem[] = []
+    const seenSubcatItem = new Set<string>()
+    for (const item of rawItems) {
+      const key = `${item.subcategoryId}:${item.id}`
+      if (!seenSubcatItem.has(key)) {
+        seenSubcatItem.add(key)
+        uniqueItems.push(item)
+      }
+    }
+    return uniqueItems
   }, [liveBookSubcategoryItems, liveItems, selectedTicket, staffHandyItems])
 
   const liveTicketSummaries = useMemo<TicketSummaryView[]>(() => {

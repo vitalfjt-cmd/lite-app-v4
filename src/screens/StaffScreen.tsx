@@ -308,7 +308,33 @@ export function StaffScreen({
   }, [handyTopCategories])
 
   const visibleHandySubCategories = useMemo(() => handySubCategories.filter((category) => category.parentId === handyTopCategoryId), [handySubCategories, handyTopCategoryId])
-  const visibleHandyItems = useMemo(() => handyItems.filter((item) => item.subcategoryId === handySubCategoryId), [handyItems, handySubCategoryId])
+
+  const visibleHandyItems = useMemo(() => {
+    const isSingleLevel = handySubCategories.length === 0
+    let candidates: StaffPrototypeItem[] = []
+    if (isSingleLevel) {
+      // In single level mode, handyTopCategoryId represents the subcategory ID
+      candidates = handyItems.filter((item) => {
+        if (item.subcategoryId === handyTopCategoryId) return true
+        const topCat = handyTopCategories.find((c) => c.id === handyTopCategoryId)
+        if (!topCat) return false
+        const subCat = handySubCategories.find((s) => s.id === item.subcategoryId)
+        return subCat ? subCat.name === topCat.name : false
+      })
+    } else {
+      candidates = handyItems.filter((item) => item.subcategoryId === handySubCategoryId)
+    }
+
+    const uniqueItems: StaffPrototypeItem[] = []
+    const seenIds = new Set<string>()
+    for (const item of candidates) {
+      if (!seenIds.has(item.id)) {
+        seenIds.add(item.id)
+        uniqueItems.push(item)
+      }
+    }
+    return uniqueItems
+  }, [handyItems, handySubCategoryId, handyTopCategoryId, handySubCategories, handyTopCategories])
 
   useEffect(() => {
     const nextSubCategoryId = visibleHandySubCategories[0]?.id ?? null
