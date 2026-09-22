@@ -45,6 +45,7 @@ export type DataLoadingSetters = {
   setAdminStoreTaxRate?: (rate: any) => void
   setAdminStoreReducedTaxRate?: (rate: any) => void
   setAdminStoreTaxDisplayMode?: (mode: any) => void
+  setAdminStoreInvoiceNumber?: (num: any) => void
   setPublicStore: (store: any) => void
   setPublicTable: (table: any) => void
   setPublicOpenTicket: (ticket: any) => void
@@ -68,7 +69,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setAdminItemCategoryId, setAdminPlacementTopCategoryId, setAdminPlacementCategoryId, setAdminPlacementItemId,
     setAdminStoreName, setAdminStoreCode, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
     setAdminStorePaymentTimingMode, setAdminStoreTicketNoResetMode, setAdminStoreTicketNoDigits,
-    setAdminStoreTaxRate, setAdminStoreReducedTaxRate, setAdminStoreTaxDisplayMode,
+    setAdminStoreTaxRate, setAdminStoreReducedTaxRate, setAdminStoreTaxDisplayMode, setAdminStoreInvoiceNumber,
     setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
     setPublicMenuReady, setCustomerBusy, setCustomerMessage, setCustomerAccess, setSession
   } = setters
@@ -215,6 +216,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setAdminStoreTaxRate?.((bootstrap.store as any).tax_rate ?? 10)
     setAdminStoreReducedTaxRate?.((bootstrap.store as any).reduced_tax_rate ?? 8)
     setAdminStoreTaxDisplayMode?.((bootstrap.store as any).tax_display_mode ?? 'INCLUDED')
+    setAdminStoreInvoiceNumber?.((bootstrap.store as any).invoice_number ?? '')
   }
 
   const loadLiveData = async (activeSession: any, view: string, PROTOTYPE_STAFF_SESSION_STORAGE_KEY: string) => {

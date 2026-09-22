@@ -21,6 +21,7 @@ type StaffPaymentViewProps = {
   paymentFinalized: boolean
   mutationBusy: string | null
   storeName: string
+  invoiceNumber?: string | null
   taxRate?: number
   reducedTaxRate?: number
   yen: (val: number) => string
@@ -90,6 +91,7 @@ export function StaffPaymentView({
   paymentFinalized,
   mutationBusy,
   storeName,
+  invoiceNumber,
   taxRate,
   reducedTaxRate,
   yen,
@@ -233,6 +235,7 @@ export function StaffPaymentView({
             </div>
           )}
           <h3 className="receipt-brand">{storeName}</h3>
+          {invoiceNumber && <p className="receipt-meta" style={{ fontWeight: 'bold' }}>登録番号: {invoiceNumber}</p>}
           <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
           {selectedSummary.receiptNo && <p className="receipt-meta">レシート番号: {selectedSummary.receiptNo}</p>}
           {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e8f5e9', padding: '4px', borderRadius: '4px', color: '#1b813e' }}>{g.label}</p>}
@@ -624,6 +627,7 @@ export function StaffPaymentView({
 
                 <div style={{ textAlign: 'center' }}>
                   <p style={{ fontSize: '1rem', color: '#333', fontWeight: 'bold', marginBottom: '4px' }}>{storeName}</p>
+                  {invoiceNumber && <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '4px' }}>登録番号: {invoiceNumber}</p>}
                   <p style={{ fontSize: '0.85rem', color: '#888' }}>ご利用ありがとうございました</p>
                 </div>
 

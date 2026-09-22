@@ -173,6 +173,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           taxRate: isNaN(Number(adminForm.adminStoreTaxRate)) ? 10 : Number(adminForm.adminStoreTaxRate),
           reducedTaxRate: isNaN(Number(adminForm.adminStoreReducedTaxRate)) ? 8 : Number(adminForm.adminStoreReducedTaxRate),
           taxDisplayMode: adminForm.adminStoreTaxDisplayMode,
+          invoiceNumber: adminForm.adminStoreInvoiceNumber?.trim() || null,
         })
         await refreshAdminData()
       }

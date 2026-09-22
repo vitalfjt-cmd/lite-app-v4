@@ -13,6 +13,7 @@ type Props = {
   adminStoreTaxRate: string
   adminStoreReducedTaxRate: string
   adminStoreTaxDisplayMode: 'INCLUDED' | 'EXCLUDED'
+  adminStoreInvoiceNumber: string
   disabled: boolean
   onStoreNameChange: (value: string) => void
   onStoreCodeChange: (value: string) => void
@@ -25,6 +26,7 @@ type Props = {
   onStoreTaxRateChange: (value: string) => void
   onStoreReducedTaxRateChange: (value: string) => void
   onStoreTaxDisplayModeChange: (value: 'INCLUDED' | 'EXCLUDED') => void
+  onStoreInvoiceNumberChange: (value: string) => void
   onSaveStoreSettings: () => void
 }
 
@@ -34,13 +36,26 @@ export function AdminStoreTab(props: Props) {
       <section className="panel admin-section-store">
         <div className="admin-list-head">
           <div>
-<h2>店舗設定</h2>
+            <h2>店舗設定</h2>
           </div>
         </div>
         <div className="form-stack">
           <label className="admin-store-field">
             <span>店舗名</span>
             <input value={props.adminStoreName} onChange={(event) => props.onStoreNameChange(event.target.value)} disabled={props.disabled} />
+          </label>
+          <label className="admin-store-field">
+            <span>インボイス登録番号</span>
+            <input
+              type="text"
+              placeholder="例: T1234567890123"
+              value={props.adminStoreInvoiceNumber}
+              onChange={(event) => props.onStoreInvoiceNumberChange(event.target.value)}
+              disabled={props.disabled}
+            />
+            <p className="hint" style={{ fontSize: "0.85rem", color: "var(--text-sub)", marginTop: "4px" }}>
+              適格請求書発行事業者の登録番号（例: T1234567890123）を設定します。レシートおよび領収書に印字されます。
+            </p>
           </label>
           <label className="admin-store-field">
             <span>店舗コード</span>

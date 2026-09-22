@@ -120,6 +120,7 @@ export type LiveStore = {
   tax_rate?: number
   reduced_tax_rate?: number
   tax_display_mode?: 'INCLUDED' | 'EXCLUDED'
+  invoice_number?: string | null
   open_business_date?: string | null
   today_business_date?: string
 }
@@ -229,7 +230,7 @@ export type StaffPrototypeItem = {
   subcategoryId: string
   toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
-export type ActiveStoreSummary = { name: string; tableName: string; ticketNo: string }
+export type ActiveStoreSummary = { name: string; tableName: string; ticketNo: string; invoice_number?: string | null }
 
 export type AdminPaymentMethod = {
   id: string
