@@ -291,6 +291,7 @@ type Props = {
   onRuleLogicalPrinterIdChange: (value: string) => void
   adminRulePhysicalPrinterId: string
   editingPrinterRoutingRuleId: string | null
+  onSaveQrPrinterRouting?: (floorId: string | null, physicalPrinterId: string | null) => Promise<boolean>
 
   logicalPrinters: AdminLogicalPrinter[]
   adminLogicalPrinterCode: string
@@ -691,7 +692,9 @@ export function AdminScreen(props: Props) {
               physicalPrinters={props.livePhysicalPrinters}
               routingRules={props.livePrinterRoutingRules}
               logicalPrinters={props.logicalPrinters}
+              liveFloors={props.liveFloors}
               disabled={disabled}
+              onSaveQrPrinterRouting={props.onSaveQrPrinterRouting}
               onEditPrinter={(id) => {
                 props.onEditPrinter(id)
                 setPrinterModalOpen(true)

@@ -203,6 +203,8 @@ export default function App() {
     liveBookCategoryRows: adminBookCategories,
     liveBookCategorySubcategoryRows: adminBookCategorySubcategories,
     livePlacements: adminPlacements,
+    logicalPrinters: staffData.logicalPrinters,
+    livePrinterRoutingRules: staffData.livePrinterRoutingRules,
     setMutationBusy,
     setItemImageUploadBusy: adminForm.setItemImageUploadBusy,
     setAdminMessage,
@@ -1237,6 +1239,7 @@ export default function App() {
             onRuleLogicalPrinterCodeChange={adminForm.setAdminRuleLogicalPrinterCode}
             onRulePhysicalPrinterIdChange={adminForm.setAdminRulePhysicalPrinterId}
             onSaveRule={() => adminOps.savePrinterRoutingRule()}
+            onSaveQrPrinterRouting={adminOps.saveQrPrinterRouting}
             onDeleteRule={(id) => void adminOps.deletePrinterRoutingRule(id)}
             onEditRule={(id) => {
               const rule = staffData.livePrinterRoutingRules.find((r) => r.id === id)

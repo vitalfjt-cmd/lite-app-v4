@@ -870,7 +870,7 @@ export function saveAdminPrototypePrinterRoutingRule(
   storeSlug: string,
   payload: {
     id?: string
-    floorId: string
+    floorId?: string | null
     logicalPrinterId: string
     physicalPrinterId: string
   },

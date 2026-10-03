@@ -39,18 +39,13 @@ export function AdminPrinterRoutingRuleModal(props: Props) {
               disabled={props.disabled}
               style={{ width: '100%', height: '36px', borderRadius: '4px', border: '1px solid #ccc', padding: '0 8px', marginTop: '4px' }}
             >
-              <option value="">選択してください</option>
+              <option value="">全フロア共通 / 未指定</option>
               {props.liveFloors.map((floor) => (
                 <option key={floor.id} value={floor.id}>
                   {floor.name}
                 </option>
               ))}
             </select>
-            {props.liveFloors.length === 0 && (
-              <div className="panel-copy" style={{ color: '#d9534f', marginTop: '4px' }}>
-                ※フロアが登録されていません。管理画面メニューの「フロア設定」からフロアを作成してください。
-              </div>
-            )}
           </label>
           <label>
             対象の部門別プリンター (論理)
@@ -61,11 +56,14 @@ export function AdminPrinterRoutingRuleModal(props: Props) {
               style={{ marginTop: '4px' }}
             >
               <option value="">選択してください</option>
-              {props.logicalPrinters.map((lp) => (
-                <option key={lp.id} value={lp.id}>
-                  {lp.name} ({lp.code})
-                </option>
-              ))}
+              {props.logicalPrinters.map((lp) => {
+                const badge = lp.is_qr_printer ? ' 【注文用QR】' : lp.is_receipt_printer ? ' 【領収書レシート】' : lp.is_order_printer ? ' 【会計伝票】' : ''
+                return (
+                  <option key={lp.id} value={lp.id}>
+                    {lp.name} ({lp.code}){badge}
+                  </option>
+                )
+              })}
             </select>
             {props.logicalPrinters.length === 0 && (
               <div className="panel-copy" style={{ color: '#d9534f', marginTop: '4px' }}>

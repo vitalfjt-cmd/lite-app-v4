@@ -42,6 +42,8 @@ export type AdminOperationsDependencies = {
   liveBookCategoryRows: any[]
   liveBookCategorySubcategoryRows: any[]
   livePlacements: any[]
+  logicalPrinters?: any[]
+  livePrinterRoutingRules?: any[]
   setMutationBusy: (busy: string | null) => void
   setItemImageUploadBusy: (busy: boolean) => void
   setAdminMessage: (msg: string | null) => void
@@ -55,6 +57,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
   const {
     profile, liveStore, adminForm,
     liveItems, liveBookCategoryRows, liveBookCategorySubcategoryRows, livePlacements,
+    logicalPrinters = [], livePrinterRoutingRules = [],
     setMutationBusy, setItemImageUploadBusy, setAdminMessage, setError,
     refreshAdminData,
     setLiveMenuBooks
@@ -842,6 +845,56 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     }
   }
 
+  const saveQrPrinterRouting = async (floorId: string | null, physicalPrinterId: string | null): Promise<boolean> => {
+    if (!profile || profile.role_type !== 'ADMIN') return false
+    setMutationBusy('admin-qr-printer')
+    setAdminMessage(null)
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+
+        let qrLp = logicalPrinters.find((lp: any) => lp.is_qr_printer)
+        if (!qrLp) {
+          const res = await saveAdminPrototypeLogicalPrinter(storeSlug, {
+            code: 'QR',
+            name: '注文用QR',
+            sortOrder: 50,
+            isQrPrinter: true,
+          })
+          qrLp = res.logical_printer
+        }
+
+        const existingRule = livePrinterRoutingRules.find((r: any) =>
+          (floorId ? r.floor_id === floorId : (!r.floor_id || r.floor_id === '')) &&
+          (r.logical_printer_id === qrLp?.id || r.logical_printer_code === qrLp?.code)
+        )
+
+        if (physicalPrinterId) {
+          await saveAdminPrototypePrinterRoutingRule(storeSlug, {
+            id: existingRule?.id,
+            floorId: floorId || undefined,
+            logicalPrinterId: qrLp.id,
+            physicalPrinterId,
+          })
+          setAdminMessage('注文用QRコードの出力先プリンターを設定しました。')
+        } else if (existingRule) {
+          await deleteAdminPrototypePrinterRoutingRule(storeSlug, existingRule.id)
+          setAdminMessage('注文用QRコードの出力先プリンター設定を解除しました。')
+        }
+        await refreshAdminData()
+      }
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      window.alert(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   const saveFloor = async (): Promise<boolean> => {
     if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminFloorName.trim()) return false
     setMutationBusy('admin-floor')
@@ -1062,6 +1115,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     deletePhysicalPrinter,
     savePrinterRoutingRule,
     deletePrinterRoutingRule,
+    saveQrPrinterRouting,
     saveLogicalPrinter,
     deleteLogicalPrinter,
     saveFloor,
