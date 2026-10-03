@@ -82,6 +82,11 @@ export function AdminLogicalPrintersTab(props: Props) {
                           領収書レシート
                         </span>
                       )}
+                      {lp.is_qr_printer && (
+                        <span style={{ backgroundColor: '#f3e5f5', color: '#6a1b9a', fontSize: '11px', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
+                          注文用QR
+                        </span>
+                      )}
                     </span>
                   </td>
                   <td>{lp.sort_order ?? 0}</td>

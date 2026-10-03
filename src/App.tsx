@@ -19,6 +19,7 @@ import {
   staffReadApiEnabled,
   staffReadStoreSlugOverride,
   printStaffPrototypeReceipt,
+  printStaffPrototypeQr,
 } from './lib/staffReadApi'
 import { kdsStatusLabel } from './lib/staffUtils'
 import { AdminScreen } from './screens/AdminScreen'
@@ -624,6 +625,47 @@ export default function App() {
     }
   }
 
+  const handlePrintQr = async (
+    target: string | { ticketId?: string | null; tableLabel?: string | null; customerUrl?: string | null },
+    customerUrl?: string | null
+  ): Promise<boolean> => {
+    setMutationBusy('print-qr')
+    setStaffMessage(null)
+    setError(null)
+    try {
+      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      if (!storeSlug) throw new Error('staff_store_slug_missing')
+      let ticketId: string | null = null
+      let targetCustomerUrl: string | null = null
+      let tableLabel: string | null = null
+
+      if (typeof target === 'string') {
+        ticketId = target
+        targetCustomerUrl = customerUrl || null
+      } else if (target && typeof target === 'object') {
+        ticketId = target.ticketId || null
+        targetCustomerUrl = target.customerUrl || null
+        tableLabel = target.tableLabel || null
+      }
+
+      await printStaffPrototypeQr(storeSlug, {
+        ticketId,
+        customerUrl: targetCustomerUrl,
+        tableLabel,
+      })
+      setStaffMessage('QRコードの印刷指示を送信しました。')
+      return true
+    } catch (err) {
+      const message = formatError(err)
+      setError(message)
+      setStaffMessage(message)
+      alert('QRコードの印刷に失敗しました: ' + message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   return (
     <div
       className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''} ${(view === 'seats' || view === 'customer-qr' || view === 'cust-tablet-qr') ? 'seats-mode' : ''}`}
@@ -860,6 +902,7 @@ export default function App() {
             onCloseTicket={async (ticketId?: string) => { return await settleTicket(ticketId) }}
             onAbortPayment={logPaymentAbort}
             onPrintReceipt={handlePrintReceipt}
+            onPrintQr={handlePrintQr}
             directAction={staffDirectAction}
             onClearDirectAction={() => setStaffDirectAction(null)}
             liveLines={liveLines}
@@ -892,6 +935,7 @@ export default function App() {
             onOpenLauncher={() => setIsLauncherOpen(true)}
             storeName={liveStore?.name ?? activeStore.name}
             storeSlug={liveStore?.slug || publicStoreSlug}
+            onPrintQr={handlePrintQr}
           />
         ) : null}
         {view === 'kds' ? (
@@ -985,6 +1029,7 @@ export default function App() {
             adminLogicalPrinterSortOrder={adminForm.adminLogicalPrinterSortOrder}
             adminLogicalPrinterIsReceiptPrinter={adminForm.adminLogicalPrinterIsReceiptPrinter}
             adminLogicalPrinterIsOrderPrinter={adminForm.adminLogicalPrinterIsOrderPrinter}
+            adminLogicalPrinterIsQrPrinter={adminForm.adminLogicalPrinterIsQrPrinter}
             editingLogicalPrinterId={adminForm.editingLogicalPrinterId}
             adminItemLogicalPrinterIds={adminForm.adminItemLogicalPrinterIds}
             itemImageUploadBusy={adminForm.itemImageUploadBusy}
@@ -1203,6 +1248,7 @@ export default function App() {
             onLogicalPrinterSortOrderChange={adminForm.setAdminLogicalPrinterSortOrder}
             onLogicalPrinterIsReceiptPrinterChange={adminForm.setAdminLogicalPrinterIsReceiptPrinter}
             onLogicalPrinterIsOrderPrinterChange={adminForm.setAdminLogicalPrinterIsOrderPrinter}
+            onLogicalPrinterIsQrPrinterChange={adminForm.setAdminLogicalPrinterIsQrPrinter}
             onSaveLogicalPrinter={() => adminOps.saveLogicalPrinter()}
             onDeleteLogicalPrinter={(id) => void adminOps.deleteLogicalPrinter(id)}
             onEditLogicalPrinter={(lp) => adminForm.startEditLogicalPrinter(lp)}

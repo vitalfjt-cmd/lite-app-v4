@@ -298,12 +298,14 @@ type Props = {
   adminLogicalPrinterSortOrder: string
   adminLogicalPrinterIsReceiptPrinter: boolean
   adminLogicalPrinterIsOrderPrinter: boolean
+  adminLogicalPrinterIsQrPrinter?: boolean
   editingLogicalPrinterId: string | null
   onLogicalPrinterCodeChange: (value: string) => void
   onLogicalPrinterNameChange: (value: string) => void
   onLogicalPrinterSortOrderChange: (value: string) => void
   onLogicalPrinterIsReceiptPrinterChange: (value: boolean) => void
   onLogicalPrinterIsOrderPrinterChange: (value: boolean) => void
+  onLogicalPrinterIsQrPrinterChange?: (value: boolean) => void
   onSaveLogicalPrinter: () => Promise<boolean>
   onDeleteLogicalPrinter: (id: string) => void
   onEditLogicalPrinter: (lp: AdminLogicalPrinter) => void
@@ -1111,6 +1113,7 @@ export function AdminScreen(props: Props) {
             adminLogicalPrinterSortOrder={props.adminLogicalPrinterSortOrder}
             adminLogicalPrinterIsReceiptPrinter={props.adminLogicalPrinterIsReceiptPrinter}
             adminLogicalPrinterIsOrderPrinter={props.adminLogicalPrinterIsOrderPrinter}
+            adminLogicalPrinterIsQrPrinter={props.adminLogicalPrinterIsQrPrinter || false}
             disabled={disabled}
             onClose={() => {
               setLogicalPrinterModalOpen(false)
@@ -1121,6 +1124,7 @@ export function AdminScreen(props: Props) {
             onLogicalPrinterSortOrderChange={props.onLogicalPrinterSortOrderChange}
             onLogicalPrinterIsReceiptPrinterChange={props.onLogicalPrinterIsReceiptPrinterChange}
             onLogicalPrinterIsOrderPrinterChange={props.onLogicalPrinterIsOrderPrinterChange}
+            onLogicalPrinterIsQrPrinterChange={props.onLogicalPrinterIsQrPrinterChange || (() => {})}
             onSaveLogicalPrinter={props.onSaveLogicalPrinter}
           />
 

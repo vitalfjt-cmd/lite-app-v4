@@ -7,11 +7,14 @@ type Props = {
   tableLabel: string
   qrToken: string
   customerUrl: string | null
+  ticketId?: string | null
+  onPrintQr?: (params: { ticketId?: string | null; tableLabel: string; customerUrl?: string | null }) => Promise<boolean>
   onClose: () => void
 }
 
-export function TableQrModal({ isOpen, storeName, tableLabel, qrToken, customerUrl, onClose }: Props) {
+export function TableQrModal({ isOpen, storeName, tableLabel, qrToken, customerUrl, ticketId, onPrintQr, onClose }: Props) {
   const [copyMessage, setCopyMessage] = useState<string | null>(null)
+  const [isPrinting, setIsPrinting] = useState(false)
   const qrImageUrl = useMemo(() => (customerUrl ? buildQrImageUrl(customerUrl) : null), [customerUrl])
 
   if (!isOpen) return null
@@ -27,9 +30,18 @@ export function TableQrModal({ isOpen, storeName, tableLabel, qrToken, customerU
     }
   }
 
-  function handlePrint() {
+  async function handlePrint() {
     if (!customerUrl) return
-    window.print()
+    if (onPrintQr) {
+      try {
+        setIsPrinting(true)
+        await onPrintQr({ ticketId, tableLabel, customerUrl })
+      } finally {
+        setIsPrinting(false)
+      }
+    } else {
+      window.print()
+    }
   }
 
   return (
@@ -68,8 +80,8 @@ export function TableQrModal({ isOpen, storeName, tableLabel, qrToken, customerU
               <a className={`secondary-button ${customerUrl ? '' : 'is-disabled'}`} href={customerUrl ?? undefined} rel="noreferrer" target="_blank">
                 注文画面を開く
               </a>
-              <button className="secondary-button" type="button" onClick={handlePrint} disabled={!customerUrl}>
-                印刷
+              <button className="secondary-button" type="button" onClick={handlePrint} disabled={!customerUrl || isPrinting}>
+                {isPrinting ? '印刷中...' : '印刷'}
               </button>
             </div>
             <p className="panel-copy">

@@ -892,6 +892,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           sortOrder,
           isReceiptPrinter: adminForm.adminLogicalPrinterIsReceiptPrinter,
           isOrderPrinter: adminForm.adminLogicalPrinterIsOrderPrinter,
+          isQrPrinter: adminForm.adminLogicalPrinterIsQrPrinter,
         })
         await refreshAdminData()
       }

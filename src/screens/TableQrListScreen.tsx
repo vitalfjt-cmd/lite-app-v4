@@ -11,6 +11,7 @@ type TableQrListScreenProps = {
   onOpenLauncher: () => void
   storeName: string
   storeSlug?: string
+  onPrintQr?: (params: { ticketId?: string | null; tableLabel: string; customerUrl?: string | null }) => Promise<boolean>
 }
 
 export function TableQrListScreen({
@@ -21,6 +22,7 @@ export function TableQrListScreen({
   onOpenLauncher,
   storeName,
   storeSlug = 'demo-bbq',
+  onPrintQr,
 }: TableQrListScreenProps) {
   const [now, setNow] = useState(() => new Date())
   const [selectedTableForQr, setSelectedTableForQr] = useState<LiveTableRef | null>(null)
@@ -165,6 +167,8 @@ export function TableQrListScreen({
         tableLabel={selectedTableForQr?.label ?? ''}
         qrToken={selectedTableForQr?.qr_token ?? ''}
         customerUrl={selectedTableCustomerUrl}
+        ticketId={selectedTableTicket?.ticketId}
+        onPrintQr={onPrintQr}
         onClose={() => setSelectedTableForQr(null)}
       />
     </div>

@@ -8,6 +8,7 @@ type Props = {
   adminLogicalPrinterSortOrder: string
   adminLogicalPrinterIsReceiptPrinter: boolean
   adminLogicalPrinterIsOrderPrinter: boolean
+  adminLogicalPrinterIsQrPrinter: boolean
   disabled: boolean
   onClose: () => void
   onLogicalPrinterCodeChange: (value: string) => void
@@ -15,6 +16,7 @@ type Props = {
   onLogicalPrinterSortOrderChange: (value: string) => void
   onLogicalPrinterIsReceiptPrinterChange: (value: boolean) => void
   onLogicalPrinterIsOrderPrinterChange: (value: boolean) => void
+  onLogicalPrinterIsQrPrinterChange: (value: boolean) => void
   onSaveLogicalPrinter: () => Promise<boolean>
 }
 
@@ -53,6 +55,16 @@ export function AdminLogicalPrinterModal(props: Props) {
               disabled={props.disabled}
             />
             <span>領収書レシートを出力する</span>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: '8px 0' }}>
+            <input
+              type="checkbox"
+              style={{ width: 'auto', margin: 0 }}
+              checked={props.adminLogicalPrinterIsQrPrinter}
+              onChange={(event) => props.onLogicalPrinterIsQrPrinterChange(event.target.checked)}
+              disabled={props.disabled}
+            />
+            <span>注文用QRコードを出力する</span>
           </label>
           <div className="button-row">
             <button className="primary-button" onClick={async () => {

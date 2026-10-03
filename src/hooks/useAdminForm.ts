@@ -100,6 +100,7 @@ export function useAdminForm() {
   const [adminLogicalPrinterSortOrder, setAdminLogicalPrinterSortOrder] = useState('10')
   const [adminLogicalPrinterIsReceiptPrinter, setAdminLogicalPrinterIsReceiptPrinter] = useState(false)
   const [adminLogicalPrinterIsOrderPrinter, setAdminLogicalPrinterIsOrderPrinter] = useState(false)
+  const [adminLogicalPrinterIsQrPrinter, setAdminLogicalPrinterIsQrPrinter] = useState(false)
 
   const [editingFloorId, setEditingFloorId] = useState<string | null>(null)
   const [adminFloorName, setAdminFloorName] = useState('')
@@ -166,6 +167,7 @@ export function useAdminForm() {
     setAdminLogicalPrinterSortOrder('10')
     setAdminLogicalPrinterIsReceiptPrinter(false)
     setAdminLogicalPrinterIsOrderPrinter(false)
+    setAdminLogicalPrinterIsQrPrinter(false)
   }
 
   const resetSubCategory = () =>
@@ -331,6 +333,7 @@ export function useAdminForm() {
     setAdminLogicalPrinterSortOrder(String(lp.sort_order ?? 0))
     setAdminLogicalPrinterIsReceiptPrinter(Boolean(lp.is_receipt_printer))
     setAdminLogicalPrinterIsOrderPrinter(Boolean(lp.is_order_printer))
+    setAdminLogicalPrinterIsQrPrinter(Boolean(lp.is_qr_printer))
   }
 
   const startEditFloor = (floor: any) => {
@@ -483,6 +486,7 @@ export function useAdminForm() {
     adminLogicalPrinterSortOrder, setAdminLogicalPrinterSortOrder,
     adminLogicalPrinterIsReceiptPrinter, setAdminLogicalPrinterIsReceiptPrinter,
     adminLogicalPrinterIsOrderPrinter, setAdminLogicalPrinterIsOrderPrinter,
+    adminLogicalPrinterIsQrPrinter, setAdminLogicalPrinterIsQrPrinter,
     resetLogicalPrinter,
     startEditLogicalPrinter,
 

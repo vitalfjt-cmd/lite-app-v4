@@ -137,6 +137,7 @@ export type AdminLogicalPrinter = {
   sort_order: number
   is_receipt_printer?: boolean
   is_order_printer?: boolean
+  is_qr_printer?: boolean
 }
 
 export type AdminPrinterRoutingRule = {

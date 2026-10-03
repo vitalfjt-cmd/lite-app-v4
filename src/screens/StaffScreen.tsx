@@ -71,6 +71,7 @@ type StaffScreenProps = {
   onCloseTicket: (ticketId?: string) => Promise<string | null>
   onAbortPayment: () => void
   onPrintReceipt?: (ticketId: string) => Promise<boolean>
+  onPrintQr?: (ticketId: string, customerUrl?: string | null) => Promise<boolean>
   directAction?: 'HANDY' | 'PAYMENT' | null
   onClearDirectAction?: () => void
   terminalName?: string
@@ -138,6 +139,7 @@ export function StaffScreen({
   onCloseTicket,
   onAbortPayment,
   onPrintReceipt,
+  onPrintQr,
   directAction,
   onClearDirectAction,
   terminalName,
@@ -1271,9 +1273,16 @@ export function StaffScreen({
                <button 
                 className="btn-secondary" 
                 style={{flex:1, color:'#333', borderColor:'#ccc'}}
-                onClick={() => window.print()}
+                disabled={mutationBusy === 'print-qr'}
+                onClick={async () => {
+                  if (onPrintQr && selectedTicketId) {
+                    await onPrintQr(selectedTicketId, selectedCustomerUrl)
+                  } else {
+                    window.print()
+                  }
+                }}
               >
-                印刷する
+                {mutationBusy === 'print-qr' ? '印刷中...' : '印刷する'}
               </button>
               <button 
                 className="btn-primary" 

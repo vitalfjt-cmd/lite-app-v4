@@ -142,6 +142,7 @@ export type LiveLogicalPrinter = {
   sort_order: number
   is_receipt_printer?: boolean
   is_order_printer?: boolean
+  is_qr_printer?: boolean
 }
 export type LivePrinterRoutingRule = {
   id: string

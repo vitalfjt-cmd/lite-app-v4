@@ -187,6 +187,9 @@ export function StaffPaymentView({
 
   const hasSplitPayments = payments.some(p => p.label !== '')
 
+  const [isFormalReceipt, setIsFormalReceipt] = React.useState(false)
+  const [recipientName, setRecipientName] = React.useState('')
+  const [provisoText, setProvisoText] = React.useState('お食事代として')
   const [activePrintGroupId, setActivePrintGroupId] = React.useState<string | null>(null)
   const activePrintGroup = activePrintGroupId ? groupedPayments.find(g => g.id === activePrintGroupId) : null
   const [isFocused, setIsFocused] = React.useState(true)
@@ -218,7 +221,7 @@ export function StaffPaymentView({
       >
         {/* ---- 固定ヘッダー ---- */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          {paymentFinalized && (
+          {paymentFinalized && !isFormalReceipt && (
             <div
               style={{
                 textAlign: 'center',
@@ -234,12 +237,71 @@ export function StaffPaymentView({
               ✓ 領収済み
             </div>
           )}
-          <h3 className="receipt-brand">{storeName}</h3>
-          {invoiceNumber && <p className="receipt-meta" style={{ fontWeight: 'bold' }}>登録番号: {invoiceNumber}</p>}
-          <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
-          {selectedSummary.receiptNo && <p className="receipt-meta">レシート番号: {selectedSummary.receiptNo}</p>}
-          {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e8f5e9', padding: '4px', borderRadius: '4px', color: '#1b813e' }}>{g.label}</p>}
-          <div className="receipt-divider"></div>
+
+          {isFormalReceipt ? (
+            <>
+              <div
+                style={{
+                  textAlign: 'center',
+                  color: '#1b813e',
+                  fontWeight: 'bold',
+                  fontSize: '1.25rem',
+                  marginBottom: '8px',
+                  border: '2px double #1b813e',
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  letterSpacing: '0.15em',
+                }}
+              >
+                領 収 書
+              </div>
+              <div style={{ margin: '12px 0 8px', borderBottom: '2px solid #333', paddingBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', minHeight: '1.8rem' }}>
+                <span style={{ fontSize: '1.15rem', fontWeight: 'bold', flex: 1, minWidth: '30em' }}>
+                  {recipientName.trim() ? recipientName.trim() : '\u00A0'}
+                </span>
+                <span style={{ fontSize: '1rem', fontWeight: 'bold', marginLeft: '6px', whiteSpace: 'nowrap' }}>
+                  {recipientName.trim() === '御中' ? '' : '様'}
+                </span>
+              </div>
+              <div style={{
+                textAlign: 'center',
+                background: '#f8f9fa',
+                border: '1px dashed #aaa',
+                borderRadius: '6px',
+                padding: '8px 4px',
+                margin: '10px 0'
+              }}>
+
+                <div style={{ fontSize: '1.6rem', fontWeight: '900', color: '#111', letterSpacing: '0.05em' }}>
+                  {yen(g ? g.amount : finalBilledAmount)} -
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#777' }}>(消費税・地方消費税込み)</div>
+              </div>
+              <div style={{ margin: '8px 0 4px', fontSize: '0.9rem', fontWeight: 'bold', color: '#222' }}>
+                但し　{provisoText || 'お食事代として'}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#666', textAlign: 'right', marginBottom: '8px' }}>
+                上記正に領収いたしました
+              </div>
+              <div className="receipt-divider"></div>
+              <h3 className="receipt-brand" style={{ fontSize: '1.05rem', margin: '2px 0' }}>{storeName}</h3>
+              {invoiceNumber && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '0.8rem', margin: '2px 0' }}>登録番号: {invoiceNumber}</p>}
+              <p className="receipt-meta" style={{ fontSize: '0.78rem', margin: '2px 0' }}>発行: {new Date().toLocaleString('ja-JP')}</p>
+              {selectedSummary.receiptNo && <p className="receipt-meta" style={{ fontSize: '0.78rem', margin: '2px 0' }}>No. {selectedSummary.receiptNo}</p>}
+              {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '0.95rem', marginTop: '4px', textAlign: 'center', background: '#e8f5e9', padding: '4px', borderRadius: '4px', color: '#1b813e' }}>{g.label}</p>}
+              <div className="receipt-divider"></div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#555', marginBottom: '6px' }}>【内訳 / 明細】</div>
+            </>
+          ) : (
+            <>
+              <h3 className="receipt-brand">{storeName}</h3>
+              {invoiceNumber && <p className="receipt-meta" style={{ fontWeight: 'bold' }}>登録番号: {invoiceNumber}</p>}
+              <p className="receipt-meta">注文: {selectedSummary.orderedAt}</p>
+              {selectedSummary.receiptNo && <p className="receipt-meta">レシート番号: {selectedSummary.receiptNo}</p>}
+              {g && <p className="receipt-meta" style={{ fontWeight: 'bold', fontSize: '1.05rem', marginTop: '4px', textAlign: 'center', background: '#e8f5e9', padding: '4px', borderRadius: '4px', color: '#1b813e' }}>{g.label}</p>}
+              <div className="receipt-divider"></div>
+            </>
+          )}
         </div>
 
         {/* ---- スクロール可能な注文明細 ---- */}
@@ -506,7 +568,90 @@ export function StaffPaymentView({
       )}
 
       <div className="payment-full-layout">
-        <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+        <aside className="payment-receipt-pane" style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <div className="no-print" style={{ width: '100%', maxWidth: '340px' }}>
+            <div style={{ background: '#fff', border: '1px solid #ced4da', borderRadius: '10px', padding: '12px', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '0.9rem', color: '#333' }}>📜 発行種別</span>
+                <div style={{ display: 'flex', background: '#e9ecef', borderRadius: '6px', padding: '2px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsFormalReceipt(false)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      border: 'none',
+                      background: !isFormalReceipt ? '#fff' : 'transparent',
+                      color: !isFormalReceipt ? '#1b813e' : '#495057',
+                      fontWeight: 'bold',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      boxShadow: !isFormalReceipt ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    レシート
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsFormalReceipt(true)}
+                    style={{
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      border: 'none',
+                      background: isFormalReceipt ? '#1b813e' : 'transparent',
+                      color: isFormalReceipt ? '#fff' : '#495057',
+                      fontWeight: 'bold',
+                      fontSize: '0.82rem',
+                      cursor: 'pointer',
+                      boxShadow: isFormalReceipt ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                    }}
+                  >
+                    領収書
+                  </button>
+                </div>
+              </div>
+
+              {isFormalReceipt && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '8px', borderTop: '1px dashed #dee2e6' }}>
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 'bold', color: '#495057', marginBottom: '3px' }}>宛名 (お名前)</div>
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="無記名"
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #ced4da', fontSize: '0.85rem', boxSizing: 'border-box', marginBottom: '4px' }}
+                    />
+                    
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '0.78rem', fontWeight: 'bold', color: '#495057', marginBottom: '3px' }}>但書き (内容)</div>
+                    <input
+                      type="text"
+                      value={provisoText}
+                      onChange={(e) => setProvisoText(e.target.value)}
+                      placeholder="お食事代として"
+                      style={{ width: '100%', padding: '6px 8px', borderRadius: '4px', border: '1px solid #ced4da', fontSize: '0.85rem', boxSizing: 'border-box', marginBottom: '4px' }}
+                    />
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {['お食事代として', 'ご飲食代として', 'お品代として'].map((text) => (
+                        <button
+                          key={text}
+                          type="button"
+                          onClick={() => setProvisoText(text)}
+                          style={{ padding: '2px 6px', fontSize: '0.72rem', borderRadius: '4px', border: '1px solid #ced4da', background: '#f8f9fa', cursor: 'pointer' }}
+                        >
+                          {text}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
           {activePrintGroup ? (
             renderReceiptPaper(activePrintGroup, false)
           ) : (
@@ -633,10 +778,9 @@ export function StaffPaymentView({
 
                 <button
                   onClick={async () => {
+                    const memo = isFormalReceipt ? `【領収書】宛名:${recipientName} 但し:${provisoText || 'お食事代として'}` : null
                     if (onPrintReceipt) {
-                      await onPrintReceipt(selectedSummary.ticketId, activePrintGroupId)
-                    } else {
-                      window.print()
+                      await onPrintReceipt(selectedSummary.ticketId, activePrintGroupId ? `${activePrintGroupId} ${memo || ''}` : memo)
                     }
                   }}
                   style={{
@@ -656,7 +800,7 @@ export function StaffPaymentView({
                     gap: '8px'
                   }}
                 >
-                  <span>🖨️</span> レシートを印刷
+                  <span>🖨️</span> {isFormalReceipt ? '領収書を印刷' : 'レシートを印刷'}
                 </button>
               </div>
 

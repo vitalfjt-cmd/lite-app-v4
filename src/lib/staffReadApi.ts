@@ -460,6 +460,9 @@ export function fetchAdminPrototypeBootstrap(storeSlug: string) {
       code: string
       name: string
       sort_order: number
+      is_receipt_printer?: boolean
+      is_order_printer?: boolean
+      is_qr_printer?: boolean
     }[]
   }>({
     action: 'admin-bootstrap',
@@ -897,6 +900,7 @@ export function saveAdminPrototypeLogicalPrinter(
     sortOrder: number
     isReceiptPrinter?: boolean
     isOrderPrinter?: boolean
+    isQrPrinter?: boolean
   },
 ) {
   return invoke<{
@@ -908,6 +912,7 @@ export function saveAdminPrototypeLogicalPrinter(
       sort_order: number
       is_receipt_printer?: boolean
       is_order_printer?: boolean
+      is_qr_printer?: boolean
     }
   }>({ action: 'admin-save-logical-printer', storeSlug, ...payload })
 }
@@ -1057,6 +1062,23 @@ export function printStaffPrototypeReceipt(storeSlug: string, ticketId: string, 
     storeSlug,
     ticketId,
     paymentEntryMemo,
+  })
+}
+
+export function printStaffPrototypeQr(
+  storeSlug: string,
+  params: {
+    ticketId?: string | null
+    customerUrl?: string | null
+    tableLabel?: string | null
+  },
+) {
+  return invoke<{ ok: true; job: any }>({
+    action: 'print-customer-qr',
+    storeSlug,
+    ticketId: params.ticketId,
+    customerUrl: params.customerUrl,
+    tableLabel: params.tableLabel,
   })
 }
 
