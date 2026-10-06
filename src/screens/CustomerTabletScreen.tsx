@@ -453,7 +453,8 @@ export function CustomerTabletScreen({
   if (!customerApiAvailable) {
     return (
       <div
-        className="customer-tablet-app"
+        className="customer-tablet-app notranslate"
+        translate="no"
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}
       >
         <div style={{ textAlign: 'center', color: '#888' }}>
@@ -467,7 +468,8 @@ export function CustomerTabletScreen({
   if (!publicMenuReady) {
     return (
       <div
-        className="customer-tablet-app"
+        className="customer-tablet-app notranslate"
+        translate="no"
         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}
       >
         <div style={{ textAlign: 'center', color: '#888' }}>
@@ -480,7 +482,7 @@ export function CustomerTabletScreen({
 
   if (customerStep === 'confirm') {
     return (
-      <div className="customer-tablet-app">
+      <div className="customer-tablet-app notranslate" translate="no">
         <header className="tablet-header" style={{ padding: '24px 32px', borderBottom: '1px solid #eee' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
             <h1 style={{ margin: 0, fontSize: '2rem' }}>注文内容の確認</h1>
@@ -583,7 +585,7 @@ export function CustomerTabletScreen({
   }
 
   return (
-    <div className="customer-tablet-app" data-testid="customer-screen">
+    <div className="customer-tablet-app notranslate" translate="no" data-testid="customer-screen">
       {/* Header with 2-tier category nav */}
       <header className="tablet-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 0, padding: 0 }}>
         {/* Top row: store name + table badge */}

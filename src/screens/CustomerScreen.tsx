@@ -165,7 +165,7 @@ export function CustomerScreen({
   
   if (customerStep === 'confirm') {
     return (
-      <div className="customer-app">
+      <div className="customer-app notranslate" translate="no">
         <header className="customer-header">
           <div className="header-meta">
             <h1>{lang === 'en' ? 'Confirm Order' : '注文内容の確認'}</h1>
@@ -222,7 +222,7 @@ export function CustomerScreen({
 
   if (customerStep === 'myOrder') {
     return (
-      <div className="customer-app">
+      <div className="customer-app notranslate" translate="no">
         <header className="customer-header">
           <div className="header-meta">
             <span className="table-badge">{ticketReceipt ? `伝票: ${ticketReceipt.ticketNo}` : '注文履歴'}</span>
@@ -277,7 +277,7 @@ export function CustomerScreen({
 
   // Menu Step
   return (
-    <div className="customer-app" data-testid="customer-screen">
+    <div className="customer-app notranslate" translate="no" data-testid="customer-screen">
       <div style={{ position: 'sticky', top: 0, zIndex: 20 }}>
         <header className="customer-header">
           <div className="header-meta">
