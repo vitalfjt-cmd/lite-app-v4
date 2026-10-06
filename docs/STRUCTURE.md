@@ -14,12 +14,12 @@ lite-app-v4/
     │   └── ToppingModal.tsx  # トッピング選択モーダル
     ├── data/           # 定数・静的データ
     ├── hooks/          # 機能別カスタムフック
-    │   ├── useAdminForm.ts       # 管理画面フォーム入力状態管理
-    │   ├── useAdminOperations.ts # 管理画面 CRUD ミューテーション
+    │   ├── useAdminForm.ts       # 管理画面フォーム入力状態管理 (フロア・プリンター・インボイス対応)
+    │   ├── useAdminOperations.ts # 管理画面 CRUD ミューテーション (フロア・プリンター・QR出力先)
     │   ├── useAuth.ts            # スタッフ認証・セッション管理
-    │   ├── useCustomerFlow.ts    # 顧客向け QR 注文フロー管理
-    │   ├── useDataLoading.ts     # データ取得・ポリング統括
-    │   ├── useStaffData.ts       # 共通ドメイン状態保持
+    │   ├── useCustomerFlow.ts    # 顧客向け QR 注文フロー管理 (単一/二重カテゴリ対応)
+    │   ├── useDataLoading.ts     # データ取得・ポリング統括 (フロア・プリンター・卓マスタ紐付け)
+    │   ├── useStaffData.ts       # 共通ドメイン状態保持 (1階層/2階層カテゴリ対応、商品重複排除)
     │   └── useStaffOperations.ts # 注文・伝票・会計・KDS アクション管理
     ├── lib/            # ビジネスロジック・APIクライアント
     │   ├── adminSelectors.ts # 管理画面データ抽出ユーティリティ
@@ -28,11 +28,20 @@ lite-app-v4/
     │   ├── firebase.ts       # Firebase Auth 接続クライアント
     │   ├── priceUtils.ts     # 税込/税抜・消費税計算
     │   ├── publicCustomerApi.ts # QR注文向け Workers 公開 API
-    │   ├── staffReadApi.ts   # バックエンド Workers + D1 通信 API
+    │   ├── staffReadApi.ts   # バックエンド Workers + D1 通信 API (印刷・フロア・インボイス含む)
     │   └── staffUtils.ts     # 伝票・KDS補助ロジック
     ├── screens/        # 各ビューのメイン画面コンポーネント
-    │   ├── admin/            # マスタ管理 & 売上分析サブタブ群 (33コンポーネント + 型定義)
-    │   ├── staff/            # スタッフサブビュー (Handy入力 / 決済・割勘画面 / DirectActionView)
+    │   ├── admin/            # マスタ管理 & 売上分析サブタブ群 (全34ファイル: 33コンポーネント + types.ts)
+    │   │   ├── AdminFloorsTab.tsx / AdminFloorModal.tsx # フロアマスタ管理
+    │   │   ├── AdminPrintersTab.tsx                     # プリンター総合設定・QR出力先設定
+    │   │   ├── AdminLogicalPrintersTab.tsx / AdminLogicalPrinterModal.tsx # 論理プリンター設定
+    │   │   ├── AdminPhysicalPrinterModal.tsx            # 物理プリンター設定 (IP/ポート等)
+    │   │   ├── AdminPrinterRoutingRuleModal.tsx         # プリンタールーティングルール設定
+    │   │   ├── AdminStoreTab.tsx                        # 店舗設定 (インボイス登録番号、店舗コード)
+    │   │   ├── AdminMenuBooksTab.tsx / AdminMenuBookModal.tsx # メニューブック (表示モード設定)
+    │   │   ├── AdminReceiptReissueTab.tsx               # レシート/領収書再発行 (部門別プリンター対応)
+    │   │   └── ... (カテゴリ・商品・卓・決済種別・スタッフ・売上履歴等の各種タブ/モーダル)
+    │   ├── staff/            # スタッフサブビュー (Handy入力 / 決済・領収書・割勘画面 / DirectActionView)
     │   ├── AdminScreen.tsx   # マスタ管理・売上分析メイン画面
     │   ├── CustomerScreen.tsx # モバイル向け QR 注文画面
     │   ├── CustomerTabletScreen.tsx # 10インチタブレット向け高機能 QR 注文画面
@@ -50,20 +59,21 @@ lite-app-v4/
 
 ## 2. 主要モジュールの役割
 ### 2.1 `src/lib/`
-- **`staffReadApi.ts`**: Cloudflare Workers + D1 バックエンド通信クライアント。
+- **`staffReadApi.ts`**: Cloudflare Workers + D1 バックエンド通信クライアント。伝票・マスタの同期に加え、動的プリンタールーティング印刷、卓用 QR コード印刷、インボイス番号管理、フロアマスタ API を提供。
 - **`publicCustomerApi.ts`**: 顧客端末用 QR 注文通信 API。
 - **`firebase.ts`**: Firebase Authentication によるスタッフログイン管理。
 - **`priceUtils.ts`**: 店舗標準税率 (10%) / 軽減税率 (8%) および税込/税抜表示の計算モジュール。
 
 ### 2.2 `src/hooks/`
-- **`useDataLoading`**: データ初期ロードおよび定期自動更新のオーケストレーター。
-- **`useStaffData` / `useStaffOperations`**: 伝票データ保持および注文入力・伝票加算・テンキー会計・KDSステータス変更。
-- **`useAdminForm` / `useAdminOperations`**: 各種マスタ（メニュー、トッピング、店舗、決済種別、卓配置等）および売上データのミューテーション。
+- **`useDataLoading`**: データ初期ロードおよび定期自動更新のオーケストレーター。フロア、プリンター、インボイス情報を含むマスタを同期。
+- **`useStaffData` / `useStaffOperations`**: 伝票データ保持および注文入力・伝票加算・テンキー会計・KDSステータス変更。1階層/2階層カテゴリおよび商品重複排除に対応。
+- **`useAdminForm` / `useAdminOperations`**: 各種マスタ（メニュー、トッピング、店舗、決済種別、卓配置、フロア、論理/物理プリンター、ルーティングルール等）および売上データのミューテーション。
 
 ### 2.3 `src/screens/`
-- **`CustomerTabletScreen.tsx`**: 10インチタブレット専用設計の注文画面。多言語切替、トッピング選択、誤操作防止ロックを搭載。
-- **`StaffScreen.tsx`**: スタッフ画面。`StaffHandyView` (ハンディ注文), `StaffPaymentView` (個別割勘・まとめ会計・テンキー決済) を統合。
-- **`AdminScreen.tsx`**: 売上分析、レシート再発行、各種マスタ管理サブタブを切り替え表示。
+- **`CustomerTabletScreen.tsx`**: 10インチタブレット専用設計の注文画面。多言語切替、トッピング選択、誤操作防止ロックを搭載。単一/二重カテゴリ表示モードに対応。
+- **`StaffScreen.tsx`**: スタッフ画面。`StaffHandyView` (ハンディ注文), `StaffPaymentView` (個別割勘・まとめ会計・テンキー決済・正式領収書発行) を統合。卓用QR印刷にも対応。
+- **`AdminScreen.tsx`**: 売上分析、レシート再発行、各種マスタ、フロア管理、プリンター設定サブタブを切り替え表示。
+- **`TableQrListScreen.tsx`**: モバイルおよびタブレット向け卓別 QR コード一覧画面。一括印刷およびプリンタールーティングに対応。
 
 ## 3. テスト
 - **Playwright (`tests/`)**:
