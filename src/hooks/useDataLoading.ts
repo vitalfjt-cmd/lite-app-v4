@@ -254,7 +254,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
           setLivePaymentEntries([])
         } else {
           await loadOperationalData(currentProfile, prototypeStoreSlug)
-          if (view === 'staff' || view === 'kds') {
+          if (view === 'staff' || view === 'kds' || view === 'handy') {
             await loadAdminPrototypeData(prototypeStoreSlug)
           } else {
             setLiveCategories([])
