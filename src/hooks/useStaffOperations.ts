@@ -68,7 +68,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setStaffMessage(null)
       setError(null)
       try {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         const updated = await updateStaffPrototypeLineQuantity(storeSlug, lineId, nextQty)
         setLiveLines((current) =>
@@ -101,7 +101,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setStaffMessage(null)
       setError(null)
       try {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await cancelStaffPrototypeLine(storeSlug, lineId)
         setLiveLines((current) =>
@@ -132,7 +132,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setError(null)
       setStaffMessage(null)
       try {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         const updated = await updateStaffPrototypeLineStatus(storeSlug, lineId, nextStatus)
         setLiveLines((current) =>
@@ -175,7 +175,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setError(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         const added = await addStaffPrototypeOrder(storeSlug, selectedTicket.id, menuItem.id, quantity, toppings)
         setLiveLines((current) => [
@@ -224,7 +224,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setError(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         
         const apiItems = items.map(item => ({
@@ -274,7 +274,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       const table = liveTables.find((candidate) => candidate.id === tableRefId)
       const menuBook = liveMenuBooks.find((candidate) => candidate.id === menuBookId || candidate.code === menuBookId)
       if (!storeSlug) throw new Error('staff_store_slug_missing')
@@ -345,7 +345,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       const saved = await addStaffPrototypePaymentEntry(storeSlug, {
         ticketId: targetTicket.id,
@@ -396,7 +396,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       const closed = await closeStaffPrototypeTicket(storeSlug, targetTicket.id, targetTicket.ticket_no)
       setLiveTickets((current) => current.map((ticket) => (ticket.id === closingTicketId ? { ...ticket, status: 'CLOSED', receipt_no: closed.ticket.receipt_no } : ticket)))
@@ -415,7 +415,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
 
   const logPaymentAbort = async () => {
     if (!selectedTicket) return
-    const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+    const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
     if (!storeSlug) return
     try {
       await staffAuditLog(storeSlug, 'PAYMENT_ABORT', selectedTicket.id, JSON.stringify({ ticket_no: selectedTicket.ticket_no }))
@@ -430,7 +430,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     setError(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await updateStaffPrototypeTicketMenuBook(storeSlug, ticketId, newMenuBookId)
       }

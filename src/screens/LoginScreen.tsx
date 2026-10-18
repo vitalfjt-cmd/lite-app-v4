@@ -6,6 +6,7 @@ interface LoginScreenProps {
   password: string
   onPasswordChange: (val: string) => void
   onSignIn: (event?: React.FormEvent) => Promise<void>
+  onSignUp?: (storeName: string, slug: string, email: string, password: string) => Promise<any>
   authBusy: boolean
   error?: string | null
   authStoreSlug?: string
@@ -18,18 +19,51 @@ export function LoginScreen({
   password,
   onPasswordChange,
   onSignIn,
+  onSignUp,
   authBusy,
   error: propError,
   authStoreSlug,
   onAuthStoreSlugChange
 }: LoginScreenProps) {
+  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [storeName, setStoreName] = useState('')
+  const [storeSlug, setStoreSlug] = useState('')
   const [localError, setLocalError] = useState<string | null>(null)
+  const [signupSuccessData, setSignupSuccessData] = useState<any | null>(null)
+
+  const handleStoreNameChange = (val: string) => {
+    setStoreName(val)
+    if (!storeSlug || storeSlug === '') {
+      // 簡易スラッグ自動生成 (半角英数・ハイフン)
+      const autoSlug = val
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+      if (autoSlug) {
+        setStoreSlug(autoSlug)
+      }
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLocalError(null)
     try {
-      await onSignIn(e)
+      if (mode === 'signup') {
+        if (!onSignUp) {
+          throw new Error('新規登録機能は現在準備中です。')
+        }
+        if (!storeName.trim()) {
+          throw new Error('店舗名を入力してください。')
+        }
+        const effectiveSlug = (storeSlug || 'store-' + Math.random().toString(36).substring(2, 8)).trim().toLowerCase()
+        const result = await onSignUp(storeName.trim(), effectiveSlug, email.trim(), password)
+        setSignupSuccessData(result)
+      } else {
+        await onSignIn(e)
+      }
     } catch (err) {
       setLocalError(err instanceof Error ? err.message : String(err))
     }
@@ -56,65 +90,156 @@ export function LoginScreen({
               <text x="118" y="85" fontFamily="'Outfit', 'Inter', -apple-system, sans-serif" fontSize="16" fontWeight="500" fill="#64748b" letterSpacing="0.5">Food Order System</text>
             </svg>
           </div>
-          <div className="admin-login-tag" style={{ marginTop: '16px' }}>ADMIN LOGIN</div>
-          <h1 className="login-title">管理者ログイン</h1>
+
+          <div className="admin-login-tabs">
+            <button
+              type="button"
+              className={`auth-tab-btn ${mode === 'login' ? 'active' : ''}`}
+              onClick={() => { setMode('login'); setLocalError(null); }}
+            >
+              ログイン
+            </button>
+            <button
+              type="button"
+              className={`auth-tab-btn ${mode === 'signup' ? 'active' : ''}`}
+              onClick={() => { setMode('signup'); setLocalError(null); }}
+            >
+              新規店舗作成 (30秒で開始)
+            </button>
+          </div>
+
+          <h1 className="login-title">
+            {mode === 'login' ? '管理者ログイン' : '無料アカウント作成'}
+          </h1>
+          <p className="login-subtitle">
+            {mode === 'login'
+              ? '登録済みの店舗アカウントでログインしてください'
+              : '店舗名とメールアドレスを入力するだけで即座に体験できます'}
+          </p>
         </div>
-        
-        <form className="login-form" onSubmit={handleSubmit}>
-          {authStoreSlug !== undefined && onAuthStoreSlugChange && (
+
+        {signupSuccessData ? (
+          <div className="signup-success-card">
+            <div className="success-icon">🎉</div>
+            <h2 className="success-title">店舗の作成が完了しました！</h2>
+            <p className="success-desc">
+              店舗名: <strong>{signupSuccessData.store?.name}</strong><br />
+              店舗ID: <code>{signupSuccessData.store?.slug}</code>
+            </p>
+            <div className="first-table-info">
+              <span className="badge">初期設定完了</span>
+              <p>卓番1のQRコードおよびサンプルメニューが自動作成されました。</p>
+            </div>
+            <button
+              type="button"
+              className="login-submit-btn full-width"
+              onClick={() => {
+                const targetSlug = signupSuccessData?.store?.slug
+                if (targetSlug) {
+                  window.localStorage.setItem('last_active_store_slug', targetSlug)
+                  const url = new URL(window.location.href)
+                  url.searchParams.set('store', targetSlug)
+                  url.hash = '#admin'
+                  window.location.href = url.toString()
+                } else {
+                  window.location.hash = '#admin'
+                  window.location.reload()
+                }
+              }}
+            >
+              管理ダッシュボードを開く
+            </button>
+          </div>
+        ) : (
+          <form className="login-form" onSubmit={handleSubmit}>
+            {mode === 'signup' && (
+              <>
+                <div className="form-group">
+                  <label className="form-label">店舗名 <span className="required-mark">*</span></label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={storeName}
+                    onChange={(e) => handleStoreNameChange(e.target.value)}
+                    placeholder="例: テストカフェ 新宿店"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">
+                    店舗ID (URL用スラッグ) <span className="sub-label">半角英数・ハイフン</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={storeSlug}
+                    onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, '-'))}
+                    placeholder="例: test-cafe-shinjuku"
+                    required
+                  />
+                </div>
+              </>
+            )}
+
+            {mode === 'login' && authStoreSlug !== undefined && onAuthStoreSlugChange && (
+              <div className="form-group">
+                <label className="form-label">店舗ID</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={authStoreSlug}
+                  onChange={(e) => onAuthStoreSlugChange(e.target.value)}
+                  placeholder="店舗IDを入力してください"
+                  required
+                />
+              </div>
+            )}
+            
             <div className="form-group">
-              <label className="form-label">店舗ID</label>
+              <label className="form-label">メールアドレス <span className="required-mark">*</span></label>
               <input
-                type="text"
+                type="email"
                 className="form-input"
-                value={authStoreSlug}
-                onChange={(e) => onAuthStoreSlugChange(e.target.value)}
-                placeholder="店舗IDを入力してください"
+                value={email}
+                onChange={(e) => onEmailChange(e.target.value)}
+                placeholder="example@email.com"
                 required
               />
             </div>
-          )}
-          
-          <div className="form-group">
-            <label className="form-label">メールアドレス</label>
-            <input
-              type="email"
-              className="form-input"
-              value={email}
-              onChange={(e) => onEmailChange(e.target.value)}
-              placeholder="example@email.com"
-              required
-            />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">パスワード</label>
-            <input
-              type="password"
-              className="form-input"
-              value={password}
-              onChange={(e) => onPasswordChange(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          {displayError && (
-            <div className="login-error-message">
-              {displayError}
+            <div className="form-group">
+              <label className="form-label">パスワード <span className="required-mark">*</span></label>
+              <input
+                type="password"
+                className="form-input"
+                value={password}
+                onChange={(e) => onPasswordChange(e.target.value)}
+                placeholder="6文字以上のパスワード"
+                required
+                minLength={6}
+              />
             </div>
-          )}
 
-          <div className="form-footer">
-            <button
-              type="submit"
-              className="login-submit-btn"
-              disabled={authBusy}
-            >
-              {authBusy ? 'ログイン中...' : 'ログイン'}
-            </button>
-          </div>
-        </form>
+            {displayError && (
+              <div className="login-error-message">
+                {displayError}
+              </div>
+            )}
+
+            <div className="form-footer">
+              <button
+                type="submit"
+                className="login-submit-btn full-width"
+                disabled={authBusy}
+              >
+                {authBusy
+                  ? (mode === 'signup' ? '店舗を作成中...' : 'ログイン中...')
+                  : (mode === 'signup' ? '今すぐ無料で店舗を作成' : 'ログイン')}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
 
       <style>{`
@@ -229,6 +354,110 @@ export function LoginScreen({
         .login-submit-btn:disabled {
           opacity: 0.7;
           cursor: not-allowed;
+        }
+
+        .login-submit-btn.full-width {
+          width: 100%;
+          text-align: center;
+        }
+
+        .admin-login-tabs {
+          display: flex;
+          background-color: #f1f5f9;
+          padding: 4px;
+          border-radius: 12px;
+          margin-top: 16px;
+          margin-bottom: 20px;
+          width: 100%;
+          box-sizing: border-box;
+          gap: 4px;
+        }
+
+        .auth-tab-btn {
+          flex: 1;
+          padding: 8px 12px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #64748b;
+          background: transparent;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .auth-tab-btn.active {
+          background-color: #ffffff;
+          color: #1b813e;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        }
+
+        .login-subtitle {
+          color: #64748b;
+          font-size: 13px;
+          margin-top: 8px;
+          margin-bottom: 0;
+          line-height: 1.5;
+        }
+
+        .required-mark {
+          color: #ef4444;
+          font-weight: 700;
+        }
+
+        .sub-label {
+          font-size: 11px;
+          font-weight: 400;
+          color: #94a3b8;
+          margin-left: 6px;
+        }
+
+        .signup-success-card {
+          text-align: center;
+          padding: 16px 0;
+        }
+
+        .success-icon {
+          font-size: 48px;
+          margin-bottom: 12px;
+        }
+
+        .success-title {
+          font-size: 20px;
+          font-weight: 800;
+          color: #0f172a;
+          margin: 0 0 12px 0;
+        }
+
+        .success-desc {
+          color: #475569;
+          font-size: 14px;
+          line-height: 1.6;
+          background-color: #f8fafc;
+          padding: 12px;
+          border-radius: 10px;
+          margin-bottom: 16px;
+        }
+
+        .first-table-info {
+          background-color: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          padding: 12px;
+          border-radius: 10px;
+          margin-bottom: 24px;
+          font-size: 13px;
+          color: #166534;
+        }
+
+        .first-table-info .badge {
+          display: inline-block;
+          background-color: #22c55e;
+          color: white;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 9999px;
+          margin-bottom: 6px;
         }
       `}</style>
     </div>

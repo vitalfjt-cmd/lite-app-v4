@@ -53,6 +53,7 @@ export default function App() {
     profile, setProfile,
     authBusy,
     handleSignIn,
+    handleSignUp,
     handleSignOut
   } = useAuth()
 
@@ -211,7 +212,7 @@ export default function App() {
     setError,
     setLiveMenuBooks,
     refreshAdminData: async () => {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       if (storeSlug) await loadAdminPrototypeData(storeSlug)
     },
     refreshLiveData: async () => {
@@ -304,7 +305,7 @@ export default function App() {
 
   useEffect(() => {
     if (!staffReadApiEnabled || (view !== 'admin' && view !== 'sales' && view !== 'staff' && view !== 'kds') || !profile) return
-    const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+    const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
     if (!storeSlug) return
     void loadAdminPrototypeData(storeSlug).catch((err) => setError(formatError(err)))
   }, [liveStore?.slug, profile, view])
@@ -539,10 +540,10 @@ export default function App() {
 
 
   const activeStore: ActiveStoreSummary = {
-    name: publicStore?.name ?? liveStore?.name ?? '',
+    name: liveStore?.name ?? publicStore?.name ?? '',
     tableName: publicTable?.label ?? liveTables[0]?.label ?? '',
     ticketNo: ticketReceipt?.ticketNo ?? publicOpenTicket?.ticket_no ?? selectedTicket?.ticket_no ?? '',
-    invoice_number: (publicStore as any)?.invoice_number ?? liveStore?.invoice_number ?? null,
+    invoice_number: liveStore?.invoice_number ?? (publicStore as any)?.invoice_number ?? null,
   }
   const lastUpdatedText = new Intl.DateTimeFormat('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(new Date())
   const ticketSummaryLines = useMemo<ReceiptSummaryLine[]>(() => {
@@ -564,10 +565,30 @@ export default function App() {
 
   function moveTo(nextView: AppView, tab?: string) {
     let targetView = nextView
-    if (nextView === 'customer') targetView = 'customer-qr'
-    if (nextView === 'cust-tablet') targetView = 'cust-tablet-qr'
+
+    const effectiveStore = liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') : '') || ''
+    const effectiveQr = liveTables[0]?.qr_token || publicQrToken || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_qr_token') : '') || ''
 
     const url = new URL(window.location.href)
+
+    if (nextView === 'customer') {
+      if (effectiveStore && effectiveQr) {
+        targetView = 'customer'
+        url.searchParams.set('store', effectiveStore)
+        url.searchParams.set('qr', effectiveQr)
+      } else {
+        targetView = 'customer-qr'
+      }
+    } else if (nextView === 'cust-tablet') {
+      if (effectiveStore && effectiveQr) {
+        targetView = 'cust-tablet'
+        url.searchParams.set('store', effectiveStore)
+        url.searchParams.set('qr', effectiveQr)
+      } else {
+        targetView = 'cust-tablet-qr'
+      }
+    }
+
     url.searchParams.set('view', targetView)
     if (tab) {
       url.searchParams.set('tab', tab)
@@ -576,11 +597,11 @@ export default function App() {
       url.searchParams.delete('tab')
       setAdminTab('')
     }
-    if (!url.searchParams.get('store') && publicStoreSlug) {
-      url.searchParams.set('store', publicStoreSlug)
+    if (!url.searchParams.get('store') && effectiveStore) {
+      url.searchParams.set('store', effectiveStore)
     }
-    if (!url.searchParams.get('qr') && publicQrToken) {
-      url.searchParams.set('qr', publicQrToken)
+    if (!url.searchParams.get('qr') && effectiveQr) {
+      url.searchParams.set('qr', effectiveQr)
     }
     if (!url.searchParams.get('ticket') && effectivePublicTicketToken) {
       url.searchParams.set('ticket', effectivePublicTicketToken)
@@ -607,7 +628,7 @@ export default function App() {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       const res = await printStaffPrototypeReceipt(storeSlug, ticketId, paymentEntryMemo)
       if (!res.success) {
@@ -635,7 +656,7 @@ export default function App() {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = staffReadStoreSlugOverride || liveStore?.slug
+      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       let ticketId: string | null = null
       let targetCustomerUrl: string | null = null
@@ -727,6 +748,7 @@ export default function App() {
             password={password}
             onPasswordChange={setPassword}
             onSignIn={handleSignIn}
+            onSignUp={handleSignUp}
             authBusy={authBusy}
             error={error}
           />
@@ -852,7 +874,7 @@ export default function App() {
             staffReadOnlyMode={staffReadApiEnabled}
             staffPrototypeDebug={
               staffReadApiEnabled
-                ? `prototype store=${staffReadStoreSlugOverride || liveStore?.slug || '(missing)'} tickets=${liveTicketSummaries.length}`
+                ? `prototype store=${liveStore?.slug || staffReadStoreSlugOverride || '(missing)'} tickets=${liveTicketSummaries.length}`
                 : null
             }
             storeName={liveStore?.name ?? activeStore.name}

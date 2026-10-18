@@ -39,6 +39,8 @@ export type StaffProfile = {
   display_name: string
   role_type: 'ADMIN' | 'STAFF' | 'KDS'
   store_id: string
+  store_slug?: string
+  store_name?: string
   is_active?: boolean
   password_configured?: boolean
 }

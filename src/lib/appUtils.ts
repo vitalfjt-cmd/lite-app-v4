@@ -15,11 +15,20 @@ export type BrowserLocationLike = {
 }
 
 function resolveAppOrigin(currentLocation: Pick<BrowserLocationLike, 'origin'>): string {
+  const currentOrigin = currentLocation.origin || (typeof window !== 'undefined' ? window.location.origin : '')
+  if (currentOrigin && (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1'))) {
+    return currentOrigin
+  }
+
   const publicOrigin = import.meta.env.VITE_PUBLIC_APP_ORIGIN?.trim()
   if (publicOrigin) {
-    return publicOrigin.replace(/\/+$/, '')
+    let cleanOrigin = publicOrigin.replace(/\/+$/, '')
+    if (currentOrigin.startsWith('https://') && cleanOrigin.startsWith('http://')) {
+      cleanOrigin = cleanOrigin.replace('http://', 'https://')
+    }
+    return cleanOrigin
   }
-  return currentLocation.origin
+  return currentOrigin
 }
 
 export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'hash' | 'pathname' | 'search'> = window.location) {
@@ -42,8 +51,8 @@ export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'h
   }
 
   const hash = url.hash
-  if (hash.startsWith('#/')) {
-    const raw = hash.slice(2)
+  if (hash.startsWith('#')) {
+    const raw = hash.replace(/^#\/?/, '')
     const [hashView, hashQuery = ''] = raw.split('?')
     if (hashView === 'customer' || hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'cust-table' || hashView === 'seats' || hashView === 'customer-qr' || hashView === 'cust-tablet-qr') {
       url.searchParams.set('view', hashView === 'cust-table' ? 'cust-tablet' : hashView)
@@ -62,19 +71,19 @@ export function normalizeAppLocation(currentLocation: Pick<Location, 'href' | 'h
     view = 'cust-tablet'
   }
 
-  if (view === 'cust-tablet') {
+  if (view === 'customer' || view === 'cust-tablet') {
     const store = url.searchParams.get('store')
     const qr = url.searchParams.get('qr')
     if (store && qr) {
       window.localStorage.setItem('pos_tablet_store', store)
       window.localStorage.setItem('pos_tablet_qr', qr)
+      window.localStorage.setItem('last_active_store_slug', store)
+      window.localStorage.setItem('last_active_qr_token', qr)
     } else {
-      const savedStore = window.localStorage.getItem('pos_tablet_store')
-      const savedQr = window.localStorage.getItem('pos_tablet_qr')
-      if (savedStore && savedQr) {
-        if (!store) url.searchParams.set('store', savedStore)
-        if (!qr) url.searchParams.set('qr', savedQr)
-      }
+      const savedStore = window.localStorage.getItem('last_active_store_slug') || window.localStorage.getItem('pos_tablet_store')
+      const savedQr = window.localStorage.getItem('last_active_qr_token') || window.localStorage.getItem('pos_tablet_qr')
+      if (savedStore && !store) url.searchParams.set('store', savedStore)
+      if (savedQr && !qr) url.searchParams.set('qr', savedQr)
     }
   }
 
@@ -114,7 +123,7 @@ export function readViewFromHash(currentLocation: Pick<Location, 'hash' | 'searc
     queryView = 'cust-tablet'
   }
   if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'sales' || queryView === 'customer' || queryView === 'cust-tablet' || queryView === 'seats' || queryView === 'customer-qr' || queryView === 'cust-tablet-qr') return queryView as AppView
-  const hash = currentLocation.hash.replace('#/', '')
+  const hash = currentLocation.hash.replace(/^#\/?/, '').split('?')[0]
   const hashView = hash === 'cust-table' ? 'cust-tablet' : hash
   return hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'customer' || hashView === 'seats' || hashView === 'customer-qr' || hashView === 'cust-tablet-qr' ? hashView as AppView : null
 }

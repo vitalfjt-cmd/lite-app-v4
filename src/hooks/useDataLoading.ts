@@ -1,5 +1,5 @@
 import { StaffProfile, LiveStore, LiveTicket, LiveLine, LivePaymentEntry, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, LiveStaffUser, LiveMenuBookItem , AdminPaymentMethod, LivePhysicalPrinter, LivePrinterRoutingRule, LiveFloor, LiveLogicalPrinter } from '../types'
-import { fetchStaffPrototypeSession, fetchStaffPrototypeBootstrap, fetchStaffTicketList, fetchAdminPrototypeBootstrap, staffReadStoreSlugOverride, staffReadApiEnabled } from '../lib/staffReadApi'
+import { fetchStaffPrototypeSession, fetchStaffPrototypeBootstrap, fetchStaffTicketList, fetchAdminPrototypeBootstrap, getActiveStoreSlug, staffReadApiEnabled } from '../lib/staffReadApi'
 import { fetchPublicMenu } from '../lib/publicCustomerApi'
 import { formatError, syncCustomerTicketInUrl, readCustomerAccessParams, readViewFromHash } from '../lib/appUtils'
 
@@ -76,7 +76,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
 
   const loadOperationalData = async (currentProfile: StaffProfile, storeSlugOverride?: string) => {
     if (staffReadApiEnabled) {
-      const storeSlug = staffReadStoreSlugOverride || storeSlugOverride
+      const storeSlug = storeSlugOverride || currentProfile?.store_slug || getActiveStoreSlug()
       if (!storeSlug) throw new Error('staff_store_slug_missing')
 
       const bootstrap = await fetchStaffPrototypeBootstrap(storeSlug)
@@ -84,6 +84,11 @@ export function useDataLoading(setters: DataLoadingSetters) {
 
       setLiveStore(bootstrap.store)
       setLiveTables(bootstrap.tables)
+      if (bootstrap.tables[0]?.qr_token) {
+        try {
+          window.localStorage.setItem('last_active_qr_token', bootstrap.tables[0].qr_token)
+        } catch (e) {}
+      }
       setLiveMenuBooks(bootstrap.menu_books)
       setLivePaymentMethods(bootstrap.payment_methods)
       setNewTicketMenuBookId((current) =>
@@ -159,6 +164,11 @@ export function useDataLoading(setters: DataLoadingSetters) {
         is_active: table.is_active,
       })),
     )
+    if (bootstrap.tables[0]?.qr_token) {
+      try {
+        window.localStorage.setItem('last_active_qr_token', bootstrap.tables[0].qr_token)
+      } catch (e) {}
+    }
     setLiveMenuBooks(bootstrap.menu_books)
     setLiveCategories(bootstrap.categories.map((category) => ({ ...category, parent_category_id: category.parent_category_id ?? null })))
     setLiveSubcategories(bootstrap.subcategories)
@@ -224,7 +234,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setError(null)
     try {
       if (staffReadApiEnabled) {
-        const prototypeStoreSlug = staffReadStoreSlugOverride || 'demo-bbq'
+        const prototypeStoreSlug = getActiveStoreSlug()
         const auth = await fetchStaffPrototypeSession(prototypeStoreSlug, activeSession.access_token)
         const currentProfile: StaffProfile = {
           id: auth.profile.id,
@@ -233,6 +243,8 @@ export function useDataLoading(setters: DataLoadingSetters) {
           display_name: auth.profile.display_name,
           role_type: auth.profile.role_type,
           store_id: auth.profile.store_id,
+          store_slug: (auth.profile as any).store_slug || auth.store?.slug,
+          store_name: (auth.profile as any).store_name || auth.store?.name,
           is_active: auth.profile.is_active,
           password_configured: auth.profile.password_configured,
         }
@@ -247,15 +259,22 @@ export function useDataLoading(setters: DataLoadingSetters) {
           }
         }
         setLiveStaffUsers([currentProfile])
+        const effectiveStoreSlug = auth.store?.slug || currentProfile.store_slug || prototypeStoreSlug
+        if (effectiveStoreSlug) {
+          try {
+            window.localStorage.setItem('last_active_store_slug', effectiveStoreSlug)
+          } catch (e) {}
+        }
+
         if (view === 'admin') {
-          await loadAdminPrototypeData(prototypeStoreSlug)
+          await loadAdminPrototypeData(effectiveStoreSlug)
           setLiveTickets([])
           setLiveLines([])
           setLivePaymentEntries([])
         } else {
-          await loadOperationalData(currentProfile, prototypeStoreSlug)
+          await loadOperationalData(currentProfile, effectiveStoreSlug)
           if (view === 'staff' || view === 'kds' || view === 'handy') {
-            await loadAdminPrototypeData(prototypeStoreSlug)
+            await loadAdminPrototypeData(effectiveStoreSlug)
           } else {
             setLiveCategories([])
             setLiveSubcategories([])

@@ -1197,10 +1197,17 @@ function TableQrModal({
             <div className="admin-qr-placeholder">QR: {qrToken}</div>
           </div>
           {customerUrl ? (
-            <div className="admin-qr-url">
-              <a href={customerUrl} target="_blank" rel="noreferrer">
-                {customerUrl}
+            <div className="admin-qr-url" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <a
+                href={customerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="primary-button"
+                style={{ textAlign: 'center', textDecoration: 'none', padding: '10px 16px', borderRadius: '8px' }}
+              >
+                注文画面を開く (別タブ)
               </a>
+              <span style={{ fontSize: '0.85rem', color: '#666', wordBreak: 'break-all' }}>{customerUrl}</span>
             </div>
           ) : null}
         </div>

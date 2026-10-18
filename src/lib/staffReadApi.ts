@@ -46,6 +46,24 @@ const staffApiOrigin =
   import.meta.env.VITE_STAFF_API_ORIGIN?.trim() || import.meta.env.VITE_CUSTOMER_API_ORIGIN?.trim() || ''
 export const staffReadStoreSlugOverride = import.meta.env.VITE_STAFF_API_STORE_SLUG?.trim() || ''
 
+export function getActiveStoreSlug(fallbackStoreSlug?: string): string {
+  try {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const fromUrl = urlParams.get('store')?.trim()
+      if (fromUrl) return fromUrl
+
+      const fromStorage = window.localStorage.getItem('last_active_store_slug')?.trim()
+      if (fromStorage) return fromStorage
+    }
+  } catch (e) {
+    // fallback
+  }
+
+  if (fallbackStoreSlug) return fallbackStoreSlug
+  return staffReadStoreSlugOverride || 'demo-bbq'
+}
+
 export const staffReadApiEnabled = Boolean(staffApiOrigin)
 
 async function invoke<T>(body: Record<string, unknown>, maxRetries = 2): Promise<T> {
@@ -147,10 +165,144 @@ export function loginStaffPrototype(storeSlug: string, email: string, password: 
   })
 }
 
-export function fetchStaffPrototypeSession(storeSlug: string, accessToken: string) {
+export function selfSignupApi(params: {
+  storeSlug: string
+  storeName: string
+  authUserId: string
+  email: string
+  displayName?: string
+}) {
+  return invoke<{
+    success: boolean
+    store: { id: string; slug: string; name: string }
+    staffUser: { id: string; auth_user_id: string; email: string | null; display_name: string; role_type: string }
+    firstTable: { id: string; label: string; qr_token: string }
+  }>({
+    action: 'self-signup',
+    ...params,
+  })
+}
+
+export function listUserStoresApi(authUserId: string, email?: string) {
+  return invoke<{
+    stores: { id: string; slug: string; name: string; role_type: string }[]
+  }>({
+    action: 'list-user-stores',
+    storeSlug: staffReadStoreSlugOverride || 'demo-bbq',
+    authUserId,
+    email,
+  })
+}
+
+export async function fetchStaffPrototypeSession(storeSlug: string, accessToken: string) {
   if (accessToken.startsWith('firebase-token-')) {
     const email = accessToken.replace('firebase-token-', '')
-    let profileDetails: any = {}
+
+    // 1. まず D1 バックエンドの firebase-staff-session API を試行
+    try {
+      const res = await invoke<{
+        authenticated: boolean
+        profile: {
+          id: string
+          auth_user_id: string
+          email: string | null
+          display_name: string
+          role_type: 'ADMIN' | 'STAFF' | 'KDS'
+          store_id: string
+          store_slug: string
+          store_name: string
+        }
+      }>({
+        action: 'firebase-staff-session',
+        storeSlug,
+        authUserId: accessToken,
+        email,
+      })
+
+      if (res && res.profile) {
+        if (res.profile.store_slug) {
+          try {
+            window.localStorage.setItem('last_active_store_slug', res.profile.store_slug)
+          } catch (e) {
+            // ignore
+          }
+        }
+        return {
+          access_token: accessToken,
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          user: {
+            id: res.profile.id,
+            email: res.profile.email || email,
+          },
+          profile: {
+            id: res.profile.id,
+            auth_user_id: res.profile.auth_user_id,
+            email: res.profile.email || email,
+            display_name: res.profile.display_name,
+            role_type: res.profile.role_type,
+            store_id: res.profile.store_id,
+            is_active: true,
+            password_configured: true,
+          },
+          store: {
+            id: res.profile.store_id,
+            slug: res.profile.store_slug,
+            name: res.profile.store_name,
+          },
+        } as any
+      }
+    } catch (e) {
+      console.warn('Backend firebase-staff-session check failed, falling back...', e)
+    }
+
+    // 2. フォールバック（既存モック用固定ユーザー）
+    const isKnownMockUser =
+      email === 'vtl.ucd@aroma.ocn.ne.jp' ||
+      email === 'owner@example.com' ||
+      email === 'staff@example.com' ||
+      email === 'kds@example.com'
+
+    if (!isKnownMockUser) {
+      const activeSlug = (typeof window !== 'undefined' && window.localStorage.getItem('last_active_store_slug')) || storeSlug || 'my-store'
+      return Promise.resolve({
+        access_token: accessToken,
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        user: { id: `staff-${email}`, email },
+        profile: {
+          id: `staff-${email}`,
+          auth_user_id: accessToken,
+          email,
+          display_name: 'オーナー',
+          role_type: 'ADMIN',
+          store_id: `store-${activeSlug}`,
+          is_active: true,
+          password_configured: true,
+        },
+        store: {
+          id: `store-${activeSlug}`,
+          tenant_id: `tenant-${activeSlug}`,
+          slug: activeSlug,
+          name: activeSlug,
+          timezone: 'Asia/Tokyo',
+          business_date_offset_minutes: 300,
+          payment_timing_mode: 'POSTPAID',
+          ticket_no_reset_mode: 'DAILY',
+          ticket_no_digits: 4,
+          tax_rate: 10,
+          reduced_tax_rate: 8,
+          tax_display_mode: 'INCLUDED',
+          invoice_number: 'T1234567890123',
+        },
+      } as any)
+    }
+
+    let profileDetails: any = {
+      id: `staff-${email}`,
+      auth_user_id: `auth-${email}`,
+      email: email,
+      display_name: 'スタッフ',
+      role_type: 'ADMIN',
+    }
     if (email === 'vtl.ucd@aroma.ocn.ne.jp') {
       profileDetails = {
         id: 'staff-user-vtl-ucd',
@@ -201,7 +353,7 @@ export function fetchStaffPrototypeSession(storeSlug: string, accessToken: strin
       store: {
         id: 'store-demo-bbq',
         tenant_id: 'tenant-demo-foods',
-        slug: 'demo-bbq',
+        slug: storeSlug || 'demo-bbq',
         name: 'Demo BBQ Prototype',
         timezone: 'Asia/Tokyo',
         business_date_offset_minutes: 300,

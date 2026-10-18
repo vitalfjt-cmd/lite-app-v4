@@ -59,7 +59,59 @@ class MockAuth {
         displayName: 'Kitchen Display',
       }
     } else {
-      throw new Error('auth/user-not-found')
+      // ローカル保存されているモック登録ユーザーを検索
+      let registeredUser: FirebaseUser | null = null
+      try {
+        const saved = window.localStorage.getItem('mock_registered_users')
+        if (saved) {
+          const list: (FirebaseUser & { password?: string })[] = JSON.parse(saved)
+          const found = list.find((u) => u.email.toLowerCase() === normalizedEmail)
+          if (found) {
+            registeredUser = {
+              email: found.email,
+              uid: found.uid,
+              displayName: found.displayName || 'オーナー',
+            }
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+
+      if (registeredUser) {
+        user = registeredUser
+      } else {
+        // 未登録の場合でもモック環境では自動でUIDを安定生成してログイン可能に
+        user = {
+          email: normalizedEmail,
+          uid: `mock-uid-${btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)}`,
+          displayName: 'オーナー',
+        }
+      }
+    }
+
+    this.currentUser = user
+    window.sessionStorage.setItem('firebase_user', JSON.stringify(user))
+    this.listeners.forEach((l) => l(user))
+    return { user }
+  }
+
+  async signUpWithEmailAndPassword(email: string, password: string): Promise<{ user: FirebaseUser }> {
+    const normalizedEmail = email.trim().toLowerCase()
+    const user: FirebaseUser = {
+      email: normalizedEmail,
+      uid: `mock-uid-${btoa(normalizedEmail).replace(/[^a-zA-Z0-9]/g, '').slice(0, 16)}`,
+      displayName: 'オーナー',
+    }
+
+    // localStorage にモックユーザーを保存
+    try {
+      const saved = window.localStorage.getItem('mock_registered_users')
+      const list = saved ? JSON.parse(saved) : []
+      list.push({ ...user, password })
+      window.localStorage.setItem('mock_registered_users', JSON.stringify(list))
+    } catch (e) {
+      // ignore
     }
 
     this.currentUser = user
@@ -85,6 +137,18 @@ class FirebaseAuthWrapper {
   async signInWithEmailAndPassword(email: string, password: string) {
     const { signInWithEmailAndPassword: fbSignIn } = await import('firebase/auth')
     const credential = await fbSignIn(this.auth, email, password)
+    return {
+      user: {
+        uid: credential.user.uid,
+        email: credential.user.email || '',
+        displayName: credential.user.displayName || undefined,
+      },
+    }
+  }
+
+  async signUpWithEmailAndPassword(email: string, password: string) {
+    const { createUserWithEmailAndPassword: fbCreateUser } = await import('firebase/auth')
+    const credential = await fbCreateUser(this.auth, email, password)
     return {
       user: {
         uid: credential.user.uid,

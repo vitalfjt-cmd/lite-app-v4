@@ -126,7 +126,7 @@ export function CustomerTabletScreen({
     return !hasStore || !hasQr
   })
   const [setupStoreSlug, setSetupStoreSlug] = useState(() => {
-    return new URLSearchParams(window.location.search).get('store') || window.localStorage.getItem('pos_tablet_store') || 'demo-bbq'
+    return new URLSearchParams(window.location.search).get('store') || window.localStorage.getItem('pos_tablet_store') || window.localStorage.getItem('last_active_store_slug') || 'demo-bbq'
   })
   const [setupPasscode, setSetupPasscode] = useState(() => {
     return window.localStorage.getItem('pos_tablet_passcode') || '1234'
