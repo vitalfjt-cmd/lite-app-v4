@@ -157,10 +157,12 @@ export function AppLauncher({
                 const hasSubmenu = view.id === 'admin' || view.id === 'sales'
                 const isExpanded = !!expandedMenus[view.id]
 
+                const isItemActive = currentView === view.id || (view.id === 'customer' && currentView === 'customer-qr') || (view.id === 'cust-tablet' && currentView === 'cust-tablet-qr')
+
                 return (
                   <div key={view.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <button
-                      className={`launcher-item ${currentView === view.id ? 'active' : ''}`}
+                      className={`launcher-item ${isItemActive ? 'active' : ''}`}
                       onClick={
                         hasSubmenu
                           ? () => toggleExpand(view.id as 'admin' | 'sales')
@@ -171,7 +173,7 @@ export function AppLauncher({
                       }
                       style={{ width: '100%' }}
                     >
-                      <div className="launcher-icon">{getIcon(view.id, currentView === view.id)}</div>
+                      <div className="launcher-icon">{getIcon(view.id, isItemActive)}</div>
                       <div className="launcher-info" style={{ flex: 1 }}>
                         <span className="launcher-label">{view.label}</span>
                         {view.caption && <span className="launcher-caption">{view.caption}</span>}

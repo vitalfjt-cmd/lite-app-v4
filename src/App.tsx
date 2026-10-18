@@ -566,29 +566,15 @@ export default function App() {
   function moveTo(nextView: AppView, tab?: string) {
     let targetView = nextView
 
-    const effectiveStore = liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') : '') || ''
-    const effectiveQr = liveTables[0]?.qr_token || publicQrToken || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_qr_token') : '') || ''
-
-    const url = new URL(window.location.href)
-
     if (nextView === 'customer') {
-      if (effectiveStore && effectiveQr) {
-        targetView = 'customer'
-        url.searchParams.set('store', effectiveStore)
-        url.searchParams.set('qr', effectiveQr)
-      } else {
-        targetView = 'customer-qr'
-      }
+      targetView = 'customer-qr'
     } else if (nextView === 'cust-tablet') {
-      if (effectiveStore && effectiveQr) {
-        targetView = 'cust-tablet'
-        url.searchParams.set('store', effectiveStore)
-        url.searchParams.set('qr', effectiveQr)
-      } else {
-        targetView = 'cust-tablet-qr'
-      }
+      targetView = 'cust-tablet-qr'
     }
 
+    const effectiveStore = liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') : '') || ''
+
+    const url = new URL(window.location.href)
     url.searchParams.set('view', targetView)
     if (tab) {
       url.searchParams.set('tab', tab)
@@ -597,14 +583,23 @@ export default function App() {
       url.searchParams.delete('tab')
       setAdminTab('')
     }
-    if (!url.searchParams.get('store') && effectiveStore) {
-      url.searchParams.set('store', effectiveStore)
-    }
-    if (!url.searchParams.get('qr') && effectiveQr) {
-      url.searchParams.set('qr', effectiveQr)
-    }
-    if (!url.searchParams.get('ticket') && effectivePublicTicketToken) {
-      url.searchParams.set('ticket', effectivePublicTicketToken)
+
+    if (targetView === 'customer-qr' || targetView === 'cust-tablet-qr') {
+      if (effectiveStore) {
+        url.searchParams.set('store', effectiveStore)
+      }
+      url.searchParams.delete('qr')
+      url.searchParams.delete('ticket')
+    } else {
+      if (!url.searchParams.get('store') && effectiveStore) {
+        url.searchParams.set('store', effectiveStore)
+      }
+      if (!url.searchParams.get('qr') && publicQrToken) {
+        url.searchParams.set('qr', publicQrToken)
+      }
+      if (!url.searchParams.get('ticket') && effectivePublicTicketToken) {
+        url.searchParams.set('ticket', effectivePublicTicketToken)
+      }
     }
     url.hash = ''
     window.history.pushState({}, '', url)
@@ -958,7 +953,7 @@ export default function App() {
             yen={yen}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             storeName={liveStore?.name ?? activeStore.name}
-            storeSlug={liveStore?.slug || publicStoreSlug}
+            storeSlug={liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') || undefined : undefined)}
             onPrintQr={handlePrintQr}
           />
         ) : null}
