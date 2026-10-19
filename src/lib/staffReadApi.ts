@@ -101,6 +101,15 @@ async function invoke<T>(body: Record<string, unknown>, maxRetries = 2): Promise
       return payload as T
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err))
+      const isClientError =
+        lastError.message.includes('store_user_not_found') ||
+        lastError.message.includes('store_not_found') ||
+        lastError.message.includes('staff_user_not_found') ||
+        lastError.message.includes('invalid_') ||
+        lastError.message.includes('already_exists')
+      if (isClientError) {
+        throw lastError
+      }
       if (attempt < maxRetries) {
         const delay = Math.pow(2, attempt) * 500
         await new Promise((resolve) => setTimeout(resolve, delay))
@@ -254,6 +263,14 @@ export async function fetchStaffPrototypeSession(storeSlug: string, accessToken:
         } as any
       }
     } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e)
+      if (
+        errMsg.includes('store_user_not_found') ||
+        errMsg.includes('store_not_found') ||
+        errMsg.includes('staff_user_not_found')
+      ) {
+        throw e
+      }
       console.warn('Backend firebase-staff-session check failed, falling back...', e)
     }
 
@@ -265,39 +282,7 @@ export async function fetchStaffPrototypeSession(storeSlug: string, accessToken:
       email === 'kds@example.com'
 
     if (!isKnownMockUser) {
-      const activeSlug = (typeof window !== 'undefined' && window.localStorage.getItem('last_active_store_slug')) || storeSlug || 'my-store'
-      return Promise.resolve({
-        access_token: accessToken,
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        user: { id: `staff-${email}`, email },
-        profile: {
-          id: `staff-${email}`,
-          auth_user_id: accessToken,
-          email,
-          display_name: 'オーナー',
-          role_type: 'ADMIN',
-          store_id: `store-${activeSlug}`,
-          store_slug: activeSlug,
-          store_name: activeSlug,
-          is_active: true,
-          password_configured: true,
-        },
-        store: {
-          id: `store-${activeSlug}`,
-          tenant_id: `tenant-${activeSlug}`,
-          slug: activeSlug,
-          name: activeSlug,
-          timezone: 'Asia/Tokyo',
-          business_date_offset_minutes: 300,
-          payment_timing_mode: 'POSTPAID',
-          ticket_no_reset_mode: 'DAILY',
-          ticket_no_digits: 4,
-          tax_rate: 10,
-          reduced_tax_rate: 8,
-          tax_display_mode: 'INCLUDED',
-          invoice_number: 'T1234567890123',
-        },
-      } as any)
+      throw new Error('store_user_not_found')
     }
 
     let profileDetails: any = {

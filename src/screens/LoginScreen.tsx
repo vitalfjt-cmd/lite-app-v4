@@ -69,7 +69,32 @@ export function LoginScreen({
     }
   }
 
-  const displayError = propError || localError
+  function formatDisplayError(rawError: string | null): string | null {
+    if (!rawError) return null
+    if (rawError.includes('store_user_not_found')) {
+      return '店舗IDまたはメールアドレスが正しくありません。所属店舗をご確認ください。'
+    }
+    if (rawError.includes('store_not_found')) {
+      return '指定された店舗IDが見つかりません。店舗IDをご確認ください。'
+    }
+    if (rawError.includes('staff_user_not_found')) {
+      return 'スタッフアカウントが見つかりません。'
+    }
+    if (
+      rawError.includes('auth/invalid-credential') ||
+      rawError.includes('auth/user-not-found') ||
+      rawError.includes('auth/wrong-password') ||
+      rawError.includes('invalid_login')
+    ) {
+      return 'メールアドレスまたはパスワードが正しくありません。'
+    }
+    if (rawError.includes('auth/too-many-requests')) {
+      return 'ログイン試行回数が上限を超えました。しばらく待ってから再度お試しください。'
+    }
+    return rawError
+  }
+
+  const displayError = formatDisplayError(propError || localError)
 
   return (
     <div className="login-container">

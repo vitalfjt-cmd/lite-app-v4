@@ -50,6 +50,8 @@ export default function App() {
   const {
     email, setEmail,
     password, setPassword,
+    authStoreSlug, setAuthStoreSlug,
+    authError, setAuthError,
     session, setSession,
     profile, setProfile,
     authBusy,
@@ -746,7 +748,9 @@ export default function App() {
             onSignIn={handleSignIn}
             onSignUp={handleSignUp}
             authBusy={authBusy}
-            error={error}
+            error={authError || error}
+            authStoreSlug={authStoreSlug}
+            onAuthStoreSlugChange={setAuthStoreSlug}
           />
         ) : (
           <>
