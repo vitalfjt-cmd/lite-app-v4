@@ -356,11 +356,9 @@ export default function App() {
   useEffect(() => {
     if (session && wasLoggingIn) {
       setWasLoggingIn(false)
-      if (view !== 'admin' && view !== 'sales' && view !== 'handy' && view !== 'kds' && view !== 'seats' && view !== 'staff') {
-        setView('staff')
-      }
+      setView('staff')
     }
-  }, [session, wasLoggingIn, view])
+  }, [session, wasLoggingIn])
 
   const [currentTime, setCurrentTime] = useState(Date.now())
 

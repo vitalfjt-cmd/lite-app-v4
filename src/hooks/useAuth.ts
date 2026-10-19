@@ -57,27 +57,18 @@ export function useAuth() {
     }
   }, [])
 
-  function normalizeInput(val: string): string {
-    return val
-      .trim()
-      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
-  }
-
   async function handleSignIn(event?: FormEvent) {
     if (event) event.preventDefault()
     setAuthBusy(true)
     setAuthError(null)
     try {
       if (staffReadApiEnabled) {
-        const cleanEmail = normalizeInput(email).toLowerCase()
-        const cleanPassword = password.trim()
-        const cleanStoreSlug = normalizeInput(authStoreSlug || '').toLowerCase()
-        const res = await firebaseAuth.signInWithEmailAndPassword(cleanEmail, cleanPassword)
+        const res = await firebaseAuth.signInWithEmailAndPassword(email, password)
         const token = `firebase-token-${res.user.email}`
-        const targetSlug = cleanStoreSlug || getActiveStoreSlug()
+        const targetSlug = authStoreSlug?.trim() || getActiveStoreSlug()
         const sessionData = await fetchStaffPrototypeSession(targetSlug, token)
         window.sessionStorage.setItem(PROTOTYPE_STAFF_SESSION_STORAGE_KEY, token)
-        window.localStorage.setItem('last_active_login_email', cleanEmail)
+        window.localStorage.setItem('last_active_login_email', email.trim())
         if (sessionData.store?.slug) {
           window.localStorage.setItem('last_active_store_slug', sessionData.store.slug)
           const url = new URL(window.location.href)
