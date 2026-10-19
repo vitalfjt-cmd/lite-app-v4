@@ -61,7 +61,7 @@ export function getActiveStoreSlug(fallbackStoreSlug?: string): string {
   }
 
   if (fallbackStoreSlug) return fallbackStoreSlug
-  return staffReadStoreSlugOverride || 'demo-bbq'
+  return staffReadStoreSlugOverride || ''
 }
 
 export const staffReadApiEnabled = Boolean(staffApiOrigin)
@@ -197,7 +197,7 @@ export function listUserStoresApi(authUserId: string, email?: string) {
     stores: { id: string; slug: string; name: string; role_type: string }[]
   }>({
     action: 'list-user-stores',
-    storeSlug: staffReadStoreSlugOverride || 'demo-bbq',
+    storeSlug: staffReadStoreSlugOverride || '',
     authUserId,
     email,
   })
