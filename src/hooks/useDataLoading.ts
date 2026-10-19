@@ -263,6 +263,13 @@ export function useDataLoading(setters: DataLoadingSetters) {
         if (effectiveStoreSlug) {
           try {
             window.localStorage.setItem('last_active_store_slug', effectiveStoreSlug)
+            if (typeof window !== 'undefined') {
+              const url = new URL(window.location.href)
+              if (url.searchParams.get('store') !== effectiveStoreSlug) {
+                url.searchParams.set('store', effectiveStoreSlug)
+                window.history.replaceState({}, '', url)
+              }
+            }
           } catch (e) {}
         }
 

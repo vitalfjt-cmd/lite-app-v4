@@ -30,7 +30,8 @@ import {
   saveAdminPrototypeLogicalPrinter,
   deleteAdminPrototypeLogicalPrinter,
   staffReadApiEnabled,
-  staffReadStoreSlugOverride
+  staffReadStoreSlugOverride,
+  getActiveStoreSlug
 } from '../lib/staffReadApi'
 import { toBookCode, toQrTokenPart, formatError, resizeMenuItemImage, fileToDataUrl } from '../lib/appUtils'
 
@@ -62,6 +63,8 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     refreshAdminData,
     setLiveMenuBooks
   } = deps
+
+  const effectiveStoreSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
 
   const createMenuBook = async (): Promise<boolean> => {
     if (!profile || profile.role_type !== 'ADMIN' || !adminForm.adminMenuBookName.trim()) return false
@@ -107,7 +110,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
       }
 
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         const res = await saveAdminPrototypeMenuBook(storeSlug, {
           menuBookId: adminForm.editingMenuBookId ?? undefined,
@@ -162,7 +165,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         await saveAdminPrototypeStore(storeSlug, {
           storeId: liveStore.id,
           name: adminForm.adminStoreName.trim(),
@@ -202,7 +205,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         throw new Error('QRトークンを生成できませんでした。店舗 slug とテーブル名を確認してください。')
       }
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeTable(storeSlug, {
           tableId: adminForm.editingTableId ?? undefined,
@@ -235,7 +238,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeStaffUser(storeSlug, {
           staffUserId: adminForm.editingStaffUserId || undefined,
@@ -268,7 +271,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     try {
       const nextSortOrder = Number.parseInt(adminForm.adminPaymentMethodSortOrder || '0', 10)
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypePaymentMethod(storeSlug, {
           paymentMethodId: adminForm.editingPaymentMethodId ?? undefined,
@@ -299,7 +302,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-payment-method')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypePaymentMethod(storeSlug, id)
         await refreshAdminData()
@@ -323,7 +326,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         return
       }
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeCategory(storeSlug, {
           categoryId: adminForm.editingCategoryId ?? undefined,
@@ -355,7 +358,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         return
       }
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeSubcategory(storeSlug, {
           subcategoryId: adminForm.editingSubCategoryId ?? undefined,
@@ -388,7 +391,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         return false
       }
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeItem(storeSlug, {
           itemId: adminForm.editingMenuItemId ?? undefined,
@@ -458,7 +461,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeBookCategory(storeSlug, {
           menuBookId: adminForm.adminPlacementMenuBookId,
@@ -484,7 +487,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeBookCategorySubcategory(storeSlug, {
           menuBookId: adminForm.adminPlacementMenuBookId,
@@ -511,7 +514,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypePlacement(storeSlug, {
           placementId: adminForm.editingPlacementId ?? undefined,
@@ -543,7 +546,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-menu-book')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeMenuBook(storeSlug, id)
         await refreshAdminData()
@@ -561,7 +564,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-item')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         const item = liveItems.find((i) => i.id === id)
         if (!item) throw new Error('Item not found')
@@ -594,7 +597,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-category')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeCategory(storeSlug, id)
         await refreshAdminData()
@@ -613,7 +616,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-subcategory')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeSubcategory(storeSlug, id)
         await refreshAdminData()
@@ -632,7 +635,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-item')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeItem(storeSlug, id)
         await refreshAdminData()
@@ -651,7 +654,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-table')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeTable(storeSlug, id)
         await refreshAdminData()
@@ -670,7 +673,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-staff-user')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeStaffUser(storeSlug, id)
         await refreshAdminData()
@@ -689,7 +692,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-book-category')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeBookCategory(storeSlug, id)
         await refreshAdminData()
@@ -708,7 +711,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-book-subcategory')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeBookCategorySubcategory(storeSlug, id)
         await refreshAdminData()
@@ -727,7 +730,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-placement')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypePlacement(storeSlug, id)
         await refreshAdminData()
@@ -752,7 +755,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
       }
 
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypePhysicalPrinter(storeSlug, {
           id: adminForm.editingPhysicalPrinterId ?? undefined,
@@ -784,7 +787,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-printer')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypePhysicalPrinter(storeSlug, id)
         await refreshAdminData()
@@ -803,7 +806,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypePrinterRoutingRule(storeSlug, {
           id: adminForm.editingPrinterRoutingRuleId ?? undefined,
@@ -832,7 +835,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-printer-rule')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypePrinterRoutingRule(storeSlug, id)
         await refreshAdminData()
@@ -851,7 +854,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setAdminMessage(null)
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
 
         let qrLp = logicalPrinters.find((lp: any) => lp.is_qr_printer)
@@ -902,7 +905,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     try {
       const nextSortOrder = Number.parseInt(adminForm.adminFloorSortOrder || '0', 10)
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeFloor(storeSlug, {
           floorId: adminForm.editingFloorId ?? undefined,
@@ -936,7 +939,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
         return false
       }
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeLogicalPrinter(storeSlug, {
           id: adminForm.editingLogicalPrinterId ?? undefined,
@@ -968,7 +971,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-logical-printer')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeLogicalPrinter(storeSlug, id)
         await refreshAdminData()
@@ -987,7 +990,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-floor')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await deleteAdminPrototypeFloor(storeSlug, floorId)
         await refreshAdminData()
@@ -1007,7 +1010,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-book-category-sort')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeBookCategory(storeSlug, {
           relationId: row.id,
@@ -1033,7 +1036,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-book-subcategory-sort')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypeBookCategorySubcategory(storeSlug, {
           relationId: row.id,
@@ -1060,7 +1063,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
     setMutationBusy('admin-placement-sort')
     try {
       if (staffReadApiEnabled) {
-        const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+        const storeSlug = effectiveStoreSlug
         if (!storeSlug) throw new Error('staff_store_slug_missing')
         await saveAdminPrototypePlacement(storeSlug, {
           placementId: row.id,

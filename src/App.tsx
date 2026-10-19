@@ -18,6 +18,7 @@ import { customerApiSupportsTicketBootstrap } from './lib/publicCustomerApi'
 import {
   staffReadApiEnabled,
   staffReadStoreSlugOverride,
+  getActiveStoreSlug,
   printStaffPrototypeReceipt,
   printStaffPrototypeQr,
 } from './lib/staffReadApi'
@@ -212,7 +213,7 @@ export default function App() {
     setError,
     setLiveMenuBooks,
     refreshAdminData: async () => {
-      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+      const storeSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
       if (storeSlug) await loadAdminPrototypeData(storeSlug)
     },
     refreshLiveData: async () => {
@@ -305,10 +306,10 @@ export default function App() {
 
   useEffect(() => {
     if (!staffReadApiEnabled || (view !== 'admin' && view !== 'sales' && view !== 'staff' && view !== 'kds') || !profile) return
-    const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+    const storeSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
     if (!storeSlug) return
     void loadAdminPrototypeData(storeSlug).catch((err) => setError(formatError(err)))
-  }, [liveStore?.slug, profile, view])
+  }, [liveStore?.slug, profile?.store_slug, profile, view])
 
 
 
@@ -623,7 +624,7 @@ export default function App() {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+      const storeSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       const res = await printStaffPrototypeReceipt(storeSlug, ticketId, paymentEntryMemo)
       if (!res.success) {
@@ -651,7 +652,7 @@ export default function App() {
     setStaffMessage(null)
     setError(null)
     try {
-      const storeSlug = liveStore?.slug || staffReadStoreSlugOverride
+      const storeSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
       if (!storeSlug) throw new Error('staff_store_slug_missing')
       let ticketId: string | null = null
       let targetCustomerUrl: string | null = null
@@ -869,7 +870,7 @@ export default function App() {
             staffReadOnlyMode={staffReadApiEnabled}
             staffPrototypeDebug={
               staffReadApiEnabled
-                ? `prototype store=${liveStore?.slug || staffReadStoreSlugOverride || '(missing)'} tickets=${liveTicketSummaries.length}`
+                ? `prototype store=${liveStore?.slug || profile?.store_slug || getActiveStoreSlug() || '(missing)'} tickets=${liveTicketSummaries.length}`
                 : null
             }
             storeName={liveStore?.name ?? activeStore.name}

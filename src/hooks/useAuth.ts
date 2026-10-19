@@ -5,7 +5,12 @@ import { PROTOTYPE_STAFF_SESSION_STORAGE_KEY } from '../constants'
 import type { StaffProfile } from '../types'
 
 export function useAuth() {
-  const [email, setEmail] = useState('vtl.ucd@aroma.ocn.ne.jp')
+  const [email, setEmail] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.localStorage.getItem('last_active_login_email') || ''
+    }
+    return ''
+  })
   const [password, setPassword] = useState('')
   const [session, setSession] = useState<any | null>(null)
   const [profile, setProfile] = useState<StaffProfile | null>(null)
@@ -21,6 +26,17 @@ export function useAuth() {
         fetchStaffPrototypeSession(currentSlug, saved)
           .then((res) => {
             setProfile(res.profile)
+            if (res.store?.slug) {
+              window.localStorage.setItem('last_active_store_slug', res.store.slug)
+              const url = new URL(window.location.href)
+              if (url.searchParams.get('store') !== res.store.slug) {
+                url.searchParams.set('store', res.store.slug)
+                window.history.replaceState({}, '', url)
+              }
+            }
+            if (res.profile?.email) {
+              window.localStorage.setItem('last_active_login_email', res.profile.email)
+            }
             setSession({ access_token: saved, user: { id: res.profile.id, email: res.profile.email } } as any)
           })
           .catch(() => {
@@ -39,10 +55,14 @@ export function useAuth() {
         const res = await firebaseAuth.signInWithEmailAndPassword(email, password)
         const token = `firebase-token-${res.user.email}`
         window.sessionStorage.setItem(PROTOTYPE_STAFF_SESSION_STORAGE_KEY, token)
+        window.localStorage.setItem('last_active_login_email', email.trim())
         const currentSlug = getActiveStoreSlug()
         const sessionData = await fetchStaffPrototypeSession(currentSlug, token)
         if (sessionData.store?.slug) {
           window.localStorage.setItem('last_active_store_slug', sessionData.store.slug)
+          const url = new URL(window.location.href)
+          url.searchParams.set('store', sessionData.store.slug)
+          window.history.replaceState({}, '', url)
         }
         setProfile(sessionData.profile)
         setSession({ access_token: token, user: { id: sessionData.profile.id, email: sessionData.profile.email } } as any)
@@ -70,10 +90,14 @@ export function useAuth() {
 
         // 3. セッショントークン保存とログイン
         window.sessionStorage.setItem(PROTOTYPE_STAFF_SESSION_STORAGE_KEY, token)
+        window.localStorage.setItem('last_active_login_email', signupEmail.trim())
         window.localStorage.setItem('last_active_store_slug', signupResult.store.slug)
         if (signupResult.firstTable?.qr_token) {
           window.localStorage.setItem('last_active_qr_token', signupResult.firstTable.qr_token)
         }
+        const url = new URL(window.location.href)
+        url.searchParams.set('store', signupResult.store.slug)
+        window.history.replaceState({}, '', url)
 
         const sessionData = await fetchStaffPrototypeSession(signupResult.store.slug, token)
         setProfile(sessionData.profile)
@@ -97,6 +121,12 @@ export function useAuth() {
         await firebaseAuth.signOut()
         window.sessionStorage.removeItem(PROTOTYPE_STAFF_SESSION_STORAGE_KEY)
         window.localStorage.removeItem('last_active_store_slug')
+        window.localStorage.removeItem('last_active_qr_token')
+        const url = new URL(window.location.href)
+        url.searchParams.delete('store')
+        url.searchParams.delete('qr')
+        url.searchParams.delete('ticket')
+        window.history.replaceState({}, '', url)
       }
       setProfile(null)
       setSession(null)
