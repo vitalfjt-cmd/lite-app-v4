@@ -5,9 +5,14 @@ type SeatsScreenProps = {
   liveTables: LiveTableRef[]
   liveTicketSummaries: TicketSummaryView[]
   yen: (value: number) => string
-  onSelectTable: (tableName: string) => void
+  onSelectTable: (tableName: string, table?: LiveTableRef) => void
   onOpenLauncher: () => void
+  onBack?: () => void
   storeName: string
+  title?: string
+  legendTitle?: string
+  emptyActionLabel?: string
+  headerBg?: string
 }
 
 export function SeatsScreen({
@@ -16,6 +21,11 @@ export function SeatsScreen({
   yen,
   onSelectTable,
   onOpenLauncher,
+  onBack,
+  title = '座席情報',
+  legendTitle = '滞留時間区分:',
+  emptyActionLabel,
+  headerBg,
 }: SeatsScreenProps) {
   const [now, setNow] = useState(() => new Date())
 
@@ -37,18 +47,29 @@ export function SeatsScreen({
 
   return (
     <div className="seats-screen" data-testid="seats-screen">
-      <header className="seats-header">
-        <div className="logo-area">
-          <button className="menu-trigger" onClick={onOpenLauncher} aria-label="Open Menu">
-            <span className="material-icons">menu</span>
-          </button>
-          <h2>座席情報</h2>
+      <header className="seats-header" style={headerBg ? { background: headerBg } : undefined}>
+        <div className="logo-area" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {onBack ? (
+            <button
+              className="menu-trigger"
+              onClick={onBack}
+              aria-label="Back"
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <span className="material-icons">arrow_back</span>
+            </button>
+          ) : (
+            <button className="menu-trigger" onClick={onOpenLauncher} aria-label="Open Menu">
+              <span className="material-icons">menu</span>
+            </button>
+          )}
+          <h2>{title}</h2>
         </div>
       </header>
 
       <div className="seats-content">
         <div className="seats-legend">
-          <span className="legend-title">滞留時間区分:</span>
+          <span className="legend-title">{legendTitle}</span>
           <div className="legend-items">
             <div className="legend-item">
               <div className="legend-color blue"></div>
@@ -80,13 +101,16 @@ export function SeatsScreen({
                 <div
                   key={table.id}
                   className="seat-card empty"
-                  onClick={() => onSelectTable(table.label)}
+                  onClick={() => onSelectTable(table.label, table)}
+                  style={{ cursor: 'pointer' }}
                   data-testid={`seat-card-${table.label}`}
                 >
                   <div className="seat-card-top">
                     <span className="seat-table-label">{table.label}</span>
                   </div>
-                  <div className="seat-card-middle"></div>
+                  <div className="seat-card-middle" style={{ fontSize: '0.85rem', color: '#888' }}>
+                    {emptyActionLabel || '空席'}
+                  </div>
                   <div className="seat-card-bottom"></div>
                 </div>
               )
@@ -110,7 +134,7 @@ export function SeatsScreen({
               <div
                 key={table.id}
                 className={`seat-card occupied ${colorClass}`}
-                onClick={() => onSelectTable(table.label)}
+                onClick={() => onSelectTable(table.label, table)}
                 data-testid={`seat-card-${table.label}`}
               >
                 <div className="seat-card-top">

@@ -4,6 +4,7 @@ export const VIEWS: { id: AppView; label: string; caption: string }[] = [
   { id: 'customer', label: 'スマホ', caption: '' },
   { id: 'cust-tablet', label: 'タブレット', caption: '' },
   { id: 'staff', label: '伝票一覧', caption: '' },
+  { id: 'handy', label: 'ハンディ注文', caption: '' },
   { id: 'kds', label: 'KDS', caption: '' },
   { id: 'seats', label: '座席情報', caption: '' },
   { id: 'admin', label: 'マスタメンテナンス', caption: '' },

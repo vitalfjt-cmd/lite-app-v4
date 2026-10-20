@@ -25,10 +25,11 @@ lite-app-v4/
     │   ├── adminSelectors.ts # 管理画面データ抽出ユーティリティ
     │   ├── adminUtils.ts     # 管理画面補助関数
     │   ├── appUtils.ts       # フォーマット、時間チェック、URL解析
+    │   ├── domProtection.ts  # ブラウザ自動翻訳による React DOM クラッシュ防止 (Node.prototype パッチ)
     │   ├── firebase.ts       # Firebase Auth 接続クライアント
     │   ├── priceUtils.ts     # 税込/税抜・消費税計算
     │   ├── publicCustomerApi.ts # QR注文向け Workers 公開 API
-    │   ├── staffReadApi.ts   # バックエンド Workers + D1 通信 API (印刷・フロア・インボイス含む)
+    │   ├── staffReadApi.ts   # バックエンド Workers + D1 通信 API (新規店舗登録・印刷・フロア・インボイス含む)
     │   └── staffUtils.ts     # 伝票・KDS補助ロジック
     ├── screens/        # 各ビューのメイン画面コンポーネント
     │   ├── admin/            # マスタ管理 & 売上分析サブタブ群 (全34ファイル: 33コンポーネント + types.ts)
@@ -46,7 +47,7 @@ lite-app-v4/
     │   ├── CustomerScreen.tsx # モバイル向け QR 注文画面
     │   ├── CustomerTabletScreen.tsx # 10インチタブレット向け高機能 QR 注文画面
     │   ├── KdsScreen.tsx     # 調理管理 (KDS) 画面
-    │   ├── LoginScreen.tsx   # スタッフログイン画面
+    │   ├── LoginScreen.tsx   # スタッフログイン & 新規店舗セルフサインアップ画面 (ログイン/新規登録タブ)
     │   ├── SeatsScreen.tsx   # 店舗座席稼働モニター画面
     │   ├── StaffScreen.tsx   # スタッフ伝票一覧・詳細画面
     │   └── TableQrListScreen.tsx # 卓用 QR コード一覧・発行画面 (customer-qr / cust-tablet-qr)
@@ -59,19 +60,22 @@ lite-app-v4/
 
 ## 2. 主要モジュールの役割
 ### 2.1 `src/lib/`
-- **`staffReadApi.ts`**: Cloudflare Workers + D1 バックエンド通信クライアント。伝票・マスタの同期に加え、動的プリンタールーティング印刷、卓用 QR コード印刷、インボイス番号管理、フロアマスタ API を提供。
+- **`domProtection.ts`**: Google Chrome/Edge などのブラウザ翻訳機能が React の仮想 DOM ノード（`<font>` タグ挿入等）を書き換えることで発生する `removeChild` / `insertBefore` の JavaScript 例外（クラッシュ）を防止する Node プロトタイプパッチ。
+- **`staffReadApi.ts`**: Cloudflare Workers + D1 バックエンド通信クライアント。新規店舗セルフサインアップ、伝票・マスタの同期に加え、動的プリンタールーティング印刷、卓用 QR コード印刷、インボイス番号管理、フロアマスタ API を提供。
 - **`publicCustomerApi.ts`**: 顧客端末用 QR 注文通信 API。
 - **`firebase.ts`**: Firebase Authentication によるスタッフログイン管理。
 - **`priceUtils.ts`**: 店舗標準税率 (10%) / 軽減税率 (8%) および税込/税抜表示の計算モジュール。
 
 ### 2.2 `src/hooks/`
+- **`useAuth.ts`**: Firebase Authentication によるスタッフログイン・新規店舗セルフサインアップ、店舗スラッグ厳格検証（ログイン中アカウントと接続先店舗の不一致防止）、セッションストレージおよび URL クエリパラメータへの永続化管理。
 - **`useDataLoading`**: データ初期ロードおよび定期自動更新のオーケストレーター。フロア、プリンター、インボイス情報を含むマスタを同期。
 - **`useStaffData` / `useStaffOperations`**: 伝票データ保持および注文入力・伝票加算・テンキー会計・KDSステータス変更。1階層/2階層カテゴリおよび商品重複排除に対応。
 - **`useAdminForm` / `useAdminOperations`**: 各種マスタ（メニュー、トッピング、店舗、決済種別、卓配置、フロア、論理/物理プリンター、ルーティングルール等）および売上データのミューテーション。
 
 ### 2.3 `src/screens/`
+- **`LoginScreen.tsx`**: スタッフログイン画面。店舗名・スラッグ・メールアドレス・パスワード入力による「新規店舗登録」タブを併設し、初期卓・初期管理者アカウントの即時開設に対応。
 - **`CustomerTabletScreen.tsx`**: 10インチタブレット専用設計の注文画面。多言語切替、トッピング選択、誤操作防止ロックを搭載。単一/二重カテゴリ表示モードに対応。
-- **`StaffScreen.tsx`**: スタッフ画面。`StaffHandyView` (ハンディ注文), `StaffPaymentView` (個別割勘・まとめ会計・テンキー決済・正式領収書発行) を統合。卓用QR印刷にも対応。
+- **`StaffScreen.tsx`**: スタッフ画面。`isHandyMode` による `StaffHandyView` (ハンディ注文特化ビュー: `?view=handy`)、`StaffPaymentView` (個別割勘・まとめ会計・テンキー決済・正式領収書発行) を統合。卓用QR印刷にも対応。
 - **`AdminScreen.tsx`**: 売上分析、レシート再発行、各種マスタ、フロア管理、プリンター設定サブタブを切り替え表示。
 - **`TableQrListScreen.tsx`**: モバイルおよびタブレット向け卓別 QR コード一覧画面。一括印刷およびプリンタールーティングに対応。
 

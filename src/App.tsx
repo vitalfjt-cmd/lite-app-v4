@@ -141,6 +141,10 @@ export default function App() {
   const [kdsMode, setKdsMode] = useState<'all' | 'table'>('all')
   const [kdsSelectedTableName, setKdsSelectedTableName] = useState<string | null>(null)
 
+  const [handyPendingTable, setHandyPendingTable] = useState<{ id: string; label: string } | null>(null)
+  const [handyCustomerCount, setHandyCustomerCount] = useState('1')
+  const [handyMenuBookId, setHandyMenuBookId] = useState('')
+
   const { loadOperationalData, loadAdminPrototypeData, loadLiveData, loadPublicMenu } = useDataLoading({
     setLoadBusy, setError, setProfile, setLiveStore, setLiveTickets, setLiveLines, setLivePaymentEntries,
     setLiveTables, setLiveMenuBooks, setLiveMenuBookItems, setLiveCategories, setLiveSubcategories,
@@ -573,6 +577,8 @@ export default function App() {
       targetView = 'customer-qr'
     } else if (nextView === 'cust-tablet') {
       targetView = 'cust-tablet-qr'
+    } else if (nextView === 'handy') {
+      setSelectedTicketId(null)
     }
 
     const effectiveStore = liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') : '') || ''
@@ -689,7 +695,7 @@ export default function App() {
 
   return (
     <div
-      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''} ${(view === 'seats' || view === 'customer-qr' || view === 'cust-tablet-qr') ? 'seats-mode' : ''}`}
+      className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'handy' ? 'handy-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''} ${(view === 'seats' || view === 'customer-qr' || view === 'cust-tablet-qr') ? 'seats-mode' : ''}`}
     >
       <AppLauncher
         isOpen={isLauncherOpen}
@@ -868,7 +874,7 @@ export default function App() {
           />
 
         ) : null}
-        {view === 'staff' || view === 'handy' ? (
+        {view === 'staff' || (view === 'handy' && selectedTicketId) ? (
           <StaffScreen
             isHandyMode={view === 'handy'}
             staffReadOnlyMode={staffReadApiEnabled}
@@ -931,6 +937,203 @@ export default function App() {
             onClearDirectAction={() => setStaffDirectAction(null)}
             liveLines={liveLines}
           />
+        ) : null}
+        {view === 'handy' && !selectedTicketId ? (
+          <>
+            <SeatsScreen
+              liveTables={liveTables}
+              liveTicketSummaries={liveTicketSummaries}
+              yen={yen}
+              title="ハンディ注文 (卓選択)"
+              legendTitle="滞留時間区分:"
+              emptyActionLabel="空席 (タップして起票)"
+              headerBg="linear-gradient(135deg, #7048e8 0%, #5f3dc4 100%)"
+              onSelectTable={(tableLabel, table) => {
+                const ticket = liveTicketSummaries.find((t) => t.tableName === tableLabel)
+                if (ticket) {
+                  setSelectedTicketId(ticket.ticketId)
+                } else if (table) {
+                  setHandyPendingTable({ id: table.id, label: table.label })
+                  setHandyCustomerCount('1')
+                  const defaultMenuBook = liveMenuBooks.find((b) => isTimeWithinWindow(b.available_from_time, b.available_to_time)) || liveMenuBooks[0]
+                  setHandyMenuBookId(defaultMenuBook?.id || '')
+                }
+              }}
+              onOpenLauncher={() => setIsLauncherOpen(true)}
+              storeName={liveStore?.name ?? activeStore.name}
+            />
+
+            {handyPendingTable && (
+              <div
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  background: 'rgba(0,0,0,0.8)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 2000,
+                }}
+              >
+                <div
+                  style={{
+                    background: '#222',
+                    padding: '28px',
+                    borderRadius: '16px',
+                    width: '90%',
+                    maxWidth: '400px',
+                    color: 'white',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  <h2
+                    style={{
+                      fontSize: '1.4rem',
+                      marginBottom: '20px',
+                      borderBottom: '1px solid #444',
+                      paddingBottom: '12px',
+                    }}
+                  >
+                    新規伝票起票：{handyPendingTable.label}
+                  </h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '28px' }}>
+                    <label>
+                      <div style={{ marginBottom: '8px', color: '#aaa', fontSize: '0.9rem' }}>メニューブック選択</div>
+                      <select
+                        value={handyMenuBookId}
+                        onChange={(e) => setHandyMenuBookId(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          background: '#111',
+                          color: 'white',
+                          border: '1px solid #444',
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                        }}
+                      >
+                        {liveMenuBooks.map((b) => {
+                          const isAvailable = isTimeWithinWindow(b.available_from_time, b.available_to_time)
+                          const timeRange = b.available_from_time || b.available_to_time ? ` (${b.available_from_time || ''}〜${b.available_to_time || ''})` : ''
+                          return (
+                            <option key={b.id} value={b.id}>
+                              {isAvailable ? `${b.name}${timeRange}` : `(時間外) ${b.name}${timeRange}`}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </label>
+
+                    <label>
+                      <div style={{ marginBottom: '8px', color: '#aaa', fontSize: '0.9rem' }}>客数</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => setHandyCustomerCount((prev) => String(Math.max(1, (parseInt(prev) || 1) - 1)))}
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            background: '#333',
+                            color: 'white',
+                            border: '1px solid #444',
+                            borderRadius: '8px',
+                            fontSize: '1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          min="1"
+                          value={handyCustomerCount}
+                          onChange={(e) => setHandyCustomerCount(e.target.value)}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            background: '#111',
+                            color: 'white',
+                            border: '1px solid #444',
+                            borderRadius: '8px',
+                            fontSize: '1.2rem',
+                            textAlign: 'center',
+                            height: '48px',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setHandyCustomerCount((prev) => String((parseInt(prev) || 1) + 1))}
+                          style={{
+                            width: '48px',
+                            height: '48px',
+                            background: '#333',
+                            color: 'white',
+                            border: '1px solid #444',
+                            borderRadius: '8px',
+                            fontSize: '1.5rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      type="button"
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: 'transparent',
+                        color: 'white',
+                        border: '1px solid #555',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => setHandyPendingTable(null)}
+                    >
+                      キャンセル
+                    </button>
+                    <button
+                      type="button"
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: '#7048e8',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                      }}
+                      disabled={mutationBusy === 'create-ticket'}
+                      onClick={async () => {
+                        const count = parseInt(handyCustomerCount, 10) || 1
+                        const success = await createStaffTicket(handyPendingTable.id, handyMenuBookId, count)
+                        if (success) {
+                          setHandyPendingTable(null)
+                        }
+                      }}
+                    >
+                      {mutationBusy === 'create-ticket' ? '起票中...' : '起票して注文へ'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         ) : null}
         {view === 'seats' ? (
           <SeatsScreen

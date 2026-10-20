@@ -9,20 +9,22 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 `App.tsx` または AppSidebar / AppLauncher からビューを切り替えます。
 主なビューは以下の通りです：
 - `staff`: スタッフ向け伝票一覧・作成・明細・会計画面
-- `customer`: スマートフォン向け QR 注文画面
-- `cust-tablet`: 10インチタブレット向け QR 注文画面 (高度化されたUIレイアウト・トッピング選択・多言語対応)
+- `handy`: スタッフ向けハンディ注文画面。卓選択（座席一覧）から稼働中卓を選択して注文画面へ遷移、または空席を選択して新規起票後に注文画面へ遷移。
+- `customer`: スマートフォン向け QR 注文画面（ランチャーからは卓一覧選択で指定卓のQRを表示）
+- `cust-tablet`: 10インチタブレット向け QR 注文画面（ランチャーからは卓一覧選択で指定卓のQRを表示）
 - `customer-qr`: モバイル向け 卓別 QR コード発行・表示画面 (`TableQrListScreen`)
 - `cust-tablet-qr`: タブレット向け 卓別 QR コード発行・表示画面 (`TableQrListScreen`)
 - `kds`: キッチン向け調理・提供管理画面 (Kitchen Display System)
 - `seats`: 店舗座席稼働モニター画面
 - `admin`: マスタメンテナンス & 売上分析画面 (メニュー、カテゴリ、サブカテゴリ、トッピング、店舗、スタッフ、決済種別、卓配置、フロア、プリンター、売上集計、レシート再発行)
-- `login`: スタッフログイン画面
+- `login`: スタッフログイン & 新規店舗セルフサインアップ画面
 
 ### 2.2 データ連携・開発環境
 - **Staff / KDS / Admin / Seats**: Cloudflare Workers API (`staffReadApi.ts`) を介して Cloudflare D1 上の実データと同期。
 - **Customer**: `publicCustomerApi.ts` (Cloudflare Workers) を経由した顧客用公開非認証アクセス。
 - **SSL開発対応**: Vite 基本 SSL プラグイン (`@vitejs/plugin-basic-ssl`) を使用したローカル HTTPS 接続およびカメラ/QR スキャナー開発サポート。
-- **認証**: Firebase Auth (`firebase.ts`) および Worker トークン認証 (`useAuth.ts`)。
+- **認証 & サインアップ**: Firebase Auth (`firebase.ts`) および Worker トークン認証 (`useAuth.ts`)。店舗スラッグ厳格検証（ログイン中アカウントと接続先店舗の不一致防止）およびセッション永続化（`sessionStorage` + URLパラメータ）。
+- **新規店舗セルフサインアップ**: ログイン画面の「新規店舗登録」タブから、店舗名・店舗スラッグ・管理者メールアドレス・パスワードを入力することで、Firebase アカウント、D1 店舗マスタ、初期卓 (T1)、初期管理者スタッフを即時一括開設。
 
 ### スタッフ認証・DBテーブル仕様 (Firebase Auth & Staff Tables)
 - **Firebase Authentication**: スタッフのログイン本人確認・認証および UID (`auth_user_id`) の発行を担当。
@@ -35,7 +37,8 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 - **`useAdminOperations` / `useAdminForm`**: 管理画面のマスタ更新・CRUD 操作およびフォーム状態管理（フロア、プリンター、インボイス番号等）。
 - **`useStaffData` / `useStaffOperations`**: 伝票・注文明細・テンキー会計・KDSステータス変更・伝票加算アクション。1階層/2階層カテゴリおよび商品重複排除対応。
 - **`useCustomerFlow`**: QR 注文カスタマー画面の状態および注文処理（単一/二重カテゴリ表示モード対応）。
-- **`useAuth`**: スタッフ認証セッションの管理。
+- **`useAuth`**: スタッフ認証セッション管理、新規店舗セルフサインアップ、店舗スラッグ厳格検証。
+- **`domProtection.ts`**: ブラウザの自動翻訳機能（Google Chrome / Edge 等）が `<font>` タグを挿入して仮想 DOM を改変することで発生する `removeChild` / `insertBefore` 実行時エラー（React DOM クラッシュ）を防止する Node プロトタイプパッチ。
 - **`priceUtils.ts`**: 税込/税抜表示切り替えおよび標準税率 (10%) / 軽減税率 (8%) 計算。
 
 ## 3. 主要機能
@@ -69,6 +72,7 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 ## 4. UI/UX 方針
 - **ビューポート制約**: 100vh 固定レイアウト。画面全体の誤スクロールを抑制し、内部スクロールを採用。
 - **ダークモード**: 視認性に優れたダークテーマ。
+- **ブラウザ自動翻訳クラッシュ対策**: 多言語対応環境での Google 翻訳等による React 仮想 DOM 破壊を防ぐため、HTML 全体への `translate="no"` / `class="notranslate"` 付与、メタタグ `<meta name="google" content="notranslate" />` の設置、および `domProtection.ts` による DOM 操作保護レイヤーを常時適用。
 
 ## 5. 技術スタック
 - **Frontend**: React 19, Vite 7 (`@vitejs/plugin-basic-ssl`), TypeScript 5, Vanilla CSS (`styles.css`)
