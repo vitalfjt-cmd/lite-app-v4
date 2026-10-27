@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, KeyboardEvent } from 'react'
 import { AppSidebar } from './components/AppSidebar'
 import { AppLauncher } from './components/AppLauncher'
+import { SubscriptionExpiredModal } from './components/SubscriptionExpiredModal'
+import { OnboardingWizardModal } from './components/OnboardingWizardModal'
 import { PROTOTYPE_STAFF_SESSION_STORAGE_KEY, VIEWS } from './constants'
 import { buildAdminBookCategories, buildAdminBookCategorySubcategories, buildAdminPlacements, buildAdminTopCategories, buildAdminVisibleItems } from './lib/adminSelectors'
 import {
@@ -132,6 +134,9 @@ export default function App() {
   const [adminMessage, setAdminMessage] = useState<string | null>(null)
   const [isLauncherOpen, setIsLauncherOpen] = useState(false)
   const [wasLoggingIn, setWasLoggingIn] = useState(false)
+  const [subscriptionExpiredModalOpen, setSubscriptionExpiredModalOpen] = useState(false)
+  const [subscriptionExpiredReason, setSubscriptionExpiredReason] = useState<'expired' | 'canceled' | string>('expired')
+  const [onboardingWizardOpen, setOnboardingWizardOpen] = useState(false)
 
   const [draftQuantities, setDraftQuantities] = useState<Record<string, number>>({})
   const [handyItemId, setHandyItemId] = useState('')
@@ -232,7 +237,11 @@ export default function App() {
     staffHandyItems, selectedTicketId, selectedTicket, handyItemId, handyQty, draftQuantities,
     setMutationBusy, setError, setStaffMessage, setLiveLines, setDraftQuantities, setLiveTickets,
     setLivePaymentEntries, setSelectedTicketId, setHandyQty,
-    loadLiveData: (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY)
+    loadLiveData: (s) => loadLiveData(s, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY),
+    onSubscriptionRestricted: (reason) => {
+      setSubscriptionExpiredReason(reason)
+      setSubscriptionExpiredModalOpen(true)
+    }
   })
 
   const {
@@ -257,6 +266,9 @@ export default function App() {
       setCustomerAccess(readCustomerAccessParams())
       const params = new URLSearchParams(window.location.search)
       setAdminTab(params.get('tab') || '')
+      if (params.get('onboarding') === '1') {
+        setOnboardingWizardOpen(true)
+      }
     }
     window.addEventListener('hashchange', syncLocationState)
     window.addEventListener('popstate', syncLocationState)
@@ -265,6 +277,16 @@ export default function App() {
       window.removeEventListener('popstate', syncLocationState)
     }
   }, [])
+
+  useEffect(() => {
+    if (view === 'admin' && liveStore?.slug) {
+      const isCompleted = window.localStorage.getItem(`onboarding_completed_${liveStore.slug}`)
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('onboarding') === '1' || (!isCompleted && params.get('new_store') === '1')) {
+        setOnboardingWizardOpen(true)
+      }
+    }
+  }, [view, liveStore?.slug])
 
 
 
@@ -1342,6 +1364,7 @@ export default function App() {
             onStoreTaxDisplayModeChange={adminForm.setAdminStoreTaxDisplayMode}
             onStoreInvoiceNumberChange={adminForm.setAdminStoreInvoiceNumber}
             onSaveStoreSettings={() => void adminOps.saveStoreSettings()}
+            onOpenOnboardingWizard={() => setOnboardingWizardOpen(true)}
             onDeleteStaffUser={(id) => void adminOps.deleteStaffUser(id)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             onPaymentMethodNameChange={adminForm.setAdminPaymentMethodName}
@@ -1501,6 +1524,57 @@ export default function App() {
           </>
         )}
       </main>
+      <SubscriptionExpiredModal
+        isOpen={subscriptionExpiredModalOpen}
+        onClose={() => setSubscriptionExpiredModalOpen(false)}
+        statusReason={subscriptionExpiredReason}
+        onNavigateToBilling={() => {
+          setSubscriptionExpiredModalOpen(false)
+          setView('admin')
+          setAdminTab('billing')
+          const url = new URL(window.location.href)
+          url.searchParams.set('view', 'admin')
+          url.searchParams.set('tab', 'billing')
+          window.history.pushState({}, '', url.toString())
+        }}
+      />
+      <OnboardingWizardModal
+        isOpen={onboardingWizardOpen}
+        onClose={() => setOnboardingWizardOpen(false)}
+        storeSlug={liveStore?.slug || profile?.store_slug || getActiveStoreSlug()}
+        initialStore={{
+          id: liveStore?.id || '',
+          name: liveStore?.name || adminForm.adminStoreName || '',
+          taxRate: adminForm.adminStoreTaxRate,
+          reducedTaxRate: adminForm.adminStoreReducedTaxRate,
+          taxDisplayMode: adminForm.adminStoreTaxDisplayMode,
+          invoiceNumber: adminForm.adminStoreInvoiceNumber,
+          paymentTimingMode: adminForm.adminStorePaymentTimingMode,
+        }}
+        initialTables={liveTables.map((t) => ({
+          id: t.id,
+          label: t.label,
+          qr_token: t.qr_token,
+          sort_order: t.sort_order ?? 0,
+          is_active: t.is_active,
+        }))}
+        onRefreshData={async () => {
+          const slug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
+          if (slug) await loadAdminPrototypeData(slug)
+        }}
+        onNavigateToTab={(tab) => {
+          setView('admin')
+          setAdminTab(tab)
+          const url = new URL(window.location.href)
+          url.searchParams.set('view', 'admin')
+          url.searchParams.set('tab', tab)
+          window.history.pushState({}, '', url.toString())
+        }}
+        onNavigateToView={(v) => {
+          setView(v as AppView)
+          window.location.hash = `#${v}`
+        }}
+      />
     </div>
   )
 }

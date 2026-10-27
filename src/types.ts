@@ -243,3 +243,15 @@ export type AdminPaymentMethod = {
   is_change_allowed: boolean
   toppings?: { id: string; name: string; price: number; is_sold_out: boolean }[]
 }
+
+export type SubscriptionStatus = {
+  plan: string
+  subscription_status: string
+  trial_ends_at: string | null
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+  is_active: boolean
+  days_left_in_trial: number | null
+  stripe_customer_id: string | null
+  is_stripe_configured: boolean
+}

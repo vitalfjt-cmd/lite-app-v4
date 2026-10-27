@@ -28,6 +28,8 @@ type Props = {
   onStoreTaxDisplayModeChange: (value: 'INCLUDED' | 'EXCLUDED') => void
   onStoreInvoiceNumberChange: (value: string) => void
   onSaveStoreSettings: () => void
+  onNavigateToBilling?: () => void
+  onOpenOnboardingWizard?: () => void
 }
 
 export function AdminStoreTab(props: Props) {
@@ -37,6 +39,36 @@ export function AdminStoreTab(props: Props) {
         <div className="admin-list-head">
           <div>
             <h2>店舗設定</h2>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {props.onOpenOnboardingWizard && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={props.onOpenOnboardingWizard}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontWeight: 700,
+                  color: '#166534',
+                  background: '#f0fdf4',
+                  borderColor: '#bbf7d0',
+                }}
+              >
+                <span>✨ 初期設定ウィザードを開く</span>
+              </button>
+            )}
+            {props.onNavigateToBilling && (
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={props.onNavigateToBilling}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}
+              >
+                <span>💳 プラン・契約管理（Stripe決済）へ</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="form-stack">

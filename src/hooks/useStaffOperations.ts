@@ -41,6 +41,7 @@ export type StaffOperationsDeps = {
   setSelectedTicketId: (id: string | null) => void
   setHandyQty: (qty: string) => void
   loadLiveData: (session: any) => Promise<void>
+  onSubscriptionRestricted?: (reason: 'expired' | 'canceled') => void
 }
 
 export function useStaffOperations(deps: StaffOperationsDeps) {
@@ -48,10 +49,21 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     session, profile, liveLines, liveStore, liveTickets, liveTables, liveMenuBooks,
     staffHandyItems, selectedTicketId, selectedTicket, handyItemId, handyQty, draftQuantities,
     setMutationBusy, setError, setStaffMessage, setLiveLines, setDraftQuantities, setLiveTickets,
-    setLivePaymentEntries, setSelectedTicketId, setHandyQty, loadLiveData
+    setLivePaymentEntries, setSelectedTicketId, setHandyQty, loadLiveData, onSubscriptionRestricted
   } = deps
 
   const effectiveStoreSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
+
+  const handleStaffError = (err: unknown): string => {
+    const raw = formatError(err)
+    if (raw.includes('subscription_expired') || raw.includes('subscription_canceled')) {
+      onSubscriptionRestricted?.(raw.includes('canceled') ? 'canceled' : 'expired')
+    }
+    const message = messageFromStaffApiError(err)
+    setError(message)
+    setStaffMessage(message)
+    return message
+  }
 
   const changeLineQuantity = (lineId: string, delta: number) => {
     setDraftQuantities((current) => ({ ...current, [lineId]: Math.max((current[lineId] ?? 1) + delta, 1) }))
@@ -206,7 +218,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setHandyQty('1')
       setStaffMessage('Staff order added.')
     } catch (err) {
-      setError(formatError(err))
+      handleStaffError(err)
     } finally {
       setMutationBusy(null)
     }
@@ -260,7 +272,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setHandyQty('1')
       setStaffMessage('Staff orders added.')
     } catch (err) {
-      setError(formatError(err))
+      handleStaffError(err)
     } finally {
       setMutationBusy(null)
     }
@@ -310,7 +322,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       window.alert(message)
       return true
     } catch (err) {
-      const message = messageFromStaffApiError(err)
+      const message = handleStaffError(err)
       setError(message)
       setStaffMessage(message)
       return false
@@ -380,7 +392,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       ])
       return true
     } catch (err) {
-      const message = messageFromStaffApiError(err)
+      const message = handleStaffError(err)
       setError(message)
       setStaffMessage(message)
       return false
@@ -406,7 +418,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
       setStaffMessage(null)
       return closed.ticket.receipt_no || null
     } catch (err) {
-      const message = messageFromStaffApiError(err)
+      const message = handleStaffError(err)
       setError(message)
       setStaffMessage(message)
       return null

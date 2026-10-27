@@ -16,6 +16,7 @@ import { AdminStaffTab } from './admin/AdminStaffTab'
 import { AdminPlacementModal, AdminPlacementCategoryModal, AdminPlacementSubcategoryModal } from './admin/AdminPlacementModals'
 import { AdminPlacementsTab } from './admin/AdminPlacementsTab'
 import { AdminStoreTab } from './admin/AdminStoreTab'
+import { AdminSubscriptionTab } from './admin/AdminSubscriptionTab'
 import { AdminSalesTab } from './admin/AdminSalesTab'
 import { AdminSalesHistoryTab } from './admin/AdminSalesHistoryTab'
 import { AdminPaymentHistoryTab } from './admin/AdminPaymentHistoryTab'
@@ -53,6 +54,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'productSalesHistory', label: '商品注文データ照会', caption: '期間指定での商品別注文数照会' },
   { id: 'receiptReissue', label: 'レシート再発行', caption: '指定した日付のレシートの再発行・印刷' },
   { id: 'store', label: '店舗', caption: '店舗設定' },
+  { id: 'billing', label: 'プラン・契約管理', caption: '月額課金・Stripe連携' },
   { id: 'tables', label: 'テーブル', caption: '席・QR管理' },
   { id: 'floors', label: 'フロア設定', caption: 'フロアマスタ管理' },
   { id: 'staff', label: 'スタッフ', caption: '認証・権限管理' },
@@ -61,7 +63,7 @@ const ADMIN_TABS: Array<{ id: AdminTab; label: string; caption: string }> = [
   { id: 'printers', label: 'プリンター設定', caption: '物理プリンター・出力ルール設定' },
 ]
 
-const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'tables', 'floors', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'hourlySalesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue', 'printers', 'logicalPrinters']
+const D1_EDITABLE_ADMIN_TABS: AdminTab[] = ['menuBooks', 'categories', 'subcategories', 'items', 'placements', 'store', 'billing', 'tables', 'floors', 'staff', 'sales', 'categorySales', 'subcategorySales', 'salesHistory', 'hourlySalesHistory', 'paymentHistory', 'accountingHistory', 'productSalesHistory', 'paymentMethods', 'receiptReissue', 'printers', 'logicalPrinters']
 
 type Props = {
   mode?: 'master' | 'sales'
@@ -234,6 +236,7 @@ type Props = {
   onStoreTaxDisplayModeChange: (value: 'INCLUDED' | 'EXCLUDED') => void
   onStoreInvoiceNumberChange?: (value: string) => void
   onSaveStoreSettings: () => void
+  onOpenOnboardingWizard?: () => void
   onTableLabelChange: (value: string) => void
   onTableQrTokenChange: (value: string) => void
   onTableGroupNameChange: (value: string) => void
@@ -352,7 +355,14 @@ function checkBox(checked: boolean, onChange: (next: boolean) => void, disabled 
 }
 
 export function AdminScreen(props: Props) {
-  const [localActiveTab, setLocalActiveTab] = useState<AdminTab>(props.mode === 'sales' ? 'sales' : 'menuBooks')
+  const [localActiveTab, setLocalActiveTab] = useState<AdminTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const fromUrl = params.get('tab') || params.get('adminTab')
+      if (fromUrl) return fromUrl as AdminTab
+    }
+    return props.mode === 'sales' ? 'sales' : 'menuBooks'
+  })
   const activeTab = props.activeTab || localActiveTab
 
   const handleTabChange = (tabId: AdminTab) => {
@@ -364,7 +374,9 @@ export function AdminScreen(props: Props) {
   }
 
   useEffect(() => {
-    const defaultTab = props.mode === 'sales' ? 'sales' : 'menuBooks'
+    const params = new URLSearchParams(window.location.search)
+    const fromUrl = params.get('tab') || params.get('adminTab')
+    const defaultTab = fromUrl ? (fromUrl as AdminTab) : (props.mode === 'sales' ? 'sales' : 'menuBooks')
     if (!props.activeTab) {
       setLocalActiveTab(defaultTab)
     }
@@ -402,6 +414,22 @@ export function AdminScreen(props: Props) {
     setScopedPlacementCategoryId('')
     setScopedPlacementSubcategoryId('')
   }, [activeTab])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href)
+      const checkoutStatus = url.searchParams.get('checkout')
+      if (checkoutStatus === 'success') {
+        alert('🎉 ご契約ありがとうございます！Liteプランの月額課金が有効化されました。')
+        url.searchParams.delete('checkout')
+        window.history.replaceState({}, '', url)
+      } else if (checkoutStatus === 'cancel') {
+        alert('決済手続きが中断されました。再度いつでもお手続きいただけます。')
+        url.searchParams.delete('checkout')
+        window.history.replaceState({}, '', url)
+      }
+    }
+  }, [])
 
   const readOnly = props.roleType !== 'ADMIN'
   const disabled = readOnly || Boolean(props.mutationBusy)
@@ -453,6 +481,31 @@ export function AdminScreen(props: Props) {
           </button>
           <h2>{props.mode === 'sales' ? '売上管理' : 'マスタメンテナンス'}</h2>
         </div>
+        {props.onOpenOnboardingWizard && (
+          <div style={{ marginLeft: 'auto', display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <button
+              type="button"
+              className="secondary-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.84rem',
+                fontWeight: 700,
+                color: '#166534',
+                background: '#f0fdf4',
+                borderColor: '#bbf7d0',
+                padding: '6px 14px',
+                borderRadius: '10px',
+                boxShadow: '0 2px 6px rgba(22, 101, 52, 0.08)',
+              }}
+              onClick={props.onOpenOnboardingWizard}
+              title="店舗名、税率、卓数の初期設定ウィザードを開きます"
+            >
+              <span>✨ かんたん初期設定ウィザード</span>
+            </button>
+          </div>
+        )}
       </header>
 
       <div className="admin-layout">
@@ -602,6 +655,15 @@ export function AdminScreen(props: Props) {
               onStoreTaxDisplayModeChange={props.onStoreTaxDisplayModeChange}
               onStoreInvoiceNumberChange={props.onStoreInvoiceNumberChange || (() => {})}
               onSaveStoreSettings={props.onSaveStoreSettings}
+              onNavigateToBilling={() => handleTabChange('billing')}
+              onOpenOnboardingWizard={props.onOpenOnboardingWizard}
+            />
+          ) : null}
+
+          {activeTab === 'billing' ? (
+            <AdminSubscriptionTab
+              storeSlug={props.adminStoreSlug}
+              onNotify={(msg) => alert(msg)}
             />
           ) : null}
 

@@ -1,3 +1,5 @@
+import type { SubscriptionStatus } from '../types'
+
 type StaffTicketSummaryResponse = {
   ticketId: string
   ticketNo: string
@@ -1570,3 +1572,57 @@ export function deleteAdminPrototypePaymentMethod(storeSlug: string, paymentMeth
     paymentMethodId,
   })
 }
+
+export function getSubscriptionStatusApi(storeSlug?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<SubscriptionStatus>({
+    action: 'get-subscription-status',
+    storeSlug: targetSlug,
+  })
+}
+
+export function createBillingCheckoutSessionApi(storeSlug?: string, successUrl?: string, cancelUrl?: string, planType?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<{ checkoutUrl: string; sessionId?: string; isMock?: boolean }>({
+    action: 'create-checkout-session',
+    storeSlug: targetSlug,
+    successUrl,
+    cancelUrl,
+    planType,
+  })
+}
+
+export function createBillingPortalSessionApi(storeSlug?: string, returnUrl?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<{ portalUrl: string; isMock?: boolean }>({
+    action: 'create-portal-session',
+    storeSlug: targetSlug,
+    returnUrl,
+  })
+}
+
+export function mockActivateSubscriptionApi(storeSlug?: string, planType?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<{ success: boolean; plan: string; subscription_status: string }>({
+    action: 'mock-activate-subscription',
+    storeSlug: targetSlug,
+    planType,
+  })
+}
+
+export function mockResetSubscriptionApi(storeSlug?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<{ success: boolean; plan: string; subscription_status: string }>({
+    action: 'mock-reset-subscription',
+    storeSlug: targetSlug,
+  })
+}
+
+export function mockExpireSubscriptionApi(storeSlug?: string) {
+  const targetSlug = storeSlug || getActiveStoreSlug()
+  return invoke<{ success: boolean; plan: string; subscription_status: string }>({
+    action: 'mock-expire-subscription',
+    storeSlug: targetSlug,
+  })
+}
+

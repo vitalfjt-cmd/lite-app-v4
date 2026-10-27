@@ -346,6 +346,8 @@ export function useCustomerFlow(view: AppView) {
         await loadPublicMenu(true)
         setCustomerMessage('一部の商品が売切れになったため、メニューを更新しました。')
         setCustomerStep('menu')
+      } else if (errorMessage.includes('subscription_expired') || errorMessage.includes('subscription_canceled')) {
+        setCustomerMessage('現在システム更新期間中のため、モバイルオーダーの受付を一時停止しております。大変恐れ入りますがスタッフまで直接ご注文ください。')
       } else {
         setCustomerMessage(errorMessage)
       }

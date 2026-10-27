@@ -35,6 +35,12 @@ export function messageFromStaffApiError(err: unknown): string {
   }
   if (raw === 'ticket_not_open') return 'この伝票は会計確定済みです。'
   if (raw === 'business_day_not_open') return '営業日が開始されていません。先に管理画面から開店処理を行ってください。'
+  if (raw === 'subscription_expired' || raw.includes('subscription_expired')) {
+    return '【利用制限中】無料トライアル・利用期間が終了しました。プラン・契約管理よりお申し込みください。'
+  }
+  if (raw === 'subscription_canceled' || raw.includes('subscription_canceled')) {
+    return '【利用制限中】サブスクリプションが解約されています。プラン・契約管理より再開してください。'
+  }
   if (raw === 'received_amount_insufficient') return '預かり金額が会計金額以上になるように入力してください。'
   if (raw === 'staff_session_missing') return 'Staff セッションが見つかりません。再ログイン後にもう一度お試しください。'
   if (raw === 'staff_store_slug_missing') return 'Staff prototype の店舗設定が見つかりません。.env.local を確認してください。'

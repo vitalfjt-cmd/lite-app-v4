@@ -152,8 +152,12 @@ export function LoginScreen({
               店舗ID: <code>{signupSuccessData.store?.slug}</code>
             </p>
             <div className="first-table-info">
-              <span className="badge">初期設定完了</span>
-              <p>卓番1のQRコードおよびサンプルメニューが自動作成されました。</p>
+              <span className="badge">初期マスタ投入完了</span>
+              <p>テーブル4卓、サンプルメニュー（おすすめ・フード・ドリンク）、プリンター基本設定が自動作成されました。</p>
+            </div>
+            <div className="first-table-info" style={{ marginTop: '10px', background: 'rgba(27, 129, 62, 0.08)', borderColor: 'rgba(27, 129, 62, 0.25)' }}>
+              <span className="badge" style={{ background: '#1b813e', color: '#ffffff' }}>30日間無料トライアル開始</span>
+              <p>Liteプランのすべての機能を今すぐお試しいただけます。管理画面からいつでもStripe月額課金へ切り替え可能です。</p>
             </div>
             <button
               type="button"
@@ -164,6 +168,7 @@ export function LoginScreen({
                   window.localStorage.setItem('last_active_store_slug', targetSlug)
                   const url = new URL(window.location.href)
                   url.searchParams.set('store', targetSlug)
+                  url.searchParams.set('onboarding', '1')
                   url.hash = '#admin'
                   window.location.href = url.toString()
                 } else {
@@ -172,7 +177,7 @@ export function LoginScreen({
                 }
               }}
             >
-              管理ダッシュボードを開く
+              ✨ 店舗の初期設定（ウィザード）を開始する
             </button>
           </div>
         ) : (
