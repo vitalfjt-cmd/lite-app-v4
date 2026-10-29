@@ -8,6 +8,7 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 ### 2.1 画面管理 (View Switching)
 `App.tsx` または AppSidebar / AppLauncher からビューを切り替えます。
 主なビューは以下の通りです：
+- `lp`: サービス紹介・SaaS ランディングページ (`LandingPageScreen`)。機能紹介、料金プラン、FAQ、新規登録導線。
 - `staff`: スタッフ向け伝票一覧・作成・明細・会計画面
 - `handy`: スタッフ向けハンディ注文画面。卓選択（座席一覧）から稼働中卓を選択して注文画面へ遷移、または空席を選択して新規起票後に注文画面へ遷移。
 - `customer`: スマートフォン向け QR 注文画面（ランチャーからは卓一覧選択で指定卓のQRを表示）
@@ -16,35 +17,48 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 - `cust-tablet-qr`: タブレット向け 卓別 QR コード発行・表示画面 (`TableQrListScreen`)
 - `kds`: キッチン向け調理・提供管理画面 (Kitchen Display System)
 - `seats`: 店舗座席稼働モニター画面
-- `admin`: マスタメンテナンス & 売上分析画面 (メニュー、カテゴリ、サブカテゴリ、トッピング、店舗、スタッフ、決済種別、卓配置、フロア、プリンター、売上集計、レシート再発行)
+- `admin`: マスタメンテナンス & 売上分析画面 (メニュー、カテゴリ、サブカテゴリ、トッピング、店舗、スタッフ、決済種別、卓配置、フロア、プリンター、売上集計、レシート再発行、サブスクリプション管理)
+- `sales`: 売上管理・レジ締め画面
 - `login`: スタッフログイン & 新規店舗セルフサインアップ画面
 
-### 2.2 データ連携・開発環境
-- **Staff / KDS / Admin / Seats**: Cloudflare Workers API (`staffReadApi.ts`) を介して Cloudflare D1 上の実データと同期。
+### 2.2 データ連携・開発環境・SaaS 基盤
+- **Staff / KDS / Admin / Seats / Handy**: Cloudflare Workers API (`staffReadApi.ts`) を介して Cloudflare D1 上の実データと同期。
 - **Customer**: `publicCustomerApi.ts` (Cloudflare Workers) を経由した顧客用公開非認証アクセス。
 - **SSL開発対応**: Vite 基本 SSL プラグイン (`@vitejs/plugin-basic-ssl`) を使用したローカル HTTPS 接続およびカメラ/QR スキャナー開発サポート。
 - **認証 & サインアップ**: Firebase Auth (`firebase.ts`) および Worker トークン認証 (`useAuth.ts`)。店舗スラッグ厳格検証（ログイン中アカウントと接続先店舗の不一致防止）およびセッション永続化（`sessionStorage` + URLパラメータ）。
 - **新規店舗セルフサインアップ**: ログイン画面の「新規店舗登録」タブから、店舗名・店舗スラッグ・管理者メールアドレス・パスワードを入力することで、Firebase アカウント、D1 店舗マスタ、初期卓 (T1)、初期管理者スタッフを即時一括開設。
+- **SaaS サブスクリプション & Stripe 課金連携**:
+  - D1 上の `subscriptions` および `stripe_customers` テーブルによるテナント課金状態の管理。
+  - プラン種別: `FREE`, `STANDARD`, `PREMIUM`。
+  - サブスクリプション状態: `TRIALING` (無料体験期間), `ACTIVE` (契約中), `PAST_DUE` (支払い遅延), `CANCELED` (解約済), `UNPAID` (未払い)。
+  - Stripe Checkout Session API によるプラン購入・決済、Stripe Customer Portal API による支払方法変更・解約管理。
+  - Stripe Webhook (`customer-api-prototype/src/stripe.ts`) による契約ステータス、トライアル期限、請求サイクルの即時反映。
+- **機能制限（Feature Gate）機構**:
+  - フロントエンド (`useStaffOperations.ts`, `useCustomerFlow.ts`, `App.tsx`) およびバックエンド API による操作制限。
+  - トライアル終了または課金失効時（`PAST_DUE`, `CANCELED`, `UNPAID` 等）は、注文送信、伝票起票、会計保存などの書き込み操作を安全に遮断し、`SubscriptionExpiredModal` による更新案内を表示。
 
 ### スタッフ認証・DBテーブル仕様 (Firebase Auth & Staff Tables)
 - **Firebase Authentication**: スタッフのログイン本人確認・認証および UID (`auth_user_id`) の発行を担当。
 - **`staff_users` テーブル (使用中)**: 店舗に所属するスタッフのプロファイル・権限マスタ。Firebase の UID (`auth_user_id`) に対し、店舗ごとの表示名 (`display_name`)、権限ロール (`role_type`: `ADMIN` / `STAFF` / `KDS`)、有効フラグ (`is_active`) を紐付けて保持・管理（マスタ管理画面の「スタッフ一覧」で編集可能）。
 - **`staff_sessions` テーブル (非推奨・互換用)**: 開発初期の独自セッション管理用テーブル。Firebase Auth 導入後はセッション維持が Firebase SDK およびクライアント側 (`sessionStorage` 等) へ移行したため、アプリケーションの主要フローからは実質使われていません。
 
-### 2.3 モジュール構成 (Hooks & Lib)
+### 2.3 モジュール構成 (Hooks, Lib & Components)
 大規模ロジックを独立したカスタムフックおよびライブラリに集約：
-- **`useDataLoading`**: データ読み込みおよびバックグラウンドポリング統合管理（フロア・プリンター・インボイス情報ロード含む）。
-- **`useAdminOperations` / `useAdminForm`**: 管理画面のマスタ更新・CRUD 操作およびフォーム状態管理（フロア、プリンター、インボイス番号等）。
-- **`useStaffData` / `useStaffOperations`**: 伝票・注文明細・テンキー会計・KDSステータス変更・伝票加算アクション。1階層/2階層カテゴリおよび商品重複排除対応。
-- **`useCustomerFlow`**: QR 注文カスタマー画面の状態および注文処理（単一/二重カテゴリ表示モード対応）。
+- **`useDataLoading`**: データ読み込みおよびバックグラウンドポリング統合管理（フロア・プリンター・インボイス・サブスクリプション情報ロード含む）。
+- **`useAdminOperations` / `useAdminForm`**: 管理画面のマスタ更新・CRUD 操作およびフォーム状態管理（フロア、プリンター、インボイス番号、サブスクリプション等）。
+- **`useStaffData` / `useStaffOperations`**: 伝票・注文明細・テンキー会計・KDSステータス変更・伝票加算アクション（機能制限 Feature Gate 判定含む）。1階層/2階層カテゴリおよび商品重複排除対応。
+- **`useCustomerFlow`**: QR 注文カスタマー画面の状態および注文処理（単一/二重カテゴリ表示モード対応、機能制限判定含む）。
 - **`useAuth`**: スタッフ認証セッション管理、新規店舗セルフサインアップ、店舗スラッグ厳格検証。
 - **`domProtection.ts`**: ブラウザの自動翻訳機能（Google Chrome / Edge 等）が `<font>` タグを挿入して仮想 DOM を改変することで発生する `removeChild` / `insertBefore` 実行時エラー（React DOM クラッシュ）を防止する Node プロトタイプパッチ。
 - **`priceUtils.ts`**: 税込/税抜表示切り替えおよび標準税率 (10%) / 軽減税率 (8%) 計算。
+- **`OnboardingWizardModal.tsx`**: 新規店舗登録後の初回セットアップウィザード（店舗基本情報、卓配置、初期メニュー、テスト注文ガイダンス）。
+- **`SubscriptionExpiredModal.tsx`**: サブスクリプション期限切れ・更新案内モーダル。
 
 ## 3. 主要機能
 ### 3.1 注文 (Customer / Staff / Handy)
 - **高度化 QR タブレット注文 (Cust-Tablet)**: 10インチタブレット専用レイアウト (`CustomerTabletScreen.tsx`)。メニューブックの単一/二重カテゴリ表示モードに対応。トッピング指定、日/英言語切替、営業時間外判定、注文履歴確認モーダルを搭載。
-- **ハンディ入力 (StaffHandyView)**: スタッフ画面から起動する簡易ハンディ入力。1階層カテゴリモード対応および商品重複排除により素早い入力が可能。カテゴリ別検索、トッピング設定、買い物かごからの厨房一括送信。
+- **ハンディ入力 (StaffHandyView & Handy Mode)**: スマホ・ハンディ端末に最適化された注文入力。座席画面 (`SeatsScreen`) から空席をタップして即時起票・注文開始、または稼働中卓をタップして追加注文が可能。1階層カテゴリモード対応および商品重複排除により素早い入力が可能。
+- **モバイル顧客注文 (Customer)**: 卓ごとの QR コードからスマホで即時アクセス・非認証注文。
 
 ### 3.2 会計・決済 (StaffPaymentView)
 - **決済フロー**: 伝票選択 → 支払方法選択 → 預かり金額テンキー入力 → 会計確定。
@@ -56,18 +70,27 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 ### 3.3 プリンタールーティング & 印刷管理 (Printer Routing)
 - **動的プリンタールーティング**: 物理プリンター (`PhysicalPrinter`) と論理プリンター (`LogicalPrinter`) の分離。キッチン注文伝票と会計レシートプリンターの個別設定。部門・フロア・商品カテゴリ別のルーティングルール (`PrinterRoutingRule`)。
 - **卓用 QR コード印刷**: 卓別 QR コード一覧画面 (`TableQrListScreen`) およびスタッフ画面からの印刷に対応。プリンター設定タブで QR コード出力先プリンターを制御可能。
+- **卓用 QR コード PDF バッチ印刷 (`AdminTableBatchQrPrintModal.tsx`)**: 卓スタンド用 QR コードシート（A4 複数卓レイアウト）を一括生成・プレビュー・PDF 出力する専用モーダル。
 
 ### 3.4 座席・調理管理 (Seats / KDS)
-- **座席モニター (Seats)**: 店舗テーブルの稼働・着席・未決済状態のリアルタイム可視化。フロア別の絞り込みに対応。
+- **座席モニター (Seats)**: 店舗テーブルの稼働・着席・未決済状態のリアルタイム可視化。空席タップによるハンディ即時起票、着席卓タップによる追加注文・詳細確認に対応。フロア別の絞り込みに対応。
 - **調理管理 (KDS)**: 未調理 (NEW) → 調理中 (COOKING) → 提供済み (SERVED) の進捗切り替え。
 
 ### 3.5 マスタ管理 & 売上分析 (Admin)
+全36ファイル構成 (35コンポーネント + types.ts)：
+- **サブスクリプション管理 (`AdminSubscriptionTab.tsx`)**: プラン状態（Free / Standard / Premium）、トライアル残日数、Stripe チェックアウト決済、カスタマーポータル遷移、請求書履歴、開発用モック切り替え。
 - **フロア管理 (Floors)**: フロアマスタの追加・編集、テーブルと `floor_id` の連携。
 - **プリンター設定 (Printers)**: 物理プリンター、論理プリンター、ルーティングルール、QRコード印刷先の一元管理。
 - **メニューブック管理**: 単一カテゴリ / 二重カテゴリ表示モードの切り替え設定。
 - **商品マスタ管理**: WebP 変換・最大 400px リサイズによる画像最適化、カテゴリコード (`category_code`) 設定。
 - **店舗設定**: 店舗コード (`store_code`)、インボイス登録番号 (`invoice_number`) の設定。
 - **売上分析**: 日別・時間帯別・カテゴリ別・サブカテゴリ別・商品別・決済種別売上データの集計およびレシート印刷/再発行。
+
+### 3.6 SaaS サービス紹介ランディングページ (`LandingPageScreen.tsx` / `?view=lp`)
+- 高機能モバイル POS & QR オーダーシステムの機能解説、導入メリット、料金プラン比較表（Free / Standard / Premium）、FAQ、セルフサインアップへの直接誘導 CTA。
+
+### 3.7 初期導入オンボーディングウィザード (`OnboardingWizardModal.tsx`)
+- 新規登録完了後に自動案内。店舗の基本情報設定、卓（テーブル）設定、メニュー・カテゴリ初期登録、QR 発行・テスト注文確認までの 4 ステップをガイド。
 
 ## 4. UI/UX 方針
 - **ビューポート制約**: 100vh 固定レイアウト。画面全体の誤スクロールを抑制し、内部スクロールを採用。
@@ -76,7 +99,7 @@ React 19 + Vite 7 + TypeScript 5 をベースとしたシングルページア�
 
 ## 5. 技術スタック
 - **Frontend**: React 19, Vite 7 (`@vitejs/plugin-basic-ssl`), TypeScript 5, Vanilla CSS (`styles.css`)
-- **Backend / Auth**: Cloudflare Workers, Cloudflare D1 (SQLite), Firebase Auth
+- **Backend / Auth**: Cloudflare Workers, Cloudflare D1 (SQLite), Firebase Auth, Stripe API
 - **Testing**: Playwright (`tests/`)
 
 ## 6. 制約事項・課題

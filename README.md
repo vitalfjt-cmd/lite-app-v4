@@ -1,27 +1,43 @@
-# Lite App
+# Lite App v4 (正本コードベース)
 
-Lite 本体の React + TypeScript アプリです。
+Lite App v4 は、客席 QR 注文・ハンディ注文・POS 会計・調理管理 (KDS)・マスタ管理・SaaS サブスクリプション管理を統合した次世代飲食店向け Web アプリケーションの正本（統合）コードベースです。
+（※ `lite-app-v2`, `lite-app-v3`, `lite-handy-app` は本リポジトリへ統合・一本化されアーカイブされました）
 
 ## ローカル開発環境の操作情報
 
-ブラウザでの動作確認時は以下のURLとアカウントを使用してください。
+ブラウザでの動作確認時は以下の URL とアカウントを使用してください。
 
-- **Staff / KDS 画面 (ログイン必須):**
-  - URL: http://localhost:5173/?view=staff (または `/?view=kds`)
+- **サービス紹介ランディングページ (LP):**
+  - URL: http://localhost:5173/?view=lp
+- **Staff / Handy / KDS / Admin / Seats 画面 (ログイン必須):**
+  - URL: http://localhost:5173/?view=staff (または `?view=handy`, `?view=kds`, `?view=seats`, `?view=admin`)
+  - 店舗スラッグ (`store`): `demo-bbq` (新規登録時は自由なスラッグ)
   - e-mail: `owner@example.com`
   - password: `demo1234`
+- **新規店舗セルフサインアップ:**
+  - `http://localhost:5173/` の「新規店舗登録」タブから即時開設可能。
 
 ## 画面一覧
 
-- `customer`: QR 注文
-- `staff`: 伝票一覧 / 修正 / 会計補助
-- `kds`: 調理キュー
-- `admin`: メニュー / 卓 / スタッフ管理
+- `lp`: SaaS サービス紹介ランディングページ (`LandingPageScreen`)
+- `customer`: スマートフォン向け QR 注文 (`CustomerScreen`)
+- `cust-tablet`: 10インチタブレット向け QR 注文 (`CustomerTabletScreen`)
+- `staff`: 伝票一覧 / 注文詳細 / 会計・テンキー決済 / 正式領収書発行 / 卓QR印刷 (`StaffScreen`)
+- `handy`: ハンディ直接注文入力 (`StaffHandyView` / `SeatsScreen` からの空席起票・追加注文)
+- `kds`: 調理進捗管理キュー (`KdsScreen`)
+- `seats`: 店舗座席稼働モニター (`SeatsScreen`)
+- `admin`: マスタ管理 (メニュー・カテゴリ・トッピング・卓配置・フロア・プリンター・店舗・スタッフ・売上集計・レシート再発行・サブスクリプション管理)
+- `sales`: 売上履歴・レジ締め画面
+- `customer-qr` / `cust-tablet-qr`: 卓別 QR コード一覧表示 & 卓スタンド用 PDF バッチ印刷 (`TableQrListScreen`)
+- `login`: スタッフログイン & 新規店舗セルフサインアップ (`LoginScreen`)
 
-実装メモ:
-- `staff` / `admin` / `kds` は Supabase Auth + RLS 前提
-- `customer` は `public-customer-api` 経由
-- Customer URL は `?view=customer&store=<slug>&qr=<token>` を正とする
+## アーキテクチャ・基盤技術
+
+- **フロントエンド**: React 19, Vite 7 (`@vitejs/plugin-basic-ssl`), TypeScript 5, Vanilla CSS
+- **バックエンド API / DB**: Cloudflare Workers + Cloudflare D1 (SQLite) (`customer-api-prototype`)
+- **認証**: Firebase Authentication (`firebase.ts`) + 店舗スラッグ厳格検証
+- **SaaS 課金 / サブスクリプション**: Stripe Checkout & Customer Portal 連携, Stripe Webhook, Feature Gate 機構
+- **ブラウザ自動翻訳防御**: `domProtection.ts` による仮想 DOM 破壊（NotFoundError）防止パッチ常時適用
 
 ## Playwright
 
