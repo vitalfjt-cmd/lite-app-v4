@@ -1,10 +1,12 @@
-
 import { useMemo, useState } from 'react'
 import { AdminTableRow } from './types'
+import { AdminTableBatchQrPrintModal } from './AdminTableBatchQrPrintModal'
 
 type Props = {
   liveTables: AdminTableRow[]
   disabled: boolean
+  storeName?: string
+  storeSlug?: string
   onEditTable: (id: string) => void
   onDeleteTable: (id: string) => void
   onShowQr: (id: string) => void
@@ -14,6 +16,7 @@ type Props = {
 export function AdminTablesTab(props: Props) {
   const [tableSearchDraft, setTableSearchDraft] = useState('')
   const [tableSearch, setTableSearch] = useState('')
+  const [isBatchQrModalOpen, setIsBatchQrModalOpen] = useState(false)
 
   const filteredTables = useMemo(() => {
     const search = tableSearch.trim().toLowerCase()
@@ -30,9 +33,17 @@ export function AdminTablesTab(props: Props) {
       <section className="panel admin-list-panel admin-list-panel-wide admin-section-tables">
         <div className="admin-list-head">
           <div>
-<h2>テーブル一覧</h2>
+            <h2>テーブル一覧</h2>
           </div>
           <div className="admin-list-actions">
+            <button
+              className="secondary-button batch-qr-trigger-btn"
+              type="button"
+              onClick={() => setIsBatchQrModalOpen(true)}
+              title="すべてのテーブルの卓上QRコードをA4用紙またはPDFにまとめて出力します"
+            >
+              🖨️ 全卓QR一括印刷 (A4)
+            </button>
             <button
               className="primary-button"
               type="button"
@@ -93,6 +104,14 @@ export function AdminTablesTab(props: Props) {
           </table>
         </div>
       </section>
+
+      <AdminTableBatchQrPrintModal
+        isOpen={isBatchQrModalOpen}
+        storeName={props.storeName || ''}
+        storeSlug={props.storeSlug || ''}
+        tables={props.liveTables}
+        onClose={() => setIsBatchQrModalOpen(false)}
+      />
     </div>
   )
 }

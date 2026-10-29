@@ -122,10 +122,10 @@ export function readViewFromHash(currentLocation: Pick<Location, 'hash' | 'searc
   if (queryView === 'cust-table') {
     queryView = 'cust-tablet'
   }
-  if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'sales' || queryView === 'customer' || queryView === 'cust-tablet' || queryView === 'seats' || queryView === 'customer-qr' || queryView === 'cust-tablet-qr') return queryView as AppView
+  if (queryView === 'staff' || queryView === 'handy' || queryView === 'kds' || queryView === 'admin' || queryView === 'sales' || queryView === 'customer' || queryView === 'cust-tablet' || queryView === 'seats' || queryView === 'customer-qr' || queryView === 'cust-tablet-qr' || queryView === 'lp') return queryView as AppView
   const hash = currentLocation.hash.replace(/^#\/?/, '').split('?')[0]
   const hashView = hash === 'cust-table' ? 'cust-tablet' : hash
-  return hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'customer' || hashView === 'seats' || hashView === 'customer-qr' || hashView === 'cust-tablet-qr' ? hashView as AppView : null
+  return hashView === 'staff' || hashView === 'handy' || hashView === 'kds' || hashView === 'admin' || hashView === 'sales' || hashView === 'cust-tablet' || hashView === 'customer' || hashView === 'seats' || hashView === 'customer-qr' || hashView === 'cust-tablet-qr' || hashView === 'lp' ? hashView as AppView : null
 }
 
 export function yen(value: number): string {

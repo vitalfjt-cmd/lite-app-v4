@@ -671,6 +671,8 @@ export function AdminScreen(props: Props) {
             <AdminTablesTab
               liveTables={props.liveTables}
               disabled={disabled}
+              storeName={props.storeName}
+              storeSlug={props.adminStoreSlug}
               onEditTable={(id) => {
                 props.onEditTable(id)
                 setTableModalOpen(true)

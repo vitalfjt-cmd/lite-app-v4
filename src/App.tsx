@@ -33,6 +33,7 @@ import { StaffScreen } from './screens/StaffScreen'
 import { SeatsScreen } from './screens/SeatsScreen'
 import { TableQrListScreen } from './screens/TableQrListScreen'
 import { LoginScreen } from './screens/LoginScreen'
+import { LandingPageScreen } from './screens/LandingPageScreen'
 import type {
   ActiveStoreSummary,
   AppView,
@@ -715,6 +716,29 @@ export default function App() {
     }
   }
 
+  if (view === 'lp') {
+    return (
+      <LandingPageScreen
+        onStartTrial={() => {
+          moveTo('staff')
+          const url = new URL(window.location.href)
+          url.searchParams.set('view', 'staff')
+          url.searchParams.set('mode', 'signup')
+          window.history.pushState({}, '', url.toString())
+        }}
+        onLogin={() => {
+          moveTo('staff')
+        }}
+        onDemoCustomer={() => {
+          moveTo('customer')
+        }}
+        onDemoStaff={() => {
+          moveTo('staff')
+        }}
+      />
+    )
+  }
+
   return (
     <div
       className={`shell ${view === 'customer' ? 'customer-only' : ''} ${view === 'cust-tablet' ? 'cust-tablet-shell' : ''} ${(view === 'admin' || view === 'sales') ? 'admin-mode' : ''} ${view === 'staff' ? 'staff-mode' : ''} ${view === 'handy' ? 'handy-mode' : ''} ${view === 'kds' ? 'kds-mode' : ''} ${(view === 'seats' || view === 'customer-qr' || view === 'cust-tablet-qr') ? 'seats-mode' : ''}`}
@@ -779,6 +803,7 @@ export default function App() {
             error={authError || error}
             authStoreSlug={authStoreSlug}
             onAuthStoreSlugChange={setAuthStoreSlug}
+            onOpenLp={() => moveTo('lp')}
           />
         ) : (
           <>

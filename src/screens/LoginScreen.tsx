@@ -11,6 +11,7 @@ interface LoginScreenProps {
   error?: string | null
   authStoreSlug?: string
   onAuthStoreSlugChange?: (val: string) => void
+  onOpenLp?: () => void
 }
 
 export function LoginScreen({
@@ -23,7 +24,8 @@ export function LoginScreen({
   authBusy,
   error: propError,
   authStoreSlug,
-  onAuthStoreSlugChange
+  onAuthStoreSlugChange,
+  onOpenLp
 }: LoginScreenProps) {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [storeName, setStoreName] = useState('')
@@ -269,6 +271,29 @@ export function LoginScreen({
               </button>
             </div>
           </form>
+        )}
+
+        {onOpenLp && (
+          <div style={{ marginTop: '24px', textAlign: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+            <button
+              type="button"
+              onClick={onOpenLp}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#2563eb',
+                fontSize: '0.88rem',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <span>⚡</span>
+              <span>「レジはそのままでOK。月額2,980円で始めるスマホオーダー」LPを見る</span>
+            </button>
+          </div>
         )}
       </div>
 

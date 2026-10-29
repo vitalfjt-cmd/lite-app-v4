@@ -9,6 +9,7 @@ export const VIEWS: { id: AppView; label: string; caption: string }[] = [
   { id: 'seats', label: '座席情報', caption: '' },
   { id: 'admin', label: 'マスタメンテナンス', caption: '' },
   { id: 'sales', label: '売上管理', caption: '' },
+  { id: 'lp', label: 'サービス紹介 (LP)', caption: '' },
 ]
 
 export const PROTOTYPE_STAFF_SESSION_STORAGE_KEY = 'lite-pos.prototype-staff-session'
