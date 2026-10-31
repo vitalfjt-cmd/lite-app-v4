@@ -148,7 +148,9 @@ export function KdsScreen({
               <div className="kds-card-head">
                  <div style={{display:'flex', flexDirection:'column'}}>
                    <span className="kds-table-name">{order.tableName}</span>
-                   <span style={{fontSize:'0.9rem', color:'rgba(255,255,255,0.7)'}}>伝票: {order.ticketNo}</span>
+                   {!order.tableName.startsWith('受付') && (
+                    <span style={{fontSize:'0.9rem', color:'rgba(255,255,255,0.7)'}}>伝票: {order.ticketNo}</span>
+                  )}
                  </div>
                 <div className={`kds-timer ${order.isUrgent ? 'flash' : ''}`}>
                   {order.elapsedMin} 分経過

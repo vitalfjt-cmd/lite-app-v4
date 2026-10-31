@@ -141,6 +141,7 @@ type Props = {
   adminStoreTimezone: string
   adminStoreBusinessOffsetMinutes: string
   adminStorePaymentTimingMode: 'PREPAID' | 'POSTPAID'
+  adminStoreReceptionNumberPrintMode: 'ENABLED' | 'DISABLED'
   adminStoreTicketNoResetMode: 'DAILY' | 'SEQUENCE'
   adminStoreTicketNoDigits: string
   adminStoreTaxRate: string
@@ -229,6 +230,7 @@ type Props = {
   onStoreTimezoneChange: (value: string) => void
   onStoreBusinessOffsetMinutesChange: (value: string) => void
   onStorePaymentTimingModeChange: (value: 'PREPAID' | 'POSTPAID') => void
+  onStoreReceptionNumberPrintModeChange: (value: 'ENABLED' | 'DISABLED') => void
   onStoreTicketNoResetModeChange: (value: 'DAILY' | 'SEQUENCE') => void
   onStoreTicketNoDigitsChange: (value: string) => void
   onStoreTaxRateChange: (value: string) => void
@@ -635,6 +637,7 @@ export function AdminScreen(props: Props) {
               adminStoreTimezone={props.adminStoreTimezone}
               adminStoreBusinessOffsetMinutes={props.adminStoreBusinessOffsetMinutes}
               adminStorePaymentTimingMode={props.adminStorePaymentTimingMode}
+              adminStoreReceptionNumberPrintMode={props.adminStoreReceptionNumberPrintMode}
               adminStoreTicketNoResetMode={props.adminStoreTicketNoResetMode}
               adminStoreTicketNoDigits={props.adminStoreTicketNoDigits}
               adminStoreTaxRate={props.adminStoreTaxRate}
@@ -648,6 +651,7 @@ export function AdminScreen(props: Props) {
               onStoreTimezoneChange={props.onStoreTimezoneChange}
               onStoreBusinessOffsetMinutesChange={props.onStoreBusinessOffsetMinutesChange}
               onStorePaymentTimingModeChange={props.onStorePaymentTimingModeChange}
+              onStoreReceptionNumberPrintModeChange={props.onStoreReceptionNumberPrintModeChange}
               onStoreTicketNoResetModeChange={props.onStoreTicketNoResetModeChange}
               onStoreTicketNoDigitsChange={props.onStoreTicketNoDigitsChange}
               onStoreTaxRateChange={props.onStoreTaxRateChange}

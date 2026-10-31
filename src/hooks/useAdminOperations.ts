@@ -174,6 +174,7 @@ export function useAdminOperations(deps: AdminOperationsDependencies) {
           timezone: adminForm.adminStoreTimezone.trim() || 'Asia/Tokyo',
           businessDateOffsetMinutes: Number(adminForm.adminStoreBusinessOffsetMinutes) || 0,
           paymentTimingMode: adminForm.adminStorePaymentTimingMode,
+          receptionNumberPrintMode: adminForm.adminStoreReceptionNumberPrintMode,
           ticketNoResetMode: adminForm.adminStoreTicketNoResetMode,
           ticketNoDigits: Number(adminForm.adminStoreTicketNoDigits) || 4,
           taxRate: isNaN(Number(adminForm.adminStoreTaxRate)) ? 10 : Number(adminForm.adminStoreTaxRate),

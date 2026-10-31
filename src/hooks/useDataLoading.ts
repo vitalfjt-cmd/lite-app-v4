@@ -40,6 +40,7 @@ export type DataLoadingSetters = {
   setAdminStoreTimezone: (tz: string) => void
   setAdminStoreBusinessOffsetMinutes: (min: any) => void
   setAdminStorePaymentTimingMode: (mode: any) => void
+  setAdminStoreReceptionNumberPrintMode?: (mode: any) => void
   setAdminStoreTicketNoResetMode: (mode: any) => void
   setAdminStoreTicketNoDigits: (digits: any) => void
   setAdminStoreTaxRate?: (rate: any) => void
@@ -68,7 +69,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setNewTicketMenuBookId, setAdminMenuBookId, setAdminPlacementMenuBookId, setAdminCategoryParentId,
     setAdminItemCategoryId, setAdminPlacementTopCategoryId, setAdminPlacementCategoryId, setAdminPlacementItemId,
     setAdminStoreName, setAdminStoreCode, setAdminStoreSlug, setAdminStoreTimezone, setAdminStoreBusinessOffsetMinutes,
-    setAdminStorePaymentTimingMode, setAdminStoreTicketNoResetMode, setAdminStoreTicketNoDigits,
+    setAdminStorePaymentTimingMode, setAdminStoreReceptionNumberPrintMode, setAdminStoreTicketNoResetMode, setAdminStoreTicketNoDigits,
     setAdminStoreTaxRate, setAdminStoreReducedTaxRate, setAdminStoreTaxDisplayMode, setAdminStoreInvoiceNumber,
     setPublicStore, setPublicTable, setPublicOpenTicket, setPublicMenuBook, setPublicCategories, setPublicItems,
     setPublicMenuReady, setCustomerBusy, setCustomerMessage, setCustomerAccess, setSession
@@ -221,6 +222,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
     setAdminStoreTimezone(bootstrap.store.timezone)
     setAdminStoreBusinessOffsetMinutes(bootstrap.store.business_date_offset_minutes)
     setAdminStorePaymentTimingMode(bootstrap.store.payment_timing_mode)
+    setAdminStoreReceptionNumberPrintMode?.((bootstrap.store as any).reception_number_print_mode ?? 'DISABLED')
     setAdminStoreTicketNoResetMode(bootstrap.store.ticket_no_reset_mode)
     setAdminStoreTicketNoDigits(bootstrap.store.ticket_no_digits)
     setAdminStoreTaxRate?.((bootstrap.store as any).tax_rate ?? 10)

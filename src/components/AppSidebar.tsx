@@ -31,6 +31,7 @@ type SidebarProps = {
   } | null
   liveStoreName: string
   error: string | null
+  paymentTimingMode?: 'PREPAID' | 'POSTPAID'
   onMove: (view: AppView) => void
   onPickLoginCandidate: (email: string) => void
   onEmailChange: (value: string) => void
@@ -60,6 +61,7 @@ export function AppSidebar({
   profile,
   liveStoreName,
   error,
+  paymentTimingMode,
   onMove,
   onPickLoginCandidate,
   onEmailChange,
@@ -121,7 +123,7 @@ export function AppSidebar({
           📱 Cust(Tablet)
         </button>
         <button style={getBtnStyle(view === 'staff', '#4dabf7')} onClick={() => onMove('staff')}>
-          🖥️ 伝票一覧
+          {paymentTimingMode === 'PREPAID' ? '🖥️ レジ (先払い)' : '🖥️ 伝票一覧'}
         </button>
         <button style={getBtnStyle(false, '#cc5de8')} onClick={() => onDirectAction?.('HANDY')}>
           📝 Handy

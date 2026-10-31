@@ -1,4 +1,4 @@
-import type { LiveLine, LiveTicket, LiveStore, LiveTableRef, LiveMenuBook, StaffProfile } from '../types'
+import type { LiveLine, LiveTicket, LiveStore, LiveTableRef, LiveMenuBook, StaffProfile, PrepaidOrderCreationResult } from '../types'
 import { formatError, isTimeWithinWindow } from '../lib/appUtils'
 import {
   staffReadApiEnabled,
@@ -331,6 +331,103 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
+  const createPrepaidOrder = async (
+    tableRefId: string,
+    menuBookId: string,
+    customerCount: number | null = 1,
+    items: Array<{ itemId: string; qty: number; toppings?: string[] }>
+  ): Promise<PrepaidOrderCreationResult | null> => {
+    if (!profile) {
+      const message = 'スタッフ情報の読み込みが完了していません。再読み込み後にもう一度お試しください。'
+      setError(message)
+      setStaffMessage(message)
+      alert(message)
+      return null
+    }
+    setMutationBusy('create-prepaid-order')
+    setStaffMessage(null)
+    setError(null)
+    try {
+      const storeSlug = effectiveStoreSlug
+      // Fallback: If tableRefId is empty or not found, try liveTables[0]
+      const table = liveTables.find((candidate) => candidate.id === tableRefId)
+        || liveTables[0]
+      const menuBook = liveMenuBooks.find((candidate) => candidate.id === menuBookId || candidate.code === menuBookId)
+        || liveMenuBooks[0]
+      if (!storeSlug) throw new Error('staff_store_slug_missing')
+      if (!table) throw new Error('staff_table_not_found: 利用可能なテーブル（卓）が登録されていません')
+
+      // 1. Create ticket
+      const created = await createStaffPrototypeTicket(
+        storeSlug,
+        table.label,
+        menuBook?.code ?? null,
+        customerCount || 1,
+        table.id,
+        menuBook?.id ?? menuBookId,
+      )
+
+      // 2. Add order items
+      const apiItems = items.map((item) => ({
+        menuItemId: item.itemId,
+        quantity: item.qty,
+        toppings: item.toppings,
+      }))
+      const added = await addStaffPrototypeOrders(storeSlug, created.ticket.id, apiItems)
+
+      // 3. Update state
+      const newTicket: LiveTicket = {
+        id: created.ticket.id,
+        ticket_no: created.ticket.ticket_no,
+        table_ref_id: created.table.id,
+        table_label: created.table.label,
+        menu_book_id: created.ticket.menu_book_id,
+        customer_access_token: created.ticket.customer_access_token,
+        customer_count: created.ticket.customer_count ?? null,
+        ordered_at: created.ticket.ordered_at,
+        status: 'OPEN',
+      }
+
+      const newLines: LiveLine[] = added.lines.map((line) => ({
+        id: line.id,
+        order_ticket_id: created.ticket.id,
+        item_name_snapshot: line.item_name_snapshot,
+        quantity: line.quantity,
+        line_subtotal: line.line_subtotal,
+        kds_status: 'NEW' as const,
+        customer_note: null,
+        created_at: new Date().toISOString(),
+        toppings: line.toppings || [],
+      }))
+
+      setLiveTickets((current) => [newTicket, ...current])
+      setLiveLines((current) => [...current, ...newLines])
+      setSelectedTicketId(created.ticket.id)
+
+      const result: PrepaidOrderCreationResult = {
+        ticketId: created.ticket.id,
+        ticketNo: created.ticket.ticket_no,
+        tableLabel: created.table.label,
+        orderedAt: created.ticket.ordered_at,
+        subtotal: added.ticket.reference_subtotal ?? newLines.reduce((s, l) => s + l.line_subtotal, 0),
+        lineCount: newLines.reduce((s, l) => s + l.quantity, 0),
+        customerUrl: created.ticket.customer_access_token ?? null,
+        customerCount: created.ticket.customer_count ?? null,
+        menuBookId: created.ticket.menu_book_id ?? null,
+        lines: newLines,
+      }
+      return result
+    } catch (err) {
+      const message = handleStaffError(err)
+      setError(message)
+      setStaffMessage(message)
+      alert(`注文作成エラー: ${message}`)
+      return null
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   const savePaymentEntry = async (payload: {
     ticketId?: string
     paymentType: string
@@ -474,6 +571,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     createHandyOrder,
     createHandyOrders,
     createStaffTicket,
+    createPrepaidOrder,
     updateTicketMenuBook,
     savePaymentEntry,
     settleTicket,

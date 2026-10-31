@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import type { LiveTicket, LiveLine, LivePaymentEntry, LiveStore, LiveTableRef, LiveMenuBook, LiveCategory, LiveSubcategory, LiveStaffUser, TicketSummaryView, StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LiveMenuBookItem, LiveBookCategory, LiveBookCategorySubcategory, LiveBookSubcategoryItem, LiveMenuItem, AdminPaymentMethod, LivePhysicalPrinter, LivePrinterRoutingRule, LiveFloor, LiveLogicalPrinter } from '../types'
 import { ticketStatusFromLines } from '../lib/staffUtils'
+import { isTimeWithinWindow } from '../lib/appUtils'
 
 export function useStaffData() {
   const [liveStore, setLiveStore] = useState<LiveStore | null>(null)
@@ -61,9 +62,14 @@ export function useStaffData() {
 
   const activeLiveTickets = useMemo(() => liveTickets.filter((t) => t.status === 'OPEN'), [liveTickets])
 
+  const defaultMenuBookId = useMemo(() => {
+    const current = liveMenuBooks.find((b) => isTimeWithinWindow(b.available_from_time, b.available_to_time))
+    return current?.id || liveMenuBooks[0]?.id || null
+  }, [liveMenuBooks])
+
   const staffHandyTopCategoriesMemo = useMemo(() => {
     if (staffHandyTopCategories.length > 0) return staffHandyTopCategories
-    const menuBookId = selectedTicket?.menu_book_id
+    const menuBookId = selectedTicket?.menu_book_id || defaultMenuBookId
     if (!menuBookId) return []
     const menuBook = liveMenuBooks.find((b) => b.id === menuBookId)
     const bookCategoryRelations = liveBookCategories.filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
@@ -111,11 +117,11 @@ export function useStaffData() {
       }
     }
     return uniqueTopCats
-  }, [liveBookCategories, liveCategories, liveBookCategorySubcategories, liveSubcategories, liveMenuBooks, selectedTicket, staffHandyTopCategories])
+  }, [liveBookCategories, liveCategories, liveBookCategorySubcategories, liveSubcategories, liveMenuBooks, selectedTicket, defaultMenuBookId, staffHandyTopCategories])
 
   const staffHandySubCategoriesMemo = useMemo(() => {
     if (staffHandySubCategories.length > 0) return staffHandySubCategories
-    const menuBookId = selectedTicket?.menu_book_id
+    const menuBookId = selectedTicket?.menu_book_id || defaultMenuBookId
     if (!menuBookId) return []
     const menuBook = liveMenuBooks.find((b) => b.id === menuBookId)
     const bookCategoryRelations = liveBookCategories.filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
@@ -149,11 +155,11 @@ export function useStaffData() {
       }
     }
     return uniqueSubCats
-  }, [liveBookCategorySubcategories, liveSubcategories, liveBookCategories, liveCategories, liveMenuBooks, selectedTicket, staffHandySubCategories])
+  }, [liveBookCategorySubcategories, liveSubcategories, liveBookCategories, liveCategories, liveMenuBooks, selectedTicket, defaultMenuBookId, staffHandySubCategories])
 
   const staffHandyItemsMemo = useMemo(() => {
     if (staffHandyItems.length > 0) return staffHandyItems
-    const menuBookId = selectedTicket?.menu_book_id
+    const menuBookId = selectedTicket?.menu_book_id || defaultMenuBookId
     if (!menuBookId) return []
     const rawItems = liveBookSubcategoryItems
       .filter((relation) => relation.menu_book_id === menuBookId && relation.is_active)
@@ -183,7 +189,7 @@ export function useStaffData() {
       }
     }
     return uniqueItems
-  }, [liveBookSubcategoryItems, liveItems, selectedTicket, staffHandyItems])
+  }, [liveBookSubcategoryItems, liveItems, selectedTicket, defaultMenuBookId, staffHandyItems])
 
   const liveTicketSummaries = useMemo<TicketSummaryView[]>(() => {
     return activeLiveTickets

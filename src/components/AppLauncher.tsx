@@ -13,6 +13,7 @@ type LauncherProps = {
   onClose: () => void
   currentView: AppView
   activeTab?: string
+  paymentTimingMode?: 'PREPAID' | 'POSTPAID'
   onMove: (view: AppView, tab?: string) => void
   onSignOut: () => void
   session: unknown | null
@@ -116,6 +117,7 @@ export function AppLauncher({
   onClose,
   currentView,
   activeTab,
+  paymentTimingMode,
   onMove,
   onSignOut,
   session,
@@ -160,6 +162,18 @@ export function AppLauncher({
 
                 const isItemActive = currentView === view.id || (view.id === 'customer' && currentView === 'customer-qr') || (view.id === 'cust-tablet' && currentView === 'cust-tablet-qr')
 
+                let label = view.label
+                let caption = view.caption
+                if (view.id === 'staff') {
+                  if (paymentTimingMode === 'PREPAID') {
+                    label = 'レジ（注文・会計）'
+                    caption = '先払い・即会計'
+                  } else {
+                    label = '伝票一覧'
+                    caption = '客席注文・後払い'
+                  }
+                }
+
                 return (
                   <div key={view.id} style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     <button
@@ -176,8 +190,8 @@ export function AppLauncher({
                     >
                       <div className="launcher-icon">{getIcon(view.id, isItemActive)}</div>
                       <div className="launcher-info" style={{ flex: 1 }}>
-                        <span className="launcher-label">{view.label}</span>
-                        {view.caption && <span className="launcher-caption">{view.caption}</span>}
+                        <span className="launcher-label">{label}</span>
+                        {caption && <span className="launcher-caption">{caption}</span>}
                       </div>
                       {hasSubmenu && <CaretIcon expanded={isExpanded} />}
                     </button>

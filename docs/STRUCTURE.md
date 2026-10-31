@@ -4,7 +4,6 @@
 ```text
 lite-app-v4/
 ├── docs/               # ドキュメント (仕様書、構成書等)
-├── figma-mocks/        # UIデザインモック画像
 ├── tests/              # Playwright E2E テスト
 └── src/
     ├── components/     # 再利用可能な UI コンポーネント

@@ -65,7 +65,12 @@ type StaffPaymentViewProps = {
   setInputSource: React.Dispatch<React.SetStateAction<'modal' | 'manual'>>
   onReceiptClosed: () => void
   onAbortPayment: () => void
-  onPrintReceipt?: (ticketId: string, paymentEntryMemo?: string | null) => Promise<boolean>
+  onPrintReceipt?: (
+    ticketId: string,
+    paymentEntryMemo?: string | null,
+    options?: { includeReceptionSlip?: boolean; receptionSlipOnly?: boolean }
+  ) => Promise<boolean>
+  receptionNumberPrintMode?: 'ENABLED' | 'DISABLED'
   targetPaymentAmount: number | null
   setTargetPaymentAmount: React.Dispatch<React.SetStateAction<number | null>>
   currentPersonLabel: string | null
@@ -137,6 +142,7 @@ export function StaffPaymentView({
   onRemoveCombinedTicket,
   livePaymentMethods,
   staffMessage,
+  receptionNumberPrintMode,
 }: StaffPaymentViewProps) {
   const activeSelectedLines = React.useMemo(() => selectedLines.filter(l => l.kds_status !== 'CANCELLED'), [selectedLines])
 
@@ -192,6 +198,15 @@ export function StaffPaymentView({
   const [provisoText, setProvisoText] = React.useState('お食事代として')
   const [activePrintGroupId, setActivePrintGroupId] = React.useState<string | null>(null)
   const activePrintGroup = activePrintGroupId ? groupedPayments.find(g => g.id === activePrintGroupId) : null
+  const [includeReceptionSlip, setIncludeReceptionSlip] = React.useState<boolean>(
+    () => receptionNumberPrintMode === 'ENABLED'
+  )
+
+  React.useEffect(() => {
+    if (receptionNumberPrintMode === 'ENABLED') {
+      setIncludeReceptionSlip(true)
+    }
+  }, [receptionNumberPrintMode])
   const [isFocused, setIsFocused] = React.useState(true)
   const inputRef = React.useRef<HTMLInputElement | null>(null)
 
@@ -514,6 +529,78 @@ export function StaffPaymentView({
     );
   };
 
+  const renderReceptionSlipPaper = () => {
+    return (
+      <div className="receipt-paper" style={{ marginTop: '16px', borderTop: '4px solid #1c7ed6' }}>
+        <div style={{ padding: '16px 20px', textAlign: 'center' }}>
+          <div style={{ fontSize: '0.85rem', color: '#666', marginBottom: '2px' }}>{storeName}</div>
+          <div style={{
+            fontSize: '1.15rem',
+            fontWeight: 'bold',
+            color: '#1c7ed6',
+            letterSpacing: '0.1em',
+            border: '2px solid #1c7ed6',
+            padding: '3px 10px',
+            borderRadius: '6px',
+            display: 'inline-block',
+            marginBottom: '10px'
+          }}>
+            【 受 付 票 】
+          </div>
+          <div style={{ fontSize: '0.82rem', color: '#555', marginBottom: '2px' }}>お呼出番号</div>
+          <div style={{
+            fontSize: '2.8rem',
+            fontWeight: '900',
+            color: '#111',
+            letterSpacing: '0.05em',
+            margin: '2px 0 10px',
+            background: '#f1f3f5',
+            padding: '6px 14px',
+            borderRadius: '8px',
+            border: '1px dashed #ced4da'
+          }}>
+            {selectedSummary.ticketNo}
+          </div>
+          <div style={{ fontSize: '0.82rem', color: '#666', borderTop: '1px dashed #ced4da', borderBottom: '1px dashed #ced4da', padding: '6px 0', margin: '8px 0', textAlign: 'left' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span>卓番 / 席:</span>
+              <span style={{ fontWeight: 'bold' }}>{selectedSummary.tableName}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span>受付日時:</span>
+              <span>{new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            {selectedSummary.receiptNo && (
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>レシートNo:</span>
+                <span>{selectedSummary.receiptNo}</span>
+              </div>
+            )}
+          </div>
+
+          <div style={{ textAlign: 'left', margin: '8px 0' }}>
+            <div style={{ fontSize: '0.82rem', fontWeight: 'bold', color: '#495057', marginBottom: '4px' }}>【ご注文内容】</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+              {activeSelectedLines.map((line) => (
+                <div key={line.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', color: '#333' }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '75%' }}>
+                    {line.item_name_snapshot}
+                  </span>
+                  <span style={{ fontWeight: 'bold' }}>x {line.quantity}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ marginTop: '12px', borderTop: '1px dashed #ced4da', paddingTop: '8px', fontSize: '0.78rem', color: '#495057', lineHeight: 1.4 }}>
+            <div>お料理が出来上がるまでお待ちください。</div>
+            <div style={{ fontWeight: 'bold', marginTop: '2px', color: '#1c7ed6' }}>商品お渡しの際、本票をスタッフへお渡しください。</div>
+          </div>
+        </div>
+      </div>
+    )
+  };
+
   const getNextPersonNumber = () => {
     let maxNum = 0
     for (const p of payments) {
@@ -657,6 +744,9 @@ export function StaffPaymentView({
           ) : (
             renderReceiptPaper(null, false)
           )}
+          {paymentFinalized && includeReceptionSlip && (
+            renderReceptionSlipPaper()
+          )}
         </aside>
 
         <main className="payment-action-pane full">
@@ -776,32 +866,95 @@ export function StaffPaymentView({
                   <p style={{ fontSize: '0.85rem', color: '#888' }}>ご利用ありがとうございました</p>
                 </div>
 
-                <button
-                  onClick={async () => {
-                    const memo = isFormalReceipt ? `【領収書】宛名:${recipientName} 但し:${provisoText || 'お食事代として'}` : null
-                    if (onPrintReceipt) {
-                      await onPrintReceipt(selectedSummary.ticketId, activePrintGroupId ? `${activePrintGroupId} ${memo || ''}` : memo)
-                    }
-                  }}
+                {/* Reception slip print option toggle */}
+                <label
                   style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: '#f1f3f5',
-                    color: '#495057',
-                    borderRadius: '8px',
-                    fontSize: '1rem',
-                    fontWeight: 'bold',
-                    border: 'none',
-                    cursor: 'pointer',
-                    marginTop: '24px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
+                    gap: '10px',
+                    cursor: 'pointer',
+                    background: includeReceptionSlip ? '#e7f5ff' : '#f8f9fa',
+                    border: includeReceptionSlip ? '1.5px solid #339af0' : '1px solid #dee2e6',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    margin: '16px 0 4px',
+                    textAlign: 'left',
+                    boxSizing: 'border-box',
+                    width: '100%',
                   }}
                 >
-                  <span>🖨️</span> {isFormalReceipt ? '領収書を印刷' : 'レシートを印刷'}
-                </button>
+                  <input
+                    type="checkbox"
+                    checked={includeReceptionSlip}
+                    onChange={(e) => setIncludeReceptionSlip(e.target.checked)}
+                    style={{ width: '18px', height: '18px', accentColor: '#1c7ed6', cursor: 'pointer' }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '0.95rem', fontWeight: 600, color: includeReceptionSlip ? '#1864ab' : '#495057' }}>
+                      🎫 受付番号票（番号札）を印字する
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: '#868e96' }}>
+                      {includeReceptionSlip ? '調理後に呼出・引換を行う場合' : '即時商品お渡し（レシートのみ）'}
+                    </span>
+                  </div>
+                </label>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%', marginTop: '16px' }}>
+                  <button
+                    onClick={async () => {
+                      const memo = isFormalReceipt ? `【領収書】宛名:${recipientName} 但し:${provisoText || 'お食事代として'}` : null
+                      if (onPrintReceipt) {
+                        await onPrintReceipt(
+                          selectedSummary.ticketId,
+                          activePrintGroupId ? `${activePrintGroupId} ${memo || ''}` : memo,
+                          { includeReceptionSlip }
+                        )
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      background: '#f1f3f5',
+                      color: '#495057',
+                      borderRadius: '8px',
+                      fontSize: '1rem',
+                      fontWeight: 'bold',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <span>🖨️</span> {isFormalReceipt ? '領収書を印刷' : (includeReceptionSlip ? 'レシート ＋ 受付番号票を印刷' : 'レシートを印刷')}
+                  </button>
+
+                  <button
+                    onClick={async () => {
+                      if (onPrintReceipt) {
+                        await onPrintReceipt(selectedSummary.ticketId, null, { receptionSlipOnly: true })
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      background: '#f8f9fa',
+                      color: '#1c7ed6',
+                      borderRadius: '8px',
+                      fontSize: '0.88rem',
+                      fontWeight: 600,
+                      border: '1px solid #ced4da',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <span>🎫</span> 受付番号票のみ印刷
+                  </button>
+                </div>
               </div>
 
               <button

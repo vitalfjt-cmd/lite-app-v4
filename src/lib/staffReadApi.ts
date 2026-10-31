@@ -159,6 +159,7 @@ export function loginStaffPrototype(storeSlug: string, email: string, password: 
       timezone: string
       business_date_offset_minutes: number
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
+      reception_number_print_mode?: 'ENABLED' | 'DISABLED'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
       tax_rate?: number
@@ -384,6 +385,7 @@ export async function fetchStaffPrototypeSession(storeSlug: string, accessToken:
       timezone: string
       business_date_offset_minutes: number
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
+      reception_number_print_mode?: 'ENABLED' | 'DISABLED'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
       tax_rate?: number
@@ -418,6 +420,7 @@ export function fetchStaffPrototypeBootstrap(storeSlug: string) {
       timezone: string
       business_date_offset_minutes: number
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
+      reception_number_print_mode?: 'ENABLED' | 'DISABLED'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
       tax_rate?: number
@@ -472,6 +475,7 @@ export function fetchAdminPrototypeBootstrap(storeSlug: string) {
       timezone: string
       business_date_offset_minutes: number
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
+      reception_number_print_mode?: 'ENABLED' | 'DISABLED'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
       tax_rate?: number
@@ -623,6 +627,7 @@ export function saveAdminPrototypeStore(
     timezone: string
     businessDateOffsetMinutes: number
     paymentTimingMode: 'PREPAID' | 'POSTPAID'
+    receptionNumberPrintMode?: 'ENABLED' | 'DISABLED'
     ticketNoResetMode: 'DAILY' | 'SEQUENCE'
     ticketNoDigits: number
     taxRate?: number
@@ -641,6 +646,7 @@ export function saveAdminPrototypeStore(
       timezone: string
       business_date_offset_minutes: number
       payment_timing_mode: 'PREPAID' | 'POSTPAID'
+      reception_number_print_mode?: 'ENABLED' | 'DISABLED'
       ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
       ticket_no_digits: number
       tax_rate?: number
@@ -1199,12 +1205,19 @@ export function closeStaffPrototypeTicket(storeSlug: string, ticketId: string, t
   })
 }
 
-export function printStaffPrototypeReceipt(storeSlug: string, ticketId: string, paymentEntryMemo?: string | null) {
+export function printStaffPrototypeReceipt(
+  storeSlug: string,
+  ticketId: string,
+  paymentEntryMemo?: string | null,
+  options?: { includeReceptionSlip?: boolean; receptionSlipOnly?: boolean }
+) {
   return invoke<{ success: boolean; error?: string }>({
     action: 'print-receipt',
     storeSlug,
     ticketId,
     paymentEntryMemo,
+    includeReceptionSlip: options?.includeReceptionSlip,
+    receptionSlipOnly: options?.receptionSlipOnly,
   })
 }
 

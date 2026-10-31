@@ -173,6 +173,7 @@ export default function App() {
     setAdminStoreTimezone: adminForm.setAdminStoreTimezone,
     setAdminStoreBusinessOffsetMinutes: adminForm.setAdminStoreBusinessOffsetMinutes,
     setAdminStorePaymentTimingMode: adminForm.setAdminStorePaymentTimingMode,
+    setAdminStoreReceptionNumberPrintMode: adminForm.setAdminStoreReceptionNumberPrintMode,
     setAdminStoreTicketNoResetMode: adminForm.setAdminStoreTicketNoResetMode,
     setAdminStoreTicketNoDigits: adminForm.setAdminStoreTicketNoDigits,
     setAdminStoreTaxRate: (rate) => adminForm.setAdminStoreTaxRate(Number(rate)),
@@ -247,7 +248,7 @@ export default function App() {
 
   const {
     changeLineQuantity, submitLineQuantityUpdate, cancelLine, advanceLineStatus,
-    createHandyOrder, createHandyOrders, createStaffTicket, updateTicketMenuBook, savePaymentEntry, settleTicket, logPaymentAbort
+    createHandyOrder, createHandyOrders, createStaffTicket, createPrepaidOrder, updateTicketMenuBook, savePaymentEntry, settleTicket, logPaymentAbort
   } = staffOps
 
 
@@ -452,9 +453,12 @@ export default function App() {
     : false
 
   const availableTables = useMemo(() => {
+    if (liveStore?.payment_timing_mode === 'PREPAID') {
+      return liveTables
+    }
     const occupiedTableIds = new Set(activeLiveTickets.map((ticket) => ticket.table_ref_id))
     return liveTables.filter((table) => !occupiedTableIds.has(table.id))
-  }, [activeLiveTickets, liveTables])
+  }, [activeLiveTickets, liveTables, liveStore?.payment_timing_mode])
 
   const selectedCustomerTable = useMemo(() => {
     const normalizedTableName = selectedSummary?.tableName?.trim().toLowerCase() ?? ''
@@ -504,16 +508,16 @@ export default function App() {
   )
 
   const kdsQueue = useMemo(() => {
-    if (liveLines.length === 0 || activeLiveTickets.length === 0) {
+    if (liveLines.length === 0 || liveTickets.length === 0) {
       return []
     }
-    const openTicketIds = new Set(activeLiveTickets.map((ticket) => ticket.id))
+    const ticketIds = new Set(liveTickets.map((ticket) => ticket.id))
     return liveLines
-      .filter((line) => line.order_ticket_id && openTicketIds.has(line.order_ticket_id))
+      .filter((line) => line.order_ticket_id && ticketIds.has(line.order_ticket_id))
       .filter((line) => line.kds_status !== 'SERVED' && line.kds_status !== 'CANCELLED')
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
       .map((line) => {
-        const ticket = activeLiveTickets.find((item) => item.id === line.order_ticket_id)
+        const ticket = liveTickets.find((item) => item.id === line.order_ticket_id)
         const table = liveTables.find((item) => item.id === ticket?.table_ref_id)
         const item = liveItems.find((i) => i.id === line.item_id)
         const relation = liveBookSubcategoryItems.find((r) => r.menu_book_id === ticket?.menu_book_id && r.menu_item_id === line.item_id)
@@ -522,6 +526,7 @@ export default function App() {
           ? liveSubcategories.find((s) => s.id === relation.menu_subcategory_id)
           : undefined
         const qty = line.quantity
+        const isPrepaid = liveStore?.payment_timing_mode === 'PREPAID'
         return {
           id: line.id,
           itemName: line.item_name_snapshot,
@@ -532,7 +537,7 @@ export default function App() {
           imageUrl: item?.image_url ?? null,
           status: line.kds_status as any,
           ticketNo: ticket?.ticket_no ?? '-',
-          tableName: table?.label ?? '-',
+          tableName: isPrepaid ? `受付 No.${ticket?.ticket_no ?? '-'}` : (table?.label ?? '-'),
           createdAt: line.created_at,
           subcategoryName: subcategory?.name ?? 'その他',
           subcategorySortOrder: subcategory?.sort_order ?? 9999,
@@ -540,7 +545,7 @@ export default function App() {
           toppings: line.toppings,
         }
       })
-  }, [activeLiveTickets, liveLines, liveTables, liveItems, liveSubcategories, liveBookSubcategoryItems, session])
+  }, [liveTickets, liveLines, liveTables, liveItems, liveSubcategories, liveBookSubcategoryItems, liveStore?.payment_timing_mode, session])
 
   const kdsTableOptions = useMemo(
     () =>
@@ -650,25 +655,29 @@ export default function App() {
     }
   }
 
-  const handlePrintReceipt = async (ticketId: string, paymentEntryMemo?: string | null): Promise<boolean> => {
+  const handlePrintReceipt = async (
+    ticketId: string,
+    paymentEntryMemo?: string | null,
+    options?: { includeReceptionSlip?: boolean; receptionSlipOnly?: boolean }
+  ): Promise<boolean> => {
     setMutationBusy('print-receipt')
     setStaffMessage(null)
     setError(null)
     try {
       const storeSlug = liveStore?.slug || profile?.store_slug || getActiveStoreSlug()
       if (!storeSlug) throw new Error('staff_store_slug_missing')
-      const res = await printStaffPrototypeReceipt(storeSlug, ticketId, paymentEntryMemo)
+      const res = await printStaffPrototypeReceipt(storeSlug, ticketId, paymentEntryMemo, options)
       if (!res.success) {
         alert(res.error || 'レシートの印刷に失敗しました')
         return false
       }
-      setStaffMessage('レシートの印刷指示を送信しました。')
+      setStaffMessage(options?.receptionSlipOnly ? '受付番号票の印刷指示を送信しました。' : 'レシートの印刷指示を送信しました。')
       return true
     } catch (err) {
       const message = formatError(err)
       setError(message)
       setStaffMessage(message)
-      alert('レシートの印刷に失敗しました: ' + message)
+      alert('印刷に失敗しました: ' + message)
       return false
     } finally {
       setMutationBusy(null)
@@ -748,6 +757,7 @@ export default function App() {
         onClose={() => setIsLauncherOpen(false)}
         currentView={view}
         activeTab={adminTab}
+        paymentTimingMode={liveStore?.payment_timing_mode ?? 'POSTPAID'}
         onMove={moveTo}
         onSignOut={() => void handleSignOut()}
         session={session}
@@ -778,6 +788,7 @@ export default function App() {
           profile={profile}
           liveStoreName={liveStore?.name ?? activeStore.name}
           error={error}
+          paymentTimingMode={liveStore?.payment_timing_mode ?? 'POSTPAID'}
           onMove={moveTo}
           onPickLoginCandidate={setEmail}
           onEmailChange={setEmail}
@@ -983,6 +994,11 @@ export default function App() {
             directAction={staffDirectAction}
             onClearDirectAction={() => setStaffDirectAction(null)}
             liveLines={liveLines}
+            paymentTimingMode={liveStore?.payment_timing_mode ?? 'POSTPAID'}
+            receptionNumberPrintMode={liveStore?.reception_number_print_mode ?? 'DISABLED'}
+            onCreatePrepaidOrder={(tableRefId, menuBookId, customerCount, items) =>
+              createPrepaidOrder(tableRefId, menuBookId, customerCount, items)
+            }
           />
         ) : null}
         {view === 'handy' && !selectedTicketId ? (
@@ -1335,6 +1351,7 @@ export default function App() {
             adminStoreTimezone={adminForm.adminStoreTimezone}
             adminStoreBusinessOffsetMinutes={String(adminForm.adminStoreBusinessOffsetMinutes)}
             adminStorePaymentTimingMode={adminForm.adminStorePaymentTimingMode}
+            adminStoreReceptionNumberPrintMode={adminForm.adminStoreReceptionNumberPrintMode}
             adminStoreTicketNoResetMode={adminForm.adminStoreTicketNoResetMode}
             adminStoreTicketNoDigits={String(adminForm.adminStoreTicketNoDigits)}
             adminStoreTaxRate={String(adminForm.adminStoreTaxRate)}
@@ -1382,6 +1399,7 @@ export default function App() {
             onStoreTimezoneChange={adminForm.setAdminStoreTimezone}
             onStoreBusinessOffsetMinutesChange={(v) => adminForm.setAdminStoreBusinessOffsetMinutes(Number(v))}
             onStorePaymentTimingModeChange={adminForm.setAdminStorePaymentTimingMode}
+            onStoreReceptionNumberPrintModeChange={adminForm.setAdminStoreReceptionNumberPrintMode}
             onStoreTicketNoResetModeChange={adminForm.setAdminStoreTicketNoResetMode}
             onStoreTicketNoDigitsChange={(v) => adminForm.setAdminStoreTicketNoDigits(Number(v))}
             onStoreTaxRateChange={(v) => adminForm.setAdminStoreTaxRate(Number(v))}

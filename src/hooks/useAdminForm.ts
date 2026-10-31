@@ -113,6 +113,7 @@ export function useAdminForm() {
   const [adminStoreTimezone, setAdminStoreTimezone] = useState('Asia/Tokyo')
   const [adminStoreBusinessOffsetMinutes, setAdminStoreBusinessOffsetMinutes] = useState(0)
   const [adminStorePaymentTimingMode, setAdminStorePaymentTimingMode] = useState<'PREPAID' | 'POSTPAID'>('POSTPAID')
+  const [adminStoreReceptionNumberPrintMode, setAdminStoreReceptionNumberPrintMode] = useState<'ENABLED' | 'DISABLED'>('DISABLED')
   const [adminStoreTicketNoResetMode, setAdminStoreTicketNoResetMode] = useState<'DAILY' | 'SEQUENCE'>('DAILY')
   const [adminStoreTicketNoDigits, setAdminStoreTicketNoDigits] = useState(4)
   const [adminStoreTaxRate, setAdminStoreTaxRate] = useState(10)
@@ -445,6 +446,7 @@ export function useAdminForm() {
     adminStoreTimezone, setAdminStoreTimezone,
     adminStoreBusinessOffsetMinutes, setAdminStoreBusinessOffsetMinutes,
     adminStorePaymentTimingMode, setAdminStorePaymentTimingMode,
+    adminStoreReceptionNumberPrintMode, setAdminStoreReceptionNumberPrintMode,
     adminStoreTicketNoResetMode, setAdminStoreTicketNoResetMode,
     adminStoreTicketNoDigits, setAdminStoreTicketNoDigits,
     adminStoreTaxRate, setAdminStoreTaxRate,

@@ -117,6 +117,7 @@ export type LiveStore = {
   timezone: string
   business_date_offset_minutes: number
   payment_timing_mode: 'PREPAID' | 'POSTPAID'
+  reception_number_print_mode?: 'ENABLED' | 'DISABLED'
   ticket_no_reset_mode: 'DAILY' | 'SEQUENCE'
   ticket_no_digits: number
   tax_rate?: number
@@ -254,4 +255,17 @@ export type SubscriptionStatus = {
   days_left_in_trial: number | null
   stripe_customer_id: string | null
   is_stripe_configured: boolean
+}
+
+export type PrepaidOrderCreationResult = {
+  ticketId: string
+  ticketNo: string
+  tableLabel: string
+  orderedAt: string
+  subtotal: number
+  lineCount: number
+  customerUrl: string | null
+  customerCount: number | null
+  menuBookId: string | null
+  lines: LiveLine[]
 }

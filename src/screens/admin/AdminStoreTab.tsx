@@ -8,6 +8,7 @@ type Props = {
   adminStoreTimezone: string
   adminStoreBusinessOffsetMinutes: string
   adminStorePaymentTimingMode: 'PREPAID' | 'POSTPAID'
+  adminStoreReceptionNumberPrintMode: 'ENABLED' | 'DISABLED'
   adminStoreTicketNoResetMode: 'DAILY' | 'SEQUENCE'
   adminStoreTicketNoDigits: string
   adminStoreTaxRate: string
@@ -21,6 +22,7 @@ type Props = {
   onStoreTimezoneChange: (value: string) => void
   onStoreBusinessOffsetMinutesChange: (value: string) => void
   onStorePaymentTimingModeChange: (value: 'PREPAID' | 'POSTPAID') => void
+  onStoreReceptionNumberPrintModeChange: (value: 'ENABLED' | 'DISABLED') => void
   onStoreTicketNoResetModeChange: (value: 'DAILY' | 'SEQUENCE') => void
   onStoreTicketNoDigitsChange: (value: string) => void
   onStoreTaxRateChange: (value: string) => void
@@ -126,6 +128,13 @@ export function AdminStoreTab(props: Props) {
             <select value={props.adminStorePaymentTimingMode} onChange={(event) => props.onStorePaymentTimingModeChange(event.target.value as 'PREPAID' | 'POSTPAID')} disabled={props.disabled}>
               <option value="PREPAID">先払い</option>
               <option value="POSTPAID">後払い</option>
+            </select>
+          </label>
+          <label className="admin-store-field">
+            <span>受付番号の印字</span>
+            <select value={props.adminStoreReceptionNumberPrintMode} onChange={(event) => props.onStoreReceptionNumberPrintModeChange(event.target.value as 'ENABLED' | 'DISABLED')} disabled={props.disabled}>
+              <option value="DISABLED">印字しない (レシートのみ)</option>
+              <option value="ENABLED">印字する (レシート ＋ 受付番号票)</option>
             </select>
           </label>
           <label className="admin-store-field">

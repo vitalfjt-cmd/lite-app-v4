@@ -4,8 +4,9 @@ import type { KeyboardEventHandler } from 'react'
 import { DirectActionView } from './staff/DirectActionView'
 import { StaffPaymentView } from './staff/StaffPaymentView'
 import { StaffHandyView } from './staff/StaffHandyView'
+import { StaffPrepaidOrderView } from './staff/StaffPrepaidOrderView'
 import { isTimeWithinWindow, formatTime } from '../lib/appUtils'
-import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod } from '../types'
+import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod, PrepaidOrderCreationResult } from '../types'
 
 type PaymentKind = string
 type TicketFilter = 'new' | 'progress' | 'served' | 'all'
@@ -70,13 +71,25 @@ type StaffScreenProps = {
   }) => Promise<boolean>
   onCloseTicket: (ticketId?: string) => Promise<string | null>
   onAbortPayment: () => void
-  onPrintReceipt?: (ticketId: string) => Promise<boolean>
+  onPrintReceipt?: (
+    ticketId: string,
+    paymentEntryMemo?: string | null,
+    options?: { includeReceptionSlip?: boolean; receptionSlipOnly?: boolean }
+  ) => Promise<boolean>
   onPrintQr?: (ticketId: string, customerUrl?: string | null) => Promise<boolean>
   directAction?: 'HANDY' | 'PAYMENT' | null
   onClearDirectAction?: () => void
   terminalName?: string
   isHandyMode?: boolean
   onOpenLauncher?: () => void
+  paymentTimingMode?: 'PREPAID' | 'POSTPAID'
+  receptionNumberPrintMode?: 'ENABLED' | 'DISABLED'
+  onCreatePrepaidOrder?: (
+    tableRefId: string,
+    menuBookId: string,
+    customerCount: number | null,
+    items: Array<{ itemId: string; qty: number; toppings?: string[] }>,
+  ) => Promise<PrepaidOrderCreationResult | null>
 }
 
 // Payment method mapping
@@ -145,7 +158,31 @@ export function StaffScreen({
   terminalName,
   isHandyMode,
   onOpenLauncher,
+  paymentTimingMode,
+  receptionNumberPrintMode,
+  onCreatePrepaidOrder,
 }: StaffScreenProps) {
+  const isPrepaid = paymentTimingMode === 'PREPAID'
+  const [prepaidSubView, setPrepaidSubView] = useState<'order' | 'tickets' | 'payment'>('order')
+  const [prepaidTableId, setPrepaidTableId] = useState<string>(() => availableTables[0]?.id || '')
+  const [prepaidMenuBookId, setPrepaidMenuBookId] = useState<string>(() => newTicketMenuBookId || liveMenuBooks[0]?.id || '')
+  const [prepaidCustomerCount, setPrepaidCustomerCount] = useState<number>(1)
+  const [prepaidActiveSummary, setPrepaidActiveSummary] = useState<TicketSummaryView | null>(null)
+  const [prepaidActiveLines, setPrepaidActiveLines] = useState<LiveLine[]>([])
+
+  useEffect(() => {
+    if (!prepaidTableId && availableTables.length > 0) {
+      const takeoutTable = availableTables.find((t) => t.label.includes('テイクアウト')) || availableTables[0]
+      if (takeoutTable) setPrepaidTableId(takeoutTable.id)
+    }
+  }, [availableTables, prepaidTableId])
+
+  useEffect(() => {
+    if (!prepaidMenuBookId && liveMenuBooks.length > 0) {
+      setPrepaidMenuBookId(newTicketMenuBookId || liveMenuBooks[0]?.id || '')
+    }
+  }, [liveMenuBooks, newTicketMenuBookId, prepaidMenuBookId])
+
   const [filter, setFilter] = useState<TicketFilter>('all')
   const [keyword, setKeyword] = useState('')
   const [showCreateTicketModal, setShowCreateTicketModal] = useState(false)
@@ -238,8 +275,9 @@ export function StaffScreen({
   useEffect(() => {
     const newPaid: Record<string, number> = {}
     
+    const activeLines = combinedLines.length > 0 ? combinedLines : prepaidActiveLines
     const allocate = (name: string, qty: number) => {
-      const matchingLines = combinedLines.filter(l => l.item_name_snapshot === name)
+      const matchingLines = activeLines.filter(l => l.item_name_snapshot === name)
       let remainingQty = qty
       for (const line of matchingLines) {
         if (remainingQty <= 0) break
@@ -442,7 +480,8 @@ export function StaffScreen({
   }
 
   /* Payment Handlers */
-  const selectedSubtotal = combinedSummary?.subtotal ?? 0
+  const effectiveSummaryForCalc = combinedSummary || prepaidActiveSummary
+  const selectedSubtotal = effectiveSummaryForCalc?.subtotal ?? 0
   const discountFromRate = Math.floor(selectedSubtotal * (discountRate / 100))
   const totalDiscount = discountAmount + discountFromRate
   const finalBilledAmount = Math.max(0, selectedSubtotal - totalDiscount)
@@ -463,7 +502,8 @@ export function StaffScreen({
   }
 
   const getItemUnitPrice = (id: string) => {
-    const l = combinedLines.find(x => x.id === id)
+    const activeLines = combinedLines.length > 0 ? combinedLines : prepaidActiveLines
+    const l = activeLines.find(x => x.id === id)
     if (!l) return 0
     return Math.round(l.line_subtotal / l.quantity)
   }
@@ -607,7 +647,8 @@ export function StaffScreen({
         label = `個別会計 (${personNum}人目)`
       } else if (activeCalcMode === 'itemized') {
         const remainingMap: Record<string, { qty: number; unitPrice: number }> = {}
-        for (const line of combinedLines) {
+        const activeLines = combinedLines.length > 0 ? combinedLines : prepaidActiveLines
+        for (const line of activeLines) {
           const name = line.item_name_snapshot
           const unitPrice = line.quantity > 0 ? Math.round(line.line_subtotal / line.quantity) : 0
           if (!remainingMap[name]) {
@@ -678,7 +719,8 @@ export function StaffScreen({
   }
 
   const commitPaymentToDB = async () => {
-    if (!selectedSummary) return
+    const activeSummary = combinedSummary || prepaidActiveSummary;
+    if (!activeSummary) return
     if (paidTotal < finalBilledAmount) {
       alert('預かり金額が請求額に達していません。')
       return
@@ -686,7 +728,7 @@ export function StaffScreen({
 
     try {
       const targetTickets = [
-        selectedSummary,
+        activeSummary,
         ...liveTicketSummaries.filter(t => combinedTicketIds.includes(t.ticketId))
       ]
 
@@ -811,8 +853,10 @@ export function StaffScreen({
         lastReceiptNo = receiptNo
       }
 
-      setFinalizedSummary(combinedSummary ? { ...combinedSummary, receiptNo: lastReceiptNo } : null)
-      setFinalizedLines(combinedLines)
+      const targetSummary = combinedSummary || prepaidActiveSummary;
+      const targetLinesList = combinedLines.length > 0 ? combinedLines : prepaidActiveLines;
+      setFinalizedSummary(targetSummary ? { ...targetSummary, receiptNo: lastReceiptNo } : null)
+      setFinalizedLines(targetLinesList)
       setFinalizedPayments(payments)
       setFinalizedDiscountAmount(discountAmount)
       setFinalizedDiscountRate(discountRate)
@@ -840,10 +884,15 @@ export function StaffScreen({
     )
   }
 
-    const displaySummary = paymentFinalized && finalizedSummary ? finalizedSummary : combinedSummary;
-    const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : combinedLines;
+    const currentSummary = combinedSummary || prepaidActiveSummary;
+    const currentLines = combinedLines.length > 0 ? combinedLines : prepaidActiveLines;
 
-    if (showPaymentModal && displaySummary) {
+    const displaySummary = paymentFinalized && finalizedSummary ? finalizedSummary : currentSummary;
+    const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : currentLines;
+
+    const isPaymentActive = (showPaymentModal || (isPrepaid && prepaidSubView === 'payment')) && displaySummary;
+
+    if (isPaymentActive) {
       const displayPayments = paymentFinalized ? finalizedPayments : payments;
       const displayDiscountAmount = paymentFinalized ? finalizedDiscountAmount : discountAmount;
       const displayDiscountRate = paymentFinalized ? finalizedDiscountRate : discountRate;
@@ -879,6 +928,7 @@ export function StaffScreen({
           onSavePaymentEntry={onSavePaymentEntry}
           onCloseTicket={onCloseTicket}
           onPrintReceipt={onPrintReceipt}
+          receptionNumberPrintMode={receptionNumberPrintMode}
           handleNumpadPayment={handleNumpadPayment}
           addPaymentMethod={addPaymentMethod}
           applyDiscountAmount={applyDiscountAmount}
@@ -901,10 +951,33 @@ export function StaffScreen({
           changeTotal={change}
           paidLineQtys={paidLineQtys}
           setInputSource={setInputSource}
-          onAbortPayment={onAbortPayment}
+          onAbortPayment={() => {
+            onAbortPayment()
+            if (isPrepaid) {
+              setShowPaymentModal(false)
+              setPrepaidSubView('order')
+              setPrepaidActiveSummary(null)
+              setPrepaidActiveLines([])
+            }
+          }}
           onReceiptClosed={() => {
-            const nextTicket = liveTicketSummaries.find(t => t.ticketId !== selectedTicketId)
-            onSelectTicket(nextTicket?.ticketId || null)
+            if (isPrepaid) {
+              setShowPaymentModal(false)
+              setPaymentFinalized(false)
+              setFinalizedSummary(null)
+              setFinalizedLines([])
+              setPayments([])
+              setDiscountAmount(0)
+              setDiscountRate(0)
+              setCurrentPaymentInput('')
+              setPrepaidActiveSummary(null)
+              setPrepaidActiveLines([])
+              onSelectTicket(null)
+              setPrepaidSubView('order')
+            } else {
+              const nextTicket = liveTicketSummaries.find(t => t.ticketId !== selectedTicketId)
+              onSelectTicket(nextTicket?.ticketId || null)
+            }
           }}
           targetPaymentAmount={targetPaymentAmount}
           setTargetPaymentAmount={setTargetPaymentAmount}
@@ -958,6 +1031,79 @@ export function StaffScreen({
   }
 
   /* =======================================
+     PREPAID MODE: Fast-Food / Counter Order Screen
+     ======================================= */
+  if (isPrepaid && prepaidSubView === 'order') {
+    return (
+      <StaffPrepaidOrderView
+        storeName={storeName}
+        terminalName={terminalName}
+        handyTopCategories={handyTopCategories}
+        visibleHandySubCategories={visibleHandySubCategories}
+        visibleHandyItems={visibleHandyItems}
+        handyTopCategoryId={handyTopCategoryId}
+        handySubCategoryId={handySubCategoryId}
+        availableTables={availableTables}
+        liveMenuBooks={liveMenuBooks}
+        selectedTableId={prepaidTableId}
+        selectedMenuBookId={prepaidMenuBookId}
+        customerCount={prepaidCustomerCount}
+        mutationBusy={mutationBusy}
+        taxDisplayMode={taxDisplayMode}
+        taxRate={taxRate}
+        reducedTaxRate={reducedTaxRate}
+        yen={yen}
+        setHandyTopCategoryId={setHandyTopCategoryId}
+        setHandySubCategoryId={setHandySubCategoryId}
+        onTableChange={setPrepaidTableId}
+        onMenuBookChange={setPrepaidMenuBookId}
+        onCustomerCountChange={setPrepaidCustomerCount}
+        onOpenLauncher={onOpenLauncher || (() => {})}
+        onSwitchToTicketList={() => setPrepaidSubView('tickets')}
+        staffMessage={staffMessage}
+        onProceedToPayment={async (cartItems) => {
+          if (!onCreatePrepaidOrder) {
+            alert('先払い注文の作成機能が準備されていません')
+            return
+          }
+          const effectiveTableId = prepaidTableId || availableTables[0]?.id || ''
+          const effectiveMenuBookId = prepaidMenuBookId || newTicketMenuBookId || liveMenuBooks[0]?.id || ''
+          const itemsPayload = cartItems.map((c) => ({
+            itemId: c.id,
+            qty: c.qty,
+            toppings: c.toppingIds,
+          }))
+          const result = await onCreatePrepaidOrder(
+            effectiveTableId,
+            effectiveMenuBookId,
+            prepaidCustomerCount,
+            itemsPayload,
+          )
+          if (result) {
+            setPrepaidActiveSummary({
+              ticketId: result.ticketId,
+              ticketNo: result.ticketNo,
+              tableName: result.tableLabel,
+              orderedAt: result.orderedAt,
+              subtotal: result.subtotal,
+              lineCount: result.lineCount,
+              status: 'NEW',
+              customerUrl: result.customerUrl,
+              customerCount: result.customerCount,
+              receiptNo: null,
+              menuBookId: result.menuBookId,
+            })
+            setPrepaidActiveLines(result.lines)
+            onSelectTicket(result.ticketId)
+            setShowPaymentModal(true)
+            setPrepaidSubView('payment')
+          }
+        }}
+      />
+    )
+  }
+
+  /* =======================================
      DEFAULT: Staff POS Core Screen
      ======================================= */
   return (
@@ -967,14 +1113,23 @@ export function StaffScreen({
           <button className="menu-trigger" onClick={onOpenLauncher} aria-label="Open Menu">
             <span className="material-icons">menu</span>
           </button>
-          <h2>{isHandyMode ? 'Handy' : '伝票一覧'}</h2>
+          <h2>{isPrepaid ? '伝票一覧・履歴' : (isHandyMode ? 'Handy' : '伝票一覧')}</h2>
           <div style={{display:'flex', gap:'8px', alignItems:'center'}}>
-            <span className="staff-badge">{isHandyMode ? 'Handyモード' : '稼働中'}</span>
+            <span className="staff-badge">{isPrepaid ? '先払いモード' : (isHandyMode ? 'Handyモード' : '稼働中')}</span>
             {terminalName && <span className="staff-badge" style={{background:'#5d7281'}}>{terminalName}</span>}
           </div>
         </div>
         <div className="header-actions">
-          {roleType !== 'KDS' && (
+          {isPrepaid && (
+            <button
+              className="btn-primary"
+              onClick={() => setPrepaidSubView('order')}
+              style={{ background: '#16a34a', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <span>🛒 レジ注文へ</span>
+            </button>
+          )}
+          {roleType !== 'KDS' && !isPrepaid && (
             <button className="btn-secondary" onClick={openCreateTicketModal} disabled={mutationBusy === 'create-ticket'}>伝票発行</button>
           )}
         </div>
