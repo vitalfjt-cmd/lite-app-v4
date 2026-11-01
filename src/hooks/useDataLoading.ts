@@ -107,7 +107,7 @@ export function useDataLoading(setters: DataLoadingSetters) {
         customer_access_token: ticket.customerAccessToken,
         customer_count: ticket.customerCount,
         ordered_at: ticket.orderedAt,
-        status: 'OPEN',
+        status: ticket.ticketStatus || (ticket as any).ticket_status || 'OPEN',
         receipt_no: ticket.receiptNo || (ticket as any).receipt_no || null,
       }))
 

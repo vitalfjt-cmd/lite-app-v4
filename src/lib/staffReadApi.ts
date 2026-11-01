@@ -12,6 +12,7 @@ type StaffTicketSummaryResponse = {
   lineCount: number
   customerCount?: number | null
   status: 'NEW' | 'COOKING' | 'SERVED'
+  ticketStatus?: 'OPEN' | 'CANCELLED' | 'CLOSED' | 'VOIDED'
   receiptNo?: string | null
   lines: StaffTicketLineResponse[]
   cancelled_lines: StaffTicketLineResponse[]
