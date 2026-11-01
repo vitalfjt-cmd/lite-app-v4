@@ -37,6 +37,8 @@ type StaffPrepaidOrderViewProps = {
   taxDisplayMode?: 'INCLUDED' | 'EXCLUDED'
   taxRate?: number
   reducedTaxRate?: number
+  openBusinessDate?: string | null
+  todayBusinessDate?: string
   yen: (val: number) => string
   setHandyTopCategoryId: (val: string | null) => void
   setHandySubCategoryId: (val: string | null) => void
@@ -51,6 +53,8 @@ type StaffPrepaidOrderViewProps = {
 export function StaffPrepaidOrderView({
   storeName,
   terminalName,
+  openBusinessDate,
+  todayBusinessDate,
   staffMessage,
   handyTopCategories,
   visibleHandySubCategories,
@@ -213,6 +217,57 @@ export function StaffPrepaidOrderView({
             {terminalName && (
               <span className="staff-badge" style={{ background: '#5d7281', fontSize: '0.75rem' }}>
                 {terminalName}
+              </span>
+            )}
+            {openBusinessDate ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span
+                  className="staff-badge"
+                  style={{
+                    background: '#2b8a3e',
+                    color: '#fff',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '2px 8px',
+                    borderRadius: '12px'
+                  }}
+                >
+                  <span style={{ opacity: 0.85 }}>営業日:</span> {openBusinessDate}
+                  <span style={{ background: '#237032', padding: '1px 5px', borderRadius: '8px', fontSize: '0.7rem', marginLeft: '2px' }}>営業中</span>
+                </span>
+                {todayBusinessDate && todayBusinessDate > openBusinessDate && (
+                  <span
+                    className="staff-badge"
+                    style={{
+                      background: '#e8590c',
+                      color: '#fff',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      padding: '2px 8px',
+                      borderRadius: '12px'
+                    }}
+                    title="営業日切替時刻を経過しています（前日営業を継続中）"
+                  >
+                    ⚠️ 切替時刻超過
+                  </span>
+                )}
+              </div>
+            ) : (
+              <span
+                className="staff-badge"
+                style={{
+                  background: '#868e96',
+                  color: '#fff',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  padding: '2px 8px',
+                  borderRadius: '12px'
+                }}
+              >
+                閉店中 {todayBusinessDate ? `(${todayBusinessDate})` : ''}
               </span>
             )}
           </div>

@@ -995,6 +995,8 @@ export default function App() {
             onClearDirectAction={() => setStaffDirectAction(null)}
             liveLines={liveLines}
             paymentTimingMode={liveStore?.payment_timing_mode ?? 'POSTPAID'}
+            openBusinessDate={liveStore?.open_business_date ?? null}
+            todayBusinessDate={liveStore?.today_business_date}
             receptionNumberPrintMode={liveStore?.reception_number_print_mode ?? 'DISABLED'}
             onCreatePrepaidOrder={(tableRefId, menuBookId, customerCount, items) =>
               createPrepaidOrder(tableRefId, menuBookId, customerCount, items)

@@ -254,36 +254,71 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
           <h3 className="admin-card-title">営業状況</h3>
           
           {report ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div>
-                <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>現在の営業日</span>
-                <strong style={{ fontSize: '1.5rem', color: '#212529' }}>{report.business_date || '未設定'}</strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                <div>
+                  <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>現在の営業日</span>
+                  <strong style={{ fontSize: '1.5rem', color: '#212529' }}>{report.business_date || '未設定'}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>ステータス</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ 
+                      display: 'inline-block', 
+                      padding: '4px 12px', 
+                      borderRadius: '100px', 
+                      background: report.is_open ? '#ebfbee' : '#f8f9fa', 
+                      color: report.is_open ? '#2b8a3e' : '#495057',
+                      fontWeight: 'bold'
+                    }}>
+                      {report.is_open ? '営業中' : '閉店'}
+                    </span>
+                    {report.is_open && report.today_business_date && report.today_business_date > report.business_date && (
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 10px',
+                        borderRadius: '100px',
+                        background: '#fff3bf',
+                        color: '#d9480f',
+                        fontSize: '0.85rem',
+                        fontWeight: 'bold'
+                      }}>
+                        ⚠️ 切替時刻超過（前日継続中）
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div style={{ flex: 1 }} />
+                <div>
+                  {report.is_open ? (
+                    <button className="primary-button" style={{ background: '#fa5252' }} disabled={disabled || loading} onClick={handleClose}>
+                      締め処理（閉店）を行う
+                    </button>
+                  ) : (
+                    <button className="primary-button" style={{ background: '#51cf66' }} disabled={disabled || loading} onClick={handleOpen}>
+                      新しい営業日を開店する
+                    </button>
+                  )}
+                </div>
               </div>
-              <div>
-                <span style={{ fontSize: '0.9rem', color: '#868e96', display: 'block', marginBottom: '4px' }}>ステータス</span>
-                <span style={{ 
-                  display: 'inline-block', 
-                  padding: '4px 12px', 
-                  borderRadius: '100px', 
-                  background: report.is_open ? '#ebfbee' : '#f8f9fa', 
-                  color: report.is_open ? '#2b8a3e' : '#495057',
-                  fontWeight: 'bold'
+
+              {report.is_open && report.today_business_date && report.today_business_date > report.business_date && (
+                <div style={{
+                  padding: '12px 16px',
+                  background: '#fff9db',
+                  border: '1px solid #ffe066',
+                  borderRadius: '8px',
+                  color: '#d9480f',
+                  fontSize: '0.88rem',
+                  lineHeight: '1.5'
                 }}>
-                  {report.is_open ? '営業中' : '閉店'}
-                </span>
-              </div>
-              <div style={{ flex: 1 }} />
-              <div>
-                {report.is_open ? (
-                  <button className="primary-button" style={{ background: '#fa5252' }} disabled={disabled || loading} onClick={handleClose}>
-                    締め処理（閉店）を行う
-                  </button>
-                ) : (
-                  <button className="primary-button" style={{ background: '#51cf66' }} disabled={disabled || loading} onClick={handleOpen}>
-                    新しい営業日を開店する
-                  </button>
-                )}
-              </div>
+                  <strong>※ 営業日切替時刻を経過しています</strong>
+                  <div style={{ marginTop: '4px', color: '#495057' }}>
+                    当日の営業日付は「<strong>{report.today_business_date}</strong>」に達していますが、前日の営業日（<strong>{report.business_date}</strong>）として伝票発行・注文・会計を継続できます。
+                    全卓の退店・精算が完了した後に「<strong>締め処理（閉店）を行う</strong>」を実行してください。
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div style={{ color: '#868e96' }}>レポートがありません。開店してください。</div>
