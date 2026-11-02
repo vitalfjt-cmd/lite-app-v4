@@ -142,6 +142,16 @@ export function StaffPrepaidOrderView({
 
   const handleCheckoutClick = async () => {
     if (cart.length === 0) return
+    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
+      const confirmed = window.confirm(
+        `【営業日切替時刻を超過しています】\n\n` +
+        `現在の営業日: ${openBusinessDate}\n` +
+        `システム日付: ${todayBusinessDate}\n\n` +
+        `前日の営業日（${openBusinessDate}）のまま注文・会計を進行しますか？\n` +
+        `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
+      )
+      if (!confirmed) return
+    }
     try {
       await onProceedToPayment(cart)
       setCart([])

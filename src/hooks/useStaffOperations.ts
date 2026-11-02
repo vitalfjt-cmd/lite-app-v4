@@ -402,14 +402,18 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
 
       setLiveTickets((current) => [newTicket, ...current])
       setLiveLines((current) => [...current, ...newLines])
-      setSelectedTicketId(created.ticket.id)
+
+      const calculatedSubtotal = newLines.reduce((s, l) => s + l.line_subtotal, 0)
+      const effectiveSubtotal = (added.ticket.reference_subtotal && added.ticket.reference_subtotal > 0)
+        ? added.ticket.reference_subtotal
+        : calculatedSubtotal
 
       const result: PrepaidOrderCreationResult = {
         ticketId: created.ticket.id,
         ticketNo: created.ticket.ticket_no,
         tableLabel: created.table.label,
         orderedAt: created.ticket.ordered_at,
-        subtotal: added.ticket.reference_subtotal ?? newLines.reduce((s, l) => s + l.line_subtotal, 0),
+        subtotal: effectiveSubtotal,
         lineCount: newLines.reduce((s, l) => s + l.quantity, 0),
         customerUrl: created.ticket.customer_access_token ?? null,
         customerCount: created.ticket.customer_count ?? null,

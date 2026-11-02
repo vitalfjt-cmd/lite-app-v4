@@ -388,6 +388,10 @@ export function StaffScreen({
   }, [visibleHandySubCategories])
 
   useEffect(() => {
+    // If we are currently in prepaid payment view, don't reset payment / close modal
+    if (isPrepaid && prepaidSubView === 'payment') {
+      return
+    }
     // Reset payment / handy session when opened/closed or changed ticket
     setPayments([])
     setCurrentPaymentInput('')
@@ -405,11 +409,21 @@ export function StaffScreen({
     setHandyCart([])
     setShowQrModal(false)
     if (selectedTicketId) setMobileView('detail')
-  }, [selectedTicketId])
+  }, [selectedTicketId, isPrepaid, prepaidSubView])
 
 
   /* Create Ticket Handlers */
   function openCreateTicketModal() {
+    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
+      const confirmed = window.confirm(
+        `【営業日切替時刻を超過しています】\n\n` +
+        `現在の営業日: ${openBusinessDate}\n` +
+        `システム日付: ${todayBusinessDate}\n\n` +
+        `前日の営業日（${openBusinessDate}）のまま伝票を発行しますか？\n` +
+        `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
+      )
+      if (!confirmed) return
+    }
     if (!newTicketTableId && availableTables.length > 0) setNewTicketTableId(availableTables[0].id)
     if ((!newTicketMenuBookId || !liveMenuBooks.some((b) => b.id === newTicketMenuBookId)) && liveMenuBooks.length > 0) {
       const activeBook = liveMenuBooks.find((b) => b.is_active) ?? liveMenuBooks[0]
@@ -888,8 +902,12 @@ export function StaffScreen({
     )
   }
 
-    const currentSummary = combinedSummary || prepaidActiveSummary;
-    const currentLines = combinedLines.length > 0 ? combinedLines : prepaidActiveLines;
+    const currentSummary = (isPrepaid && prepaidSubView === 'payment' && prepaidActiveSummary)
+      ? prepaidActiveSummary
+      : (combinedSummary || prepaidActiveSummary);
+    const currentLines = (isPrepaid && prepaidSubView === 'payment' && prepaidActiveLines.length > 0)
+      ? prepaidActiveLines
+      : (combinedLines.length > 0 ? combinedLines : prepaidActiveLines);
 
     const displaySummary = paymentFinalized && finalizedSummary ? finalizedSummary : currentSummary;
     const displayLines = paymentFinalized && finalizedLines.length > 0 ? finalizedLines : currentLines;
@@ -1100,9 +1118,9 @@ export function StaffScreen({
               menuBookId: result.menuBookId,
             })
             setPrepaidActiveLines(result.lines)
-            onSelectTicket(result.ticketId)
-            setShowPaymentModal(true)
             setPrepaidSubView('payment')
+            setShowPaymentModal(true)
+            onSelectTicket(result.ticketId)
           }
         }}
       />

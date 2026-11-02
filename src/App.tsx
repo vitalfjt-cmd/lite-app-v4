@@ -1018,6 +1018,16 @@ export default function App() {
                 if (ticket) {
                   setSelectedTicketId(ticket.ticketId)
                 } else if (table) {
+                  if (liveStore?.today_business_date && liveStore?.open_business_date && liveStore.today_business_date > liveStore.open_business_date) {
+                    const confirmed = window.confirm(
+                      `【営業日切替時刻を超過しています】\n\n` +
+                      `現在の営業日: ${liveStore.open_business_date}\n` +
+                      `システム日付: ${liveStore.today_business_date}\n\n` +
+                      `前日の営業日（${liveStore.open_business_date}）のまま伝票を発行しますか？\n` +
+                      `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
+                    )
+                    if (!confirmed) return
+                  }
                   setHandyPendingTable({ id: table.id, label: table.label })
                   setHandyCustomerCount('1')
                   const defaultMenuBook = liveMenuBooks.find((b) => isTimeWithinWindow(b.available_from_time, b.available_to_time)) || liveMenuBooks[0]
