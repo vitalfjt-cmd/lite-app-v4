@@ -8667,3 +8667,111 @@ h1 {
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
+
+/* Logo Showcase Section for Yui-Order */
+.lp-logo-showcase-section {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 60px 20px;
+}
+
+.lp-logo-showcase-section .lp-section-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.logo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+@media (max-width: 992px) {
+  .logo-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .logo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.logo-card {
+  padding: 18px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.logo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.logo-card.selected {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
+}
+
+.selected-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.logo-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.logo-card-icon-wrap {
+  flex-shrink: 0;
+}
+
+.logo-card-titles h3 {
+  font-size: 0.88rem;
+  font-weight: 800;
+  margin: 0 0 2px;
+  color: #0f172a;
+}
+
+.logo-subtitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.logo-card-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.logo-select-btn {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}

@@ -333,7 +333,7 @@ export function OnboardingWizardModal({
                   type="text"
                   value={storeName}
                   onChange={(e) => setStoreName(e.target.value)}
-                  placeholder="例: BBQ HOUSE Pachira 渋谷店"
+                  placeholder="例: BBQ HOUSE 結 渋谷店"
                   style={{
                     width: '100%',
                     padding: '12px 14px',

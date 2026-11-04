@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { BrandLogo } from '../components/brand/BrandLogo'
+import { LogoShowcaseSection } from '../components/brand/LogoShowcaseSection'
 
 type Props = {
   onStartTrial: () => void
@@ -14,6 +16,7 @@ export function LandingPageScreen({
   onDemoStaff,
 }: Props) {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const [activeLogoId, setActiveLogoId] = useState<string>('forest-orange')
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index)
@@ -22,15 +25,15 @@ export function LandingPageScreen({
   const faqs = [
     {
       q: '現在使っているレジ（紙伝票やガチャレジ、POSレジ）とどうやって併用しますか？',
-      a: 'Lite Orderは既存のレジを置き換えることなく並走してご利用いただけます。お客様のスマホや卓上タブレットで注文を受け、画面に自動集計される「参考小計」や「注文明細」を確認しながら、現在お使いのレジへ手動で金額を入力してお会計いただきます。高額なレジ買い替えや連携開発費用は一切不要です。',
+      a: 'Yui-Orderは既存のレジを置き換えることなく並走してご利用いただけます。お客様のスマホや卓上タブレットで注文を受け、画面に自動集計される「参考小計」や「注文明細」を確認しながら、現在お使いのレジへ手動で金額を入力してお会計いただきます。高額なレジ買い替えや連携開発費用は一切不要です。',
     },
     {
       q: '当システム単体で会計やプリンター印刷（レシート・キッチンプリンター）まで完結させることはできますか？',
-      a: '可能です！Lite OrderにはPOSレジ画面・テンキー決済・領収書発行機能に加え、厨房へのキッチンプリンター自動出力機能も備わっています。これらを活用して本格運用を行う場合は、以下の機器とネットワーク環境をご用意いただく必要があります：\n\n【必要な機材】\n① 会計用端末（PCまたはタブレット）\n② レシートプリンター（ネットワーク対応ESC/POSプリンター）\n③ キャッシュドロワー（プリンター連動型、または手動プッシュ式）\n④ キッチンプリンター（厨房で紙伝票を出力したい場合／ESC/POS規格）\n\n【ネットワーク・IP設定上の前提条件】\n・レシートやキッチンプリンターへの印刷指示を行うため、店内のアクセスポイント（AP）やルーター、PC等において、各プリンターへのローカル固定IPアドレス設定が必要です。\n・本システムは一般的なIPv4ローカルネットワーク環境を前提として設計されており、IPoE（IPv6等）環境のみを前提とした設計にはなっておりません。ネットワーク機器の設定環境をご確認ください。',
+      a: '可能です！Yui-OrderにはPOSレジ画面・テンキー決済・領収書発行機能に加え、厨房へのキッチンプリンター自動出力機能も備わっています。これらを活用して本格運用を行う場合は、以下の機器とネットワーク環境をご用意いただく必要があります：\n\n【必要な機材】\n① 会計用端末（PCまたはタブレット）\n② レシートプリンター（ネットワーク対応ESC/POSプリンター）\n③ キャッシュドロワー（プリンター連動型、または手動プッシュ式）\n④ キッチンプリンター（厨房で紙伝票を出力したい場合／ESC/POS規格）\n\n【ネットワーク・IP設定上の前提条件】\n・レシートやキッチンプリンターへの印刷指示を行うため、店内のアクセスポイント（AP）やルーター、PC等において、各プリンターへのローカル固定IPアドレス設定が必要です。\n・本システムは一般的なIPv4ローカルネットワーク環境を前提として設計されており、IPoE（IPv6等）環境のみを前提とした設計にはなっておりません。ネットワーク機器の設定環境をご確認ください。',
     },
     {
       q: '既存のPOSレジやキャッシュドロアとシステム連携（自動データ同期）はできますか？',
-      a: 'いいえ、外部のPOSレジやキャッシュドロアとのシステム的なデータ自動連携（API連動）は行いません。あえて高額なレジ連携システムを省くことで「月額2,980円・初期費用0円」の低価格を実現しています。注文受付と厨房伝達はLite Orderで行い、最終的な会計打ち込みは手元のレジで行う「シンプルな併用運用」となります。',
+      a: 'いいえ、外部のPOSレジやキャッシュドロアとのシステム的なデータ自動連携（API連動）は行いません。あえて高額なレジ連携システムを省くことで「月額2,980円・初期費用0円」の低価格を実現しています。注文受付と厨房伝達はYui-Orderで行い、最終的な会計打ち込みは手元のレジで行う「シンプルな併用運用」となります。',
     },
     {
       q: '高額な専用タブレットやプリンターを購入する必要がありますか？',
@@ -59,13 +62,12 @@ export function LandingPageScreen({
       {/* ナビゲーションバー */}
       <header className="lp-nav">
         <div className="lp-nav-inner">
-          <div className="lp-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-            <span className="lp-logo-icon">⚡</span>
-            <span className="lp-logo-text">Lite Order</span>
-            <span className="lp-logo-badge">SaaS</span>
+          <div className="lp-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} style={{ cursor: 'pointer' }}>
+            <BrandLogo logoId={activeLogoId} showBadge={true} badgeText="SaaS" theme="dark" />
           </div>
 
           <nav className="lp-nav-links">
+            <a href="#logo-variations">🎨 ロゴ候補</a>
             <a href="#features">機能</a>
             <a href="#why-us">選ばれる理由</a>
             <a href="#steps">導入の流れ</a>
@@ -217,6 +219,9 @@ export function LandingPageScreen({
         </div>
       </section>
 
+      {/* ロゴ＆アプリアイコン候補（モック検討案） */}
+      <LogoShowcaseSection activeLogoId={activeLogoId} onSelectLogo={setActiveLogoId} />
+
       {/* こんなお悩みありませんか？ */}
       <section className="lp-pain-points">
         <div className="lp-section-inner">
@@ -251,7 +256,7 @@ export function LandingPageScreen({
 
           <div className="lp-solution-banner">
             <span className="lp-solution-arrow">⬇️</span>
-            <h3>すべて「Lite Order」が解決します！</h3>
+            <h3>すべて「Yui-Order」が解決します！</h3>
             <p>
               既存レジ・会計運用は<strong>今のままで100%OK</strong>。
               <br />
@@ -266,7 +271,7 @@ export function LandingPageScreen({
         <div className="lp-section-inner">
           <div className="lp-section-header">
             <span className="lp-section-eyebrow">WHY CHOOSE US</span>
-            <h2 className="lp-section-title">Lite Orderが小規模店舗に選ばれる3つの理由</h2>
+            <h2 className="lp-section-title">Yui-Orderが小規模店舗に選ばれる3つの理由</h2>
           </div>
 
           <div className="lp-features-stacked">
@@ -283,7 +288,7 @@ export function LandingPageScreen({
                   <li>画面に表示される参考小計と明細を見ながら、手元のレジを打つだけでスムーズにお会計完了</li>
                 </ul>
                 <div style={{ marginTop: '14px', fontSize: '0.82rem', color: '#94a3b8', lineHeight: '1.5' }}>
-                  ※POSレジやキャッシュドロアとのシステムデータ自動連携（API連動）は行いません。Lite Orderが集計した小計金額を見ながらレジ打ちしていただくシンプルな並走運用です。
+                  ※POSレジやキャッシュドロアとのシステムデータ自動連携（API連動）は行いません。Yui-Orderが集計した小計金額を見ながらレジ打ちしていただくシンプルな並走運用です。
                 </div>
               </div>
               <div className="lp-feature-card-visual">
@@ -483,7 +488,7 @@ export function LandingPageScreen({
               <thead>
                 <tr>
                   <th>比較項目</th>
-                  <th className="highlight-col">Lite Order</th>
+                  <th className="highlight-col">Yui-Order</th>
                   <th>大手POSメーカー</th>
                   <th>大手モバイルオーダー</th>
                 </tr>
@@ -528,7 +533,7 @@ export function LandingPageScreen({
               </tbody>
             </table>
             <p style={{ marginTop: '12px', fontSize: '0.82rem', color: '#94a3b8', textAlign: 'center', lineHeight: '1.6' }}>
-              ※Lite Orderは外部POSレジやキャッシュドロアとのシステム的なデータ連携（API連動）は行いません。伝票の参考小計や注文明細を確認しながら、現在お使いのレジへ手動入力してお会計いただく運用となります。
+              ※Yui-Orderは外部POSレジやキャッシュドロアとのシステム的なデータ連携（API連動）は行いません。伝票の参考小計や注文明細を確認しながら、現在お使いのレジへ手動入力してお会計いただく運用となります。
             </p>
           </div>
 
@@ -538,7 +543,7 @@ export function LandingPageScreen({
               <span className="lp-full-pos-icon">💡</span>
               <div>
                 <h4>当システムで「レジ会計・プリンター印刷（レシート／厨房伝票）」まで完結したい場合は？</h4>
-                <p>Lite Orderにはスタッフ用の会計画面・レシート再発行・売上日次締めに加え、<strong>厨房へのキッチンプリンター自動印刷機能</strong>も標準搭載されています。既存レジとの併用ではなく、<strong>当システム単体で会計や厨房伝票印刷まで一本化（本格運用）したい場合</strong>は、以下の機材とネットワーク環境をご準備いただくことで運用可能です。</p>
+                <p>Yui-Orderにはスタッフ用の会計画面・レシート再発行・売上日次締めに加え、<strong>厨房へのキッチンプリンター自動印刷機能</strong>も標準搭載されています。既存レジとの併用ではなく、<strong>当システム単体で会計や厨房伝票印刷まで一本化（本格運用）したい場合</strong>は、以下の機材とネットワーク環境をご準備いただくことで運用可能です。</p>
               </div>
             </div>
 
@@ -624,10 +629,9 @@ export function LandingPageScreen({
         <div className="lp-footer-inner">
           <div className="lp-footer-brand">
             <div className="lp-logo">
-              <span className="lp-logo-icon">⚡</span>
-              <span className="lp-logo-text">Lite Order</span>
+              <BrandLogo logoId={activeLogoId} theme="dark" />
             </div>
-            <p>小規模店舗のための、最も始めやすい月額制モバイルオーダーSaaS</p>
+            <p>小規模店舗のための、最も始めやすい月額制モバイルオーダー＆POS SaaS</p>
           </div>
 
           <div className="lp-footer-links">
@@ -638,7 +642,7 @@ export function LandingPageScreen({
           </div>
         </div>
         <div className="lp-footer-copy">
-          © {new Date().getFullYear()} Lite Order. All rights reserved.
+          © {new Date().getFullYear()} Yui-Order. All rights reserved.
         </div>
       </footer>
     </div>
