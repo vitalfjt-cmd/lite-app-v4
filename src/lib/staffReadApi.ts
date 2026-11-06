@@ -1109,6 +1109,7 @@ export function fetchStaffTicketDetail(
       status: 'OPEN' | 'CANCELLED' | 'CLOSED' | 'VOIDED'
       customer_access_token: string
       customer_count?: number | null
+      ticket_business_date?: string | null
       receipt_no?: string | null
       table: { id: string; label: string }
       reference_subtotal: number
@@ -1464,11 +1465,16 @@ export function getStaffHourlySalesHistory(storeSlug: string, startDate: string,
 export function getStaffAccountingTransactions(storeSlug: string, startDate: string, endDate: string) {
   return invoke<{
     transactions: {
+      ticket_id?: string
       business_date: string
       paid_at: string
       ordered_at: string
+      ticket_no?: string
       receipt_no: string
+      customer_count?: number | null
+      table_label?: string | null
       payment_type: string
+      payment_type_label?: string | null
       amount: number
     }[]
   }>({
@@ -1544,6 +1550,8 @@ export function voidStaffTicket(
     amount?: number
     action: 'UPDATE' | 'DELETE' | 'ADD'
   }[] | null,
+  customerCount?: number | null,
+  businessDate?: string | null,
 ) {
   return invoke<{ ok: true; ticket_id: string }>({
     action: 'void-ticket',
@@ -1551,6 +1559,21 @@ export function voidStaffTicket(
     receiptNo,
     newPaymentType,
     paymentChanges,
+    customerCount,
+    businessDate,
+  })
+}
+
+export function updateStaffTicketCustomerCount(
+  storeSlug: string,
+  ticketId: string,
+  customerCount: number | null,
+) {
+  return invoke<{ ok: true }>({
+    action: 'update-ticket-customer-count',
+    storeSlug,
+    ticketId,
+    customerCount,
   })
 }
 

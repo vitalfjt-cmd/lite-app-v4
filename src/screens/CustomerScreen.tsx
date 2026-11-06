@@ -174,7 +174,7 @@ export function CustomerScreen({
           <button className="customer-header-btn" onClick={onBackToMenu}>{lang === 'en' ? 'Back' : '戻る'}</button>
         </header>
         
-        {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center'}}>{customerMessage}</p> : null}
+        {customerMessage ? <p style={{background:'var(--yui-status-danger, #dc2626)', color:'white', padding:'8px', textAlign:'center'}}>{customerMessage}</p> : null}
         {renderTimeLimitBanner()}
 
         <main className="menu-grid" style={{paddingTop: '24px'}}>
@@ -191,7 +191,7 @@ export function CustomerScreen({
                         {item.toppings.map((t) => `＋ ${(lang === 'en' && t.name_en) ? t.name_en : t.name}`).join(' ')}
                       </div>
                     )}
-                    <span style={{color:'#ff5a5f', fontWeight:'bold', fontSize:'1.1rem'}}>{yen(item.price)}</span>
+                    <span style={{color:'var(--yui-orange, #ea580c)', fontWeight:'bold', fontSize:'1.1rem'}}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{width: '120px', margin:0}}>
                     <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onDecrementItem(item.cartKey)}>-</button>
@@ -204,7 +204,7 @@ export function CustomerScreen({
 
             <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>
               <span>小計</span>
-              <span style={{color:'#ff5a5f'}}>{yen(cartSubtotal)}</span>
+              <span style={{color:'var(--yui-orange, #ea580c)'}}>{yen(cartSubtotal)}</span>
             </div>
           </div>
         </main>
@@ -225,7 +225,8 @@ export function CustomerScreen({
       <div className="customer-app notranslate" translate="no">
         <header className="customer-header">
           <div className="header-meta">
-            <span className="table-badge">{ticketReceipt ? `伝票: ${ticketReceipt.ticketNo}` : '注文履歴'}</span>
+            <h1 style={{ color: '#ffffff', margin: 0, fontSize: '1.15rem' }}>注文履歴</h1>
+            <span className="table-badge">{ticketReceipt ? `伝票: ${ticketReceipt.ticketNo}` : '履歴'}</span>
           </div>
           <button className="customer-header-btn" onClick={onBackToMenu}>戻る</button>
         </header>
@@ -253,7 +254,7 @@ export function CustomerScreen({
 
                 <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.5rem', fontWeight:'bold', color:'#333'}}>
                   <span>合計</span>
-                  <span style={{color:'#ff5a5f'}}>{yen(ticketReceipt.subtotal)}</span>
+                  <span style={{color:'var(--yui-orange, #ea580c)'}}>{yen(ticketReceipt.subtotal)}</span>
                 </div>
               </>
             ) : customerBusy ? (
@@ -265,7 +266,7 @@ export function CustomerScreen({
         </main>
         
         <div className={`floating-cart-container visible`}>
-          <button className="floating-cart-btn" onClick={onRefreshTicket} disabled={customerBusy} style={{background: '#4dabf7'}}>
+          <button className="floating-cart-btn" onClick={onRefreshTicket} disabled={customerBusy} style={{background: 'var(--yui-green, #15803d)'}}>
             <div className="cart-meta" style={{alignItems:'center'}}>
               <span className="cart-action-text" style={{fontSize:'1.3rem'}}>{customerBusy ? '更新中...' : '最新状態に更新'}</span>
             </div>
@@ -281,18 +282,21 @@ export function CustomerScreen({
       <div style={{ position: 'sticky', top: 0, zIndex: 20 }}>
         <header className="customer-header">
           <div className="header-meta">
+            <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>{activeStoreName || 'Yui-Order'}</span>
             <span className="table-badge">{lang === 'en' ? 'Table' : '卓番'}: {activeTableName}</span>
             {hasEnglishNames && (
               <button
                 onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
                 style={{
-                  padding: '4px 8px',
+                  padding: '4px 10px',
                   fontSize: '0.85rem',
-                  background: '#f0f3f5',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '6px',
+                  color: '#ffffff',
                   cursor: 'pointer',
                   marginLeft: '8px',
+                  fontWeight: 600,
                 }}
               >
                 {lang === 'ja' ? 'English' : '日本語'}
@@ -306,7 +310,7 @@ export function CustomerScreen({
           )}
         </header>
         
-        {customerMessage ? <p style={{background:'#ff5a5f', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
+        {customerMessage ? <p style={{background:'var(--yui-status-danger, #dc2626)', color:'white', padding:'8px', textAlign:'center', margin:0}}>{customerMessage}</p> : null}
         {renderTimeLimitBanner()}
         {isBookOutOfTime && (
           <p style={{background:'#e03131', color:'white', padding:'8px', textAlign:'center', margin:0, fontWeight:'bold'}}>

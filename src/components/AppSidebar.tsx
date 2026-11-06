@@ -90,51 +90,51 @@ export function AppSidebar({
   }, [showStatusPanel])
 
   const getBtnStyle = (isActive: boolean, activeColor: string) => ({
-    padding: '8px 20px',
-    background: isActive ? activeColor : '#2c2c2c',
-    color: '#fff',
-    border: 'none',
+    padding: '8px 18px',
+    background: isActive ? activeColor : 'rgba(255, 255, 255, 0.08)',
+    color: isActive ? '#ffffff' : '#cbd5e1',
+    border: isActive ? `1px solid ${activeColor}` : '1px solid rgba(255, 255, 255, 0.12)',
     borderRadius: '20px',
     cursor: 'pointer',
     fontWeight: 'bold',
-    fontSize: '0.95rem',
-    transition: 'all 0.2s',
-    boxShadow: isActive ? `0 2px 8px ${activeColor}40` : 'none',
+    fontSize: '0.9rem',
+    transition: 'all 0.2s ease',
+    boxShadow: isActive ? `0 2px 10px ${activeColor}55` : 'none',
     whiteSpace: 'nowrap' as const,
   })
 
   return (
     <header className={`topbar ${(view === 'customer' || view === 'cust-tablet') ? 'hidden-on-customer' : ''}`}>
       <div className="topbar-header" style={{ 
-        background: '#1a1a1a', 
-        padding: '12px 24px', 
+        background: '#0f172a', 
+        padding: '10px 20px', 
         display: 'flex', 
         alignItems: 'center',
-        gap: '12px',
-        borderBottom: '1px solid #333',
+        gap: '10px',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
         borderRadius: 0,
         boxShadow: 'none',
         flexWrap: 'wrap',
       }}>
-        <button style={getBtnStyle(view === 'customer' || view === 'customer-qr', '#ff5a5f')} onClick={() => onMove('customer')}>
+        <button style={getBtnStyle(view === 'customer' || view === 'customer-qr', '#ea580c')} onClick={() => onMove('customer')}>
           📱 Cust(Mobile)
         </button>
-        <button style={getBtnStyle(view === 'cust-tablet' || view === 'cust-tablet-qr', '#ff5a5f')} onClick={() => onMove('cust-tablet')}>
+        <button style={getBtnStyle(view === 'cust-tablet' || view === 'cust-tablet-qr', '#ea580c')} onClick={() => onMove('cust-tablet')}>
           📱 Cust(Tablet)
         </button>
-        <button style={getBtnStyle(view === 'staff', '#4dabf7')} onClick={() => onMove('staff')}>
+        <button style={getBtnStyle(view === 'staff', '#15803d')} onClick={() => onMove('staff')}>
           {paymentTimingMode === 'PREPAID' ? '🖥️ レジ (先払い)' : '🖥️ 伝票一覧'}
         </button>
-        <button style={getBtnStyle(false, '#cc5de8')} onClick={() => onDirectAction?.('HANDY')}>
+        <button style={getBtnStyle(false, '#15803d')} onClick={() => onDirectAction?.('HANDY')}>
           📝 Handy
         </button>
-        <button style={getBtnStyle(view === 'kds', '#1b813e')} onClick={() => onMove('kds')}>
+        <button style={getBtnStyle(view === 'kds', '#15803d')} onClick={() => onMove('kds')}>
           🔥 KDS
         </button>
-        <button style={getBtnStyle(false, '#51cf66')} onClick={() => onDirectAction?.('PAYMENT')}>
+        <button style={getBtnStyle(false, '#15803d')} onClick={() => onDirectAction?.('PAYMENT')}>
           💳 Payment
         </button>
-        <button style={getBtnStyle(view === 'admin', '#adb5bd')} onClick={() => onMove('admin')}>
+        <button style={getBtnStyle(view === 'admin', '#15803d')} onClick={() => onMove('admin')}>
           ⚙️ Admin
         </button>
 

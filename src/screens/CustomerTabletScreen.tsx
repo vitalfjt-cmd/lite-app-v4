@@ -340,7 +340,7 @@ export function CustomerTabletScreen({
                   style={{
                     padding: '0 24px',
                     borderRadius: '12px',
-                    background: '#4dabf7',
+                    background: 'var(--yui-green, #15803d)',
                     color: 'white',
                     border: 'none',
                     fontSize: '1rem',
@@ -430,7 +430,7 @@ export function CustomerTabletScreen({
                   flex: 2,
                   padding: '16px',
                   borderRadius: '12px',
-                  background: 'var(--tab-primary, #ff6b00)',
+                  background: 'var(--yui-orange, #ea580c)',
                   color: 'white',
                   border: 'none',
                   fontSize: '1.1rem',
@@ -483,18 +483,20 @@ export function CustomerTabletScreen({
   if (customerStep === 'confirm') {
     return (
       <div className="customer-tablet-app notranslate" translate="no">
-        <header className="tablet-header" style={{ padding: '24px 32px', borderBottom: '1px solid #eee' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <h1 style={{ margin: 0, fontSize: '2rem' }}>注文内容の確認</h1>
+        <header className="tablet-header" style={{ background: '#1a1a1a', borderBottom: '1px solid #2d2d2d', padding: 0 }}>
+          <div className="tablet-top-bar" style={{ padding: '16px 64px' }}>
+            <h1 style={{ margin: 0, fontSize: '1.6rem', color: '#ffffff', fontWeight: 700 }}>注文内容の確認</h1>
             <button
               onClick={onBackToMenu}
               style={{
-                padding: '12px 24px',
-                fontSize: '1.2rem',
-                background: '#f0f3f5',
-                border: 'none',
+                padding: '10px 20px',
+                fontSize: '1rem',
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
                 borderRadius: '8px',
+                color: '#ffffff',
                 cursor: 'pointer',
+                fontWeight: 600,
               }}
             >
               ← メニューへ戻る
@@ -525,7 +527,7 @@ export function CustomerTabletScreen({
                         {item.toppings.map((t) => `＋ ${(lang === 'en' && t.name_en) ? t.name_en : t.name}`).join(' ')}
                       </div>
                     )}
-                    <span style={{ color: 'var(--tab-primary, #ff6b00)', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
+                    <span style={{ color: 'var(--yui-orange, #ea580c)', fontWeight: 'bold', fontSize: '1.3rem' }}>{yen(item.price)}</span>
                   </div>
                   <div className="stepper active" style={{ width: '150px', margin: 0, display: 'flex', gap: '8px', alignItems: 'center' }}>
                     <button disabled={!customerOrderingEnabled || isBookOutOfTime} onClick={() => onDecrementItem(item.cartKey)} style={{ width: '40px', height: '40px', fontSize: '1.5rem', borderRadius: '50%', border: '1px solid #ccc', background: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>-</button>
@@ -538,7 +540,7 @@ export function CustomerTabletScreen({
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingTop: '16px', borderTop: '2px solid #eee', fontSize: '2rem', fontWeight: 'bold', color: '#333' }}>
               <span>小計</span>
-              <span style={{ color: 'var(--tab-primary, #ff6b00)' }}>{yen(cartSubtotal)}</span>
+              <span style={{ color: 'var(--yui-orange, #ea580c)' }}>{yen(cartSubtotal)}</span>
             </div>
           </div>
         </main>
@@ -556,8 +558,8 @@ export function CustomerTabletScreen({
             <button
               className="tablet-submit-btn glowing"
               style={{
-                background: '#4dabf7',
-                boxShadow: '0 4px 15px rgba(77,171,247,0.4)',
+                background: 'var(--yui-green, #15803d)',
+                boxShadow: '0 4px 15px rgba(21,128,61,0.3)',
                 cursor: 'pointer',
               }}
               onClick={() => {
@@ -589,19 +591,21 @@ export function CustomerTabletScreen({
       {/* Header with 2-tier category nav */}
       <header className="tablet-header" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 0, padding: 0 }}>
         {/* Top row: store name + table badge */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 64px', borderBottom: '1px solid #eee' }}>
-          <div className="tablet-meta" style={{ marginBottom: 0 }}>
+        <div className="tablet-top-bar">
+          <div className="tablet-meta" style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <span className="tablet-store-name">{activeStoreName || 'Yui-Order'}</span>
             {hasEnglishNames && (
               <button
                 onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
                 style={{
-                  padding: '8px 16px',
-                  fontSize: '1rem',
-                  background: '#f0f3f5',
-                  border: '1px solid #ccc',
+                  padding: '6px 14px',
+                  fontSize: '0.9rem',
+                  background: 'rgba(255, 255, 255, 0.15)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
                   borderRadius: '6px',
+                  color: '#ffffff',
                   cursor: 'pointer',
-                  marginLeft: '16px',
+                  fontWeight: 600,
                 }}
               >
                 {lang === 'ja' ? 'English' : '日本語'}
@@ -610,7 +614,7 @@ export function CustomerTabletScreen({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {activeTicketNo && (
-              <span style={{ background: '#555', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '0.9rem' }}>
+              <span className="tablet-ticket-badge">
                 伝票 #{activeTicketNo}
               </span>
             )}
@@ -625,7 +629,7 @@ export function CustomerTabletScreen({
               <button 
                 onClick={() => setShowQrModal(true)}
                 style={{
-                  background: '#4dabf7',
+                  background: 'var(--yui-green, #15803d)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '50%',
@@ -659,7 +663,7 @@ export function CustomerTabletScreen({
 
         {/* Tier 1: Top categories */}
         {customerTopCategories.length > 0 && (
-          <div className="tablet-categories" style={{ padding: '14px 64px 0', borderBottom: customerSubCategories.length > 0 ? 'none' : '1px solid #eee' }}>
+          <div className="tablet-categories" style={{ padding: '14px 64px 8px', borderBottom: customerSubCategories.length > 0 ? 'none' : '1px solid var(--yui-border)', background: '#ffffff', gap: '10px' }}>
             {customerTopCategories.map((cat) => (
               <button
                 key={cat.id}
@@ -679,7 +683,8 @@ export function CustomerTabletScreen({
             className="tablet-categories"
             style={{
               padding: '8px 64px 14px',
-              borderBottom: '1px solid #eee',
+              borderBottom: '1px solid var(--yui-border)',
+              background: '#ffffff',
               gap: '10px',
             }}
           >
@@ -691,10 +696,10 @@ export function CustomerTabletScreen({
                 data-testid={`customer-sub-category-${cat.id}`}
                 style={{
                   fontSize: '1.05rem',
-                  padding: '10px 22px',
-                  background: selectedCustomerCategoryId === cat.id ? 'var(--tab-primary, #ff6b00)' : '#f0f3f5',
-                  color: selectedCustomerCategoryId === cat.id ? 'white' : '#59656f',
-                  borderColor: 'transparent',
+                  padding: '8px 20px',
+                  background: selectedCustomerCategoryId === cat.id ? 'var(--yui-green, #15803d)' : '#ffffff',
+                  color: selectedCustomerCategoryId === cat.id ? 'white' : 'var(--yui-text-sub)',
+                  borderColor: selectedCustomerCategoryId === cat.id ? 'var(--yui-green, #15803d)' : 'var(--yui-border)',
                 }}
               >
                 {cat.name}
@@ -825,8 +830,8 @@ export function CustomerTabletScreen({
           <button
             className="tablet-submit-btn glowing"
             style={{
-              background: '#4dabf7',
-              boxShadow: '0 4px 15px rgba(77,171,247,0.4)',
+              background: 'var(--yui-green, #15803d)',
+              boxShadow: '0 4px 15px rgba(21,128,61,0.3)',
               cursor: 'pointer',
             }}
             onClick={() => {
@@ -937,7 +942,7 @@ export function CustomerTabletScreen({
                   {/* Summary */}
                   <div style={{display:'flex', justifyContent:'space-between', marginTop:'24px', paddingTop:'16px', borderTop:'2px solid #333', fontSize:'1.8rem', fontWeight:'bold', color:'#333'}}>
                     <span>合計金額</span>
-                    <span style={{color:'var(--tab-primary, #ff6b00)'}}>{yen(ticketReceipt.subtotal)}</span>
+                    <span style={{color:'var(--yui-orange, #ea580c)'}}>{yen(ticketReceipt.subtotal)}</span>
                   </div>
                 </>
               ) : customerBusy ? (
@@ -957,7 +962,7 @@ export function CustomerTabletScreen({
             <div style={{display:'flex', gap:'16px', marginTop:'24px', borderTop:'1px solid #eee', paddingTop:'20px'}}>
               <button 
                 className="tablet-submit-btn glowing" 
-                style={{flex: 1, padding:'16px', background:'#4dabf7', boxShadow:'0 4px 15px rgba(77,171,247,0.3)', cursor:'pointer'}}
+                style={{flex: 1, padding:'16px', background:'var(--yui-green, #15803d)', boxShadow:'0 4px 15px rgba(21,128,61,0.3)', cursor:'pointer'}}
                 onClick={() => onRefreshTicket?.()}
                 disabled={customerBusy}
               >

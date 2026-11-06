@@ -23,7 +23,10 @@ import {
   getActiveStoreSlug,
   printStaffPrototypeReceipt,
   printStaffPrototypeQr,
+  closeStaffBusinessDay,
+  openStaffBusinessDay,
 } from './lib/staffReadApi'
+import { BusinessDateRolloverModal } from './components/BusinessDateRolloverModal'
 import { kdsStatusLabel } from './lib/staffUtils'
 import { AdminScreen } from './screens/AdminScreen'
 import { CustomerScreen } from './screens/CustomerScreen'
@@ -248,8 +251,28 @@ export default function App() {
 
   const {
     changeLineQuantity, submitLineQuantityUpdate, cancelLine, advanceLineStatus,
-    createHandyOrder, createHandyOrders, createStaffTicket, createPrepaidOrder, updateTicketMenuBook, savePaymentEntry, settleTicket, logPaymentAbort
+    createHandyOrder, createHandyOrders, createStaffTicket, createPrepaidOrder, updateTicketMenuBook, updateTicketCustomerCount, savePaymentEntry, settleTicket, logPaymentAbort
   } = staffOps
+
+  const handleRolloverBusinessDay = async () => {
+    const storeSlug = liveStore?.slug || publicStoreSlug || (typeof window !== 'undefined' ? window.localStorage.getItem('last_active_store_slug') : '') || ''
+    if (!storeSlug) throw new Error('store_slug_missing')
+    await closeStaffBusinessDay(storeSlug)
+    await openStaffBusinessDay(storeSlug)
+    if (session) {
+      await loadLiveData(session, view, PROTOTYPE_STAFF_SESSION_STORAGE_KEY)
+    }
+  }
+
+  const [handyRolloverModalOpen, setHandyRolloverModalOpen] = useState(false)
+  const [pendingHandyTableTarget, setPendingHandyTableTarget] = useState<{ id: string; label: string } | null>(null)
+
+  const proceedHandyTableSelect = (targetTable: { id: string; label: string }) => {
+    setHandyPendingTable({ id: targetTable.id, label: targetTable.label })
+    setHandyCustomerCount('1')
+    const defaultMenuBook = liveMenuBooks.find((b) => isTimeWithinWindow(b.available_from_time, b.available_to_time)) || liveMenuBooks[0]
+    setHandyMenuBookId(defaultMenuBook?.id || '')
+  }
 
 
 
@@ -985,6 +1008,7 @@ export default function App() {
             onNewTicketMenuBookChange={setNewTicketMenuBookId}
             onCreateTicket={(tableRefId, menuBookId, customerCount) => createStaffTicket(tableRefId, menuBookId, customerCount)}
             onUpdateTicketMenuBook={(ticketId, menuBookId) => updateTicketMenuBook(ticketId, menuBookId)}
+            onUpdateTicketCustomerCount={(ticketId, count) => updateTicketCustomerCount(ticketId, count)}
             onOpenLauncher={() => setIsLauncherOpen(true)}
             onSavePaymentEntry={(payload) => savePaymentEntry(payload)}
             onCloseTicket={async (ticketId?: string) => { return await settleTicket(ticketId) }}
@@ -997,6 +1021,7 @@ export default function App() {
             paymentTimingMode={liveStore?.payment_timing_mode ?? 'POSTPAID'}
             openBusinessDate={liveStore?.open_business_date ?? null}
             todayBusinessDate={liveStore?.today_business_date}
+            onRolloverBusinessDay={handleRolloverBusinessDay}
             receptionNumberPrintMode={liveStore?.reception_number_print_mode ?? 'DISABLED'}
             onCreatePrepaidOrder={(tableRefId, menuBookId, customerCount, items) =>
               createPrepaidOrder(tableRefId, menuBookId, customerCount, items)
@@ -1019,23 +1044,31 @@ export default function App() {
                   setSelectedTicketId(ticket.ticketId)
                 } else if (table) {
                   if (liveStore?.today_business_date && liveStore?.open_business_date && liveStore.today_business_date > liveStore.open_business_date) {
-                    const confirmed = window.confirm(
-                      `【営業日切替時刻を超過しています】\n\n` +
-                      `現在の営業日: ${liveStore.open_business_date}\n` +
-                      `システム日付: ${liveStore.today_business_date}\n\n` +
-                      `前日の営業日（${liveStore.open_business_date}）のまま伝票を発行しますか？\n` +
-                      `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
-                    )
-                    if (!confirmed) return
+                    setPendingHandyTableTarget({ id: table.id, label: table.label })
+                    setHandyRolloverModalOpen(true)
+                    return
                   }
-                  setHandyPendingTable({ id: table.id, label: table.label })
-                  setHandyCustomerCount('1')
-                  const defaultMenuBook = liveMenuBooks.find((b) => isTimeWithinWindow(b.available_from_time, b.available_to_time)) || liveMenuBooks[0]
-                  setHandyMenuBookId(defaultMenuBook?.id || '')
+                  proceedHandyTableSelect({ id: table.id, label: table.label })
                 }
               }}
               onOpenLauncher={() => setIsLauncherOpen(true)}
               storeName={liveStore?.name ?? activeStore.name}
+            />
+
+            <BusinessDateRolloverModal
+              isOpen={handyRolloverModalOpen}
+              onClose={() => setHandyRolloverModalOpen(false)}
+              openBusinessDate={liveStore?.open_business_date}
+              todayBusinessDate={liveStore?.today_business_date}
+              onProceedWithPreviousDate={() => {
+                setHandyRolloverModalOpen(false)
+                if (pendingHandyTableTarget) proceedHandyTableSelect(pendingHandyTableTarget)
+              }}
+              onRolloverAndProceed={async () => {
+                await handleRolloverBusinessDay()
+                setHandyRolloverModalOpen(false)
+                if (pendingHandyTableTarget) proceedHandyTableSelect(pendingHandyTableTarget)
+              }}
             />
 
             {handyPendingTable && (

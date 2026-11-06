@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { openStaffBusinessDay, closeStaffBusinessDay, getStaffSalesReport, voidStaffTicket, fetchStaffTicketDetail } from '../../lib/staffReadApi'
+import {
+  openStaffBusinessDay,
+  closeStaffBusinessDay,
+  getStaffSalesReport,
+  voidStaffTicket,
+  fetchStaffTicketDetail,
+  getStaffAccountingTransactions,
+} from '../../lib/staffReadApi'
 
 type Props = {
   storeSlug: string
@@ -27,6 +34,27 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
   const [voidPaymentType, setVoidPaymentType] = useState<string>('')
   const [loadedTicket, setLoadedTicket] = useState<any>(null)
   const [receiptPaymentChanges, setReceiptPaymentChanges] = useState<any[]>([])
+  const [editCustomerCount, setEditCustomerCount] = useState<string>('')
+  const [editBusinessDate, setEditBusinessDate] = useState<string>('')
+
+  // Accounting history selection
+  const [accountingListDate, setAccountingListDate] = useState<string>('')
+  const [accountingList, setAccountingList] = useState<any[]>([])
+  const [loadingAccountingList, setLoadingAccountingList] = useState(false)
+  const [accountingFilterText, setAccountingFilterText] = useState('')
+
+  const fetchAccountingList = async (dateStr: string) => {
+    if (!storeSlug || !dateStr) return
+    setLoadingAccountingList(true)
+    try {
+      const res = await getStaffAccountingTransactions(storeSlug, dateStr, dateStr)
+      setAccountingList(res.transactions || [])
+    } catch {
+      // ignore
+    } finally {
+      setLoadingAccountingList(false)
+    }
+  }
 
   const fetchReport = async (date?: string) => {
     if (!storeSlug) return
@@ -34,7 +62,12 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     try {
       const res = await getStaffSalesReport(storeSlug, date)
       setReport(res.report)
-      setBusinessDateStr(res.report?.business_date || '')
+      const bDate = res.report?.business_date || ''
+      setBusinessDateStr(bDate)
+      if (bDate && !accountingListDate) {
+        setAccountingListDate(bDate)
+        void fetchAccountingList(bDate)
+      }
     } catch (err: any) {
       setError(err.message || String(err))
     } finally {
@@ -77,14 +110,17 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     }
   }
 
-  const handleSearchReceipt = async () => {
-    if (!voidReceiptNo) return
+  const handleLoadReceiptByNo = async (targetReceiptNo: string) => {
+    if (!targetReceiptNo) return
     setLoading(true)
     setError(null)
+    setVoidReceiptNo(targetReceiptNo)
     try {
-      const res = await fetchStaffTicketDetail(storeSlug, null, null, voidReceiptNo)
+      const res = await fetchStaffTicketDetail(storeSlug, null, null, targetReceiptNo)
       if (res.ticket) {
         setLoadedTicket(res.ticket)
+        setEditCustomerCount(res.ticket.customer_count != null ? String(res.ticket.customer_count) : '1')
+        setEditBusinessDate(res.ticket.ticket_business_date || '')
         const initialChanges = (res.ticket.payment_entries || []).map((entry: any) => ({
           id: entry.id,
           paymentType: entry.payment_type,
@@ -103,6 +139,10 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSearchReceipt = () => {
+    void handleLoadReceiptByNo(voidReceiptNo.trim())
   }
 
   const handleAddPayment = () => {
@@ -140,6 +180,27 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     return hasModified
   }
 
+  const origCustomerCount = loadedTicket?.customer_count != null ? String(loadedTicket.customer_count) : '1'
+  const isCustomerCountChanged = editCustomerCount !== '' && editCustomerCount !== origCustomerCount
+
+  const origBusinessDate = loadedTicket?.ticket_business_date || ''
+  const isBusinessDateChanged = editBusinessDate !== '' && editBusinessDate !== origBusinessDate
+
+  const hasAnyChanges = () => {
+    return hasPaymentChanges() || isCustomerCountChanged || isBusinessDateChanged
+  }
+
+  const filteredAccountingList = (accountingList || []).filter((tx) => {
+    if (!accountingFilterText.trim()) return true
+    const q = accountingFilterText.trim().toLowerCase()
+    const tableMatch = tx.table_label && tx.table_label.toLowerCase().includes(q)
+    const ticketMatch = tx.ticket_no && String(tx.ticket_no).toLowerCase().includes(q)
+    const receiptMatch = tx.receipt_no && tx.receipt_no.toLowerCase().includes(q)
+    const paymentMatch = (tx.payment_type_label || tx.payment_type || '').toLowerCase().includes(q)
+    const amountMatch = String(tx.amount).includes(q)
+    return Boolean(tableMatch || ticketMatch || receiptMatch || paymentMatch || amountMatch)
+  })
+
   const handleSavePaymentChanges = async () => {
     if (!voidReceiptNo || !loadedTicket) return
     
@@ -173,16 +234,37 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       }
     })
 
-    if (changedItems.length === 0) return
+    if (!hasAnyChanges()) return
 
-    if (!window.confirm(`レシート番号 ${voidReceiptNo} の決済明細を変更しますか？`)) return
+    const confirmParts = [`レシート番号 ${voidReceiptNo} の売上データを変更しますか？\n`]
+    if (isCustomerCountChanged) {
+      confirmParts.push(`・客数: ${origCustomerCount}名 → ${editCustomerCount}名`)
+    }
+    if (isBusinessDateChanged) {
+      confirmParts.push(`・営業日付: ${origBusinessDate || '未設定'} → ${editBusinessDate}`)
+    }
+    if (hasPaymentChanges()) {
+      confirmParts.push(`・決済明細の変更`)
+    }
+
+    if (!window.confirm(confirmParts.join('\n'))) return
     setLoading(true)
     try {
-      await voidStaffTicket(storeSlug, voidReceiptNo, null, changedItems)
-      setAdminMessage('決済明細の変更が完了しました')
+      await voidStaffTicket(
+        storeSlug,
+        voidReceiptNo,
+        null,
+        changedItems.length > 0 ? changedItems : null,
+        isCustomerCountChanged ? Number(editCustomerCount) : undefined,
+        isBusinessDateChanged ? editBusinessDate : undefined
+      )
+      setAdminMessage('売上データの変更が完了しました')
       setVoidReceiptNo('')
       setLoadedTicket(null)
+      setEditCustomerCount('')
+      setEditBusinessDate('')
       await fetchReport()
+      if (accountingListDate) void fetchAccountingList(accountingListDate)
     } catch (err: any) {
       setError(err.message || String(err))
       setLoading(false)
@@ -199,6 +281,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       setVoidReceiptNo('')
       setLoadedTicket(null)
       await fetchReport()
+      if (accountingListDate) void fetchAccountingList(accountingListDate)
     } catch (err: any) {
       setError(err.message || String(err))
       setLoading(false)
@@ -231,7 +314,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         <div className="admin-sales-subtabs">
           {[
             { id: 'status', label: '営業状況' },
-            { id: 'void', label: 'VOID・会計変更' },
+            { id: 'void', label: '売上修正・VOID' },
             { id: 'summary', label: '売上サマリー' },
             { id: 'hourly', label: '時間帯別売上' },
             { id: 'items', label: '商品別注文数' },
@@ -267,8 +350,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                       display: 'inline-block', 
                       padding: '4px 12px', 
                       borderRadius: '100px', 
-                      background: report.is_open ? '#ebfbee' : '#f8f9fa', 
-                      color: report.is_open ? '#2b8a3e' : '#495057',
+                      background: report.is_open ? 'var(--yui-green-soft, #f0fdf4)' : 'var(--yui-surface-soft, #f1f5f9)', 
+                      color: report.is_open ? 'var(--yui-green, #15803d)' : 'var(--yui-text-sub, #475569)',
                       fontWeight: 'bold'
                     }}>
                       {report.is_open ? '営業中' : '閉店'}
@@ -278,8 +361,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                         display: 'inline-block',
                         padding: '4px 10px',
                         borderRadius: '100px',
-                        background: '#fff3bf',
-                        color: '#d9480f',
+                        background: 'var(--yui-orange-soft, #fff7ed)',
+                        color: 'var(--yui-orange, #ea580c)',
                         fontSize: '0.85rem',
                         fontWeight: 'bold'
                       }}>
@@ -291,11 +374,11 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                 <div style={{ flex: 1 }} />
                 <div>
                   {report.is_open ? (
-                    <button className="primary-button" style={{ background: '#fa5252' }} disabled={disabled || loading} onClick={handleClose}>
+                    <button className="primary-button" style={{ background: '#dc2626' }} disabled={disabled || loading} onClick={handleClose}>
                       締め処理（閉店）を行う
                     </button>
                   ) : (
-                    <button className="primary-button" style={{ background: '#51cf66' }} disabled={disabled || loading} onClick={handleOpen}>
+                    <button className="primary-button" style={{ background: 'var(--yui-green, #15803d)' }} disabled={disabled || loading} onClick={handleOpen}>
                       新しい営業日を開店する
                     </button>
                   )}
@@ -305,10 +388,10 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
               {report.is_open && report.today_business_date && report.today_business_date > report.business_date && (
                 <div style={{
                   padding: '12px 16px',
-                  background: '#fff9db',
-                  border: '1px solid #ffe066',
+                  background: 'var(--yui-orange-soft, #fff7ed)',
+                  border: '1px solid var(--yui-orange-border, #fed7aa)',
                   borderRadius: '8px',
-                  color: '#d9480f',
+                  color: 'var(--yui-orange-dark, #c2410c)',
                   fontSize: '0.88rem',
                   lineHeight: '1.5'
                 }}>
@@ -328,28 +411,145 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
       {activeSubTab === 'void' && (
         <div className="admin-card">
-          <h3 className="admin-card-title">VOID・会計変更</h3>
+          <h3 className="admin-card-title">売上データ修正・VOID</h3>
           <p className="admin-card-caption">
-            レシート番号を入力して検索し、会計の取消（VOID）または決済明細ごとの会計種別の変更を行います。
+            お会計一覧から選択するか、レシート番号を入力して検索し、営業日付や客数の修正、決済明細の変更、または会計の取消（VOID）を行います。
           </p>
+
+          {/* 会計一覧から選択セクション */}
+          <div style={{ background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '12px', padding: '16px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontWeight: 'bold', fontSize: '0.95rem', color: '#495057' }}>日付から会計データを選択:</span>
+                <input 
+                  type="date" 
+                  value={accountingListDate}
+                  onChange={(e) => {
+                    const newDate = e.target.value
+                    setAccountingListDate(newDate)
+                    if (newDate) void fetchAccountingList(newDate)
+                  }}
+                  style={{ padding: '6px 10px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.9rem' }}
+                />
+                <button
+                  type="button"
+                  className="secondary-button"
+                  disabled={disabled || loadingAccountingList || !accountingListDate}
+                  onClick={() => void fetchAccountingList(accountingListDate)}
+                  style={{ padding: '6px 12px', fontSize: '0.85rem' }}
+                >
+                  {loadingAccountingList ? '取得中...' : '再取得'}
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input 
+                  type="text"
+                  placeholder="卓番・伝票No等で絞込..."
+                  value={accountingFilterText}
+                  onChange={(e) => setAccountingFilterText(e.target.value)}
+                  style={{ padding: '6px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.88rem', width: '180px' }}
+                />
+              </div>
+            </div>
+
+            <div style={{ maxHeight: '240px', overflowY: 'auto', background: 'white', borderRadius: '8px', border: '1px solid #dee2e6' }}>
+              <table className="admin-table" style={{ margin: 0, fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ position: 'sticky', top: 0, background: '#f1f3f5', zIndex: 1 }}>
+                    <th style={{ padding: '8px 12px' }}>時刻</th>
+                    <th style={{ padding: '8px 12px' }}>テーブル</th>
+                    <th style={{ padding: '8px 12px' }}>伝票No</th>
+                    <th style={{ padding: '8px 12px' }}>客数</th>
+                    <th style={{ padding: '8px 12px' }}>会計種別</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'right' }}>金額</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center' }}>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {loadingAccountingList ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '16px', color: '#868e96' }}>
+                        会計一覧を取得中...
+                      </td>
+                    </tr>
+                  ) : filteredAccountingList.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} style={{ textAlign: 'center', padding: '16px', color: '#868e96' }}>
+                        {accountingList.length === 0 ? '指定された日の会計データはありません。' : '条件に一致する会計データがありません。'}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredAccountingList.map((tx, idx) => {
+                      const isSelected = loadedTicket && (loadedTicket.receipt_no === tx.receipt_no || voidReceiptNo === tx.receipt_no)
+                      const timeStr = tx.paid_at ? (tx.paid_at.split('T')[1]?.substring(0, 5) || tx.paid_at) : '-'
+                      return (
+                        <tr 
+                          key={idx} 
+                          style={{ 
+                            background: isSelected ? 'var(--yui-green-soft, #f0fdf4)' : 'transparent',
+                            cursor: 'pointer',
+                            transition: 'background 0.15s'
+                          }}
+                          onClick={() => void handleLoadReceiptByNo(tx.receipt_no)}
+                        >
+                          <td style={{ padding: '8px 12px' }}>{timeStr}</td>
+                          <td style={{ padding: '8px 12px', fontWeight: 'bold' }}>{tx.table_label || '—'}</td>
+                          <td style={{ padding: '8px 12px', fontFamily: 'monospace' }}>#{tx.ticket_no || '—'}</td>
+                          <td style={{ padding: '8px 12px' }}>{tx.customer_count ? `${tx.customer_count}名` : '1名'}</td>
+                          <td style={{ padding: '8px 12px' }}>
+                            <span style={{ 
+                              padding: '2px 8px', 
+                              borderRadius: '4px', 
+                              fontSize: '0.8rem', 
+                              background: '#f1f3f5',
+                              fontWeight: 'bold'
+                            }}>
+                              {tx.payment_type_label || tx.payment_type}
+                            </span>
+                          </td>
+                          <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 'bold' }}>{yen(tx.amount)}</td>
+                          <td style={{ padding: '8px 12px', textAlign: 'center' }}>
+                            <button
+                              type="button"
+                              className={isSelected ? 'primary-button' : 'secondary-button'}
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                void handleLoadReceiptByNo(tx.receipt_no)
+                              }}
+                              style={{ padding: '3px 10px', fontSize: '0.8rem' }}
+                            >
+                              {isSelected ? '選択中' : '修正'}
+                            </button>
+                          </td>
+                        </tr>
+                      )
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '20px' }}>
+            <span style={{ fontSize: '0.9rem', color: '#495057', fontWeight: 'bold' }}>または レシート番号で直接検索:</span>
             <input 
               type="text" 
-              placeholder="レシート番号" 
+              placeholder="例: 0001-12345" 
               value={voidReceiptNo} 
               onChange={e => {
                 setVoidReceiptNo(e.target.value)
                 setLoadedTicket(null)
               }}
-              style={{ padding: '12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '1rem', width: '200px' }}
+              style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '0.95rem', width: '200px' }}
             />
             <button 
-              className="primary-button" 
-              style={{ background: '#228be6' }} 
+              className="secondary-button" 
               disabled={disabled || loading || !voidReceiptNo} 
               onClick={handleSearchReceipt}
+              style={{ padding: '8px 16px', fontSize: '0.9rem' }}
             >
-              検索する
+              検索
             </button>
           </div>
 
@@ -389,6 +589,56 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
 
               {loadedTicket.status !== 'VOIDED' && (
                 <>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                    gap: '16px',
+                    background: 'white',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    border: '1px solid #dee2e6',
+                    marginBottom: '20px'
+                  }}>
+                    <div>
+                      <label style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#495057', display: 'block', marginBottom: '6px' }}>
+                        営業日付
+                        {isBusinessDateChanged && <span style={{ marginLeft: '8px', color: 'var(--yui-orange, #ea580c)', fontSize: '0.8rem', fontWeight: 'bold' }}>● 変更あり</span>}
+                      </label>
+                      <input 
+                        type="date"
+                        value={editBusinessDate}
+                        disabled={disabled || loading}
+                        onChange={e => setEditBusinessDate(e.target.value)}
+                        style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.95rem', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <span style={{ fontSize: '0.8rem', color: '#868e96', marginTop: '4px', display: 'block' }}>
+                        元の営業日付: {origBusinessDate || '未設定'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.88rem', fontWeight: 'bold', color: '#495057', display: 'block', marginBottom: '6px' }}>
+                        客数
+                        {isCustomerCountChanged && <span style={{ marginLeft: '8px', color: 'var(--yui-orange, #ea580c)', fontSize: '0.8rem', fontWeight: 'bold' }}>● 変更あり</span>}
+                      </label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <input 
+                          type="number"
+                          min="1"
+                          max="999"
+                          value={editCustomerCount}
+                          disabled={disabled || loading}
+                          onChange={e => setEditCustomerCount(e.target.value)}
+                          style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.95rem', width: '120px' }}
+                        />
+                        <span style={{ fontSize: '0.95rem', color: '#495057' }}>名</span>
+                      </div>
+                      <span style={{ fontSize: '0.8rem', color: '#868e96', marginTop: '4px', display: 'block' }}>
+                        元の客数: {origCustomerCount}名
+                      </span>
+                    </div>
+                  </div>
+
                   <h5 style={{ margin: '16px 0 8px 0', fontSize: '1rem', color: '#495057' }}>決済明細（複数可）</h5>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
                     {(receiptPaymentChanges || []).map((change: any, index: number) => {
@@ -514,8 +764,8 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                       style={{
                         padding: '8px 16px',
                         background: 'white',
-                        border: '1px solid #228be6',
-                        color: '#228be6',
+                        border: '1px solid var(--yui-green, #15803d)',
+                        color: 'var(--yui-green, #15803d)',
                         borderRadius: '8px',
                         fontWeight: 'bold',
                         cursor: 'pointer',
@@ -565,11 +815,11 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                   <div style={{ display: 'flex', gap: '16px' }}>
                     <button 
                       className="primary-button" 
-                      style={{ background: '#4dabf7' }} 
-                      disabled={disabled || loading || !hasPaymentChanges()} 
+                      style={{ background: 'var(--yui-green, #15803d)' }} 
+                      disabled={disabled || loading || !hasAnyChanges()} 
                       onClick={handleSavePaymentChanges}
                     >
-                      決済明細を変更
+                      修正内容を保存
                     </button>
                     <button 
                       className="primary-button" 
@@ -593,9 +843,9 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
             <h3 className="admin-card-title">売上サマリー</h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-              <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.9rem', color: '#868e96', marginBottom: '4px' }}>総売上</div>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#212529' }}>{yen(report.total_sales || 0)}</div>
+              <div style={{ background: '#ffffff', border: '1px solid var(--admin-line)', borderLeft: '4px solid var(--yui-green)', padding: '16px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--yui-text-muted)', marginBottom: '4px' }}>総売上</div>
+                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--yui-green)' }}>{yen(report.total_sales || 0)}</div>
               </div>
               <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
                 <div style={{ fontSize: '0.9rem', color: '#868e96', marginBottom: '4px' }}>値引・割引額</div>
@@ -604,13 +854,13 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
-              <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.9rem', color: '#868e96', marginBottom: '4px' }}>組数（会計件数）</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#212529' }}>{report.total_groups || 0} 組</div>
+              <div style={{ background: '#ffffff', border: '1px solid var(--admin-line)', borderLeft: '4px solid var(--yui-orange)', padding: '16px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--yui-text-muted)', marginBottom: '4px' }}>組数（会計件数）</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--yui-text-main)' }}>{report.total_groups || 0} 組</div>
               </div>
-              <div style={{ background: '#f8f9fa', padding: '16px', borderRadius: '8px' }}>
-                <div style={{ fontSize: '0.9rem', color: '#868e96', marginBottom: '4px' }}>客数</div>
-                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#212529' }}>{report.total_customers || 0} 名</div>
+              <div style={{ background: '#ffffff', border: '1px solid var(--admin-line)', borderLeft: '4px solid var(--yui-orange)', padding: '16px', borderRadius: '8px' }}>
+                <div style={{ fontSize: '0.9rem', color: 'var(--yui-text-muted)', marginBottom: '4px' }}>客数</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'var(--yui-text-main)' }}>{report.total_customers || 0} 名</div>
               </div>
             </div>
 

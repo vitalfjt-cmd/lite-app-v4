@@ -130,7 +130,7 @@ export function StaffHandyView({
                 <div key={item.cartKey} className="slip-line unsent">
                   <div className="slip-line-info" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px' }}>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <span className="badge" style={{ background: '#ff5a5f', color: 'white' }}>
+                      <span className="badge" style={{ background: 'var(--yui-orange, #ea580c)', color: 'white' }}>
                         新規追加
                       </span>
                       <span className="name">{item.name}</span>

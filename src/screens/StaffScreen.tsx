@@ -5,6 +5,7 @@ import { DirectActionView } from './staff/DirectActionView'
 import { StaffPaymentView } from './staff/StaffPaymentView'
 import { StaffHandyView } from './staff/StaffHandyView'
 import { StaffPrepaidOrderView } from './staff/StaffPrepaidOrderView'
+import { BusinessDateRolloverModal } from '../components/BusinessDateRolloverModal'
 import { isTimeWithinWindow, formatTime } from '../lib/appUtils'
 import { StaffPrototypeTopCategory, StaffPrototypeSubCategory, StaffPrototypeItem, LivePaymentEntry, LiveTableRef, LiveMenuBook, TicketSummaryView, LiveLine, LiveMenuItem , AdminPaymentMethod, PrepaidOrderCreationResult } from '../types'
 
@@ -59,6 +60,7 @@ type StaffScreenProps = {
   onNewTicketMenuBookChange: (value: string) => void
   onCreateTicket: (tableRefId: string, menuBookId: string, customerCount: number | null) => Promise<boolean>
   onUpdateTicketMenuBook?: (ticketId: string, menuBookId: string) => Promise<boolean> | void
+  onUpdateTicketCustomerCount?: (ticketId: string, customerCount: number | null) => Promise<boolean> | void
   onSavePaymentEntry: (payload: {
     ticketId?: string
     paymentType: string
@@ -84,6 +86,7 @@ type StaffScreenProps = {
   onOpenLauncher?: () => void
   openBusinessDate?: string | null
   todayBusinessDate?: string
+  onRolloverBusinessDay?: () => Promise<void>
   paymentTimingMode?: 'PREPAID' | 'POSTPAID'
   receptionNumberPrintMode?: 'ENABLED' | 'DISABLED'
   onCreatePrepaidOrder?: (
@@ -150,6 +153,7 @@ export function StaffScreen({
   onNewTicketMenuBookChange,
   onCreateTicket,
   onUpdateTicketMenuBook,
+  onUpdateTicketCustomerCount,
   onSavePaymentEntry,
   onCloseTicket,
   onAbortPayment,
@@ -162,6 +166,7 @@ export function StaffScreen({
   onOpenLauncher,
   openBusinessDate,
   todayBusinessDate,
+  onRolloverBusinessDay,
   paymentTimingMode,
   receptionNumberPrintMode,
   onCreatePrepaidOrder,
@@ -412,24 +417,24 @@ export function StaffScreen({
   }, [selectedTicketId, isPrepaid, prepaidSubView])
 
 
+  const [showRolloverModal, setShowRolloverModal] = useState(false)
+
   /* Create Ticket Handlers */
-  function openCreateTicketModal() {
-    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
-      const confirmed = window.confirm(
-        `【営業日切替時刻を超過しています】\n\n` +
-        `現在の営業日: ${openBusinessDate}\n` +
-        `システム日付: ${todayBusinessDate}\n\n` +
-        `前日の営業日（${openBusinessDate}）のまま伝票を発行しますか？\n` +
-        `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
-      )
-      if (!confirmed) return
-    }
+  function proceedCreateTicketModal() {
     if (!newTicketTableId && availableTables.length > 0) setNewTicketTableId(availableTables[0].id)
     if ((!newTicketMenuBookId || !liveMenuBooks.some((b) => b.id === newTicketMenuBookId)) && liveMenuBooks.length > 0) {
       const activeBook = liveMenuBooks.find((b) => b.is_active) ?? liveMenuBooks[0]
       if (activeBook) onNewTicketMenuBookChange(activeBook.id)
     }
     setShowCreateTicketModal(true)
+  }
+
+  function openCreateTicketModal() {
+    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
+      setShowRolloverModal(true)
+      return
+    }
+    proceedCreateTicketModal()
   }
   const canSubmitCreateTicket = Boolean(newTicketTableId) && (staffReadOnlyMode || Boolean(newTicketMenuBookId))
   async function handleCreateTicket() {
@@ -1062,6 +1067,7 @@ export function StaffScreen({
         terminalName={terminalName}
         openBusinessDate={openBusinessDate}
         todayBusinessDate={todayBusinessDate}
+        onRolloverBusinessDay={onRolloverBusinessDay}
         handyTopCategories={handyTopCategories}
         visibleHandySubCategories={visibleHandySubCategories}
         visibleHandyItems={visibleHandyItems}
@@ -1146,7 +1152,7 @@ export function StaffScreen({
                 <span
                   className="staff-badge"
                   style={{
-                    background: '#2b8a3e',
+                    background: 'var(--yui-green, #15803d)',
                     color: '#fff',
                     fontWeight: 700,
                     display: 'flex',
@@ -1157,13 +1163,13 @@ export function StaffScreen({
                   }}
                 >
                   <span style={{ opacity: 0.85, fontSize: '0.75rem' }}>営業日:</span> {openBusinessDate}
-                  <span style={{ background: '#237032', padding: '1px 6px', borderRadius: '8px', fontSize: '0.72rem', marginLeft: '2px' }}>営業中</span>
+                  <span style={{ background: 'var(--yui-green-dark, #166534)', padding: '1px 6px', borderRadius: '8px', fontSize: '0.72rem', marginLeft: '2px' }}>営業中</span>
                 </span>
                 {todayBusinessDate && todayBusinessDate > openBusinessDate && (
                   <span
                     className="staff-badge"
                     style={{
-                      background: '#e8590c',
+                      background: 'var(--yui-orange, #ea580c)',
                       color: '#fff',
                       fontSize: '0.75rem',
                       fontWeight: 700,
@@ -1197,7 +1203,7 @@ export function StaffScreen({
             <button
               className="btn-primary"
               onClick={() => setPrepaidSubView('order')}
-              style={{ background: '#16a34a', display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ background: 'var(--yui-green, #15803d)', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <span>🛒 レジ注文へ</span>
             </button>
@@ -1281,39 +1287,68 @@ export function StaffScreen({
                           <button className="btn-secondary mobile-only" onClick={() => setMobileView('list')} style={{marginRight:'12px', padding:'4px 8px'}}>← 戻る</button>
                           {selectedSummary.tableName} 詳細
                         </h2>
-                        <span className="order-time">注文時刻: {formatTime(selectedSummary.orderedAt)} / 伝票: {selectedSummary.ticketNo} / 客数: {selectedSummary.customerCount || 1}名</span>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px' }}>
-                          <span style={{ fontSize: '0.85rem', color: '#aaa' }}>メニューブック:</span>
-                          <select
-                            data-testid="staff-ticket-menu-book-select"
-                            value={selectedSummary.menuBookId || ''}
-                            onChange={(e) => {
-                              const nextBookId = e.target.value
-                              if (nextBookId && nextBookId !== selectedSummary.menuBookId) {
-                                onUpdateTicketMenuBook?.(selectedSummary.ticketId, nextBookId)
-                              }
-                            }}
-                            disabled={mutationBusy === 'update-ticket-menu-book'}
-                            style={{
-                              padding: '4px 8px',
-                              background: '#111',
-                              color: '#fff',
-                              border: '1px solid #444',
-                              borderRadius: '6px',
-                              fontSize: '0.85rem',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            {liveMenuBooks.map((mb) => {
-                              const isAvailable = isTimeWithinWindow(mb.available_from_time, mb.available_to_time)
-                              const timeRange = (mb.available_from_time || mb.available_to_time) ? ` (${mb.available_from_time || ''}〜${mb.available_to_time || ''})` : ''
-                              return (
-                                <option key={mb.id} value={mb.id}>
-                                  {isAvailable ? `${mb.name}${timeRange}` : `(時間外) ${mb.name}${timeRange}`}
-                                </option>
-                              )
-                            })}
-                          </select>
+                        <span className="order-time">注文時刻: {formatTime(selectedSummary.orderedAt)} / 伝票: {selectedSummary.ticketNo}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '6px', flexWrap: 'wrap' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.85rem', color: '#aaa' }}>客数:</span>
+                            <select
+                              data-testid="staff-ticket-customer-count-select"
+                              value={selectedSummary.customerCount || 1}
+                              onChange={(e) => {
+                                const nextCount = parseInt(e.target.value, 10)
+                                if (nextCount && nextCount !== selectedSummary.customerCount) {
+                                  onUpdateTicketCustomerCount?.(selectedSummary.ticketId, nextCount)
+                                }
+                              }}
+                              disabled={mutationBusy === 'update-ticket-customer-count'}
+                              style={{
+                                padding: '4px 8px',
+                                background: '#111',
+                                color: '#fff',
+                                border: '1px solid #444',
+                                borderRadius: '6px',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 25, 30].map((num) => (
+                                <option key={num} value={num}>{num}名</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '0.85rem', color: '#aaa' }}>メニューブック:</span>
+                            <select
+                              data-testid="staff-ticket-menu-book-select"
+                              value={selectedSummary.menuBookId || ''}
+                              onChange={(e) => {
+                                const nextBookId = e.target.value
+                                if (nextBookId && nextBookId !== selectedSummary.menuBookId) {
+                                  onUpdateTicketMenuBook?.(selectedSummary.ticketId, nextBookId)
+                                }
+                              }}
+                              disabled={mutationBusy === 'update-ticket-menu-book'}
+                              style={{
+                                padding: '4px 8px',
+                                background: '#111',
+                                color: '#fff',
+                                border: '1px solid #444',
+                                borderRadius: '6px',
+                                fontSize: '0.85rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {liveMenuBooks.map((mb) => {
+                                const isAvailable = isTimeWithinWindow(mb.available_from_time, mb.available_to_time)
+                                const timeRange = (mb.available_from_time || mb.available_to_time) ? ` (${mb.available_from_time || ''}〜${mb.available_to_time || ''})` : ''
+                                return (
+                                  <option key={mb.id} value={mb.id}>
+                                    {isAvailable ? `${mb.name}${timeRange}` : `(時間外) ${mb.name}${timeRange}`}
+                                  </option>
+                                )
+                              })}
+                            </select>
+                          </div>
                         </div>
                       </div>
                       <div className="action-group">
@@ -1357,13 +1392,13 @@ export function StaffScreen({
                           <button onClick={() => onChangeLineQuantity(line.id, 1)}>+</button>
                         </div>
                         {draftQuantities[line.id] !== undefined && draftQuantities[line.id] !== line.quantity && (
-                           <button style={{marginLeft:'8px', padding:'2px 6px', background:'#4dabf7', color:'white', border:'none', borderRadius:'4px'}} onClick={() => onSubmitLineQuantityUpdate(line.id)}>更新</button>
+                           <button style={{marginLeft:'8px', padding:'2px 6px', background:'var(--yui-green, #15803d)', color:'white', border:'none', borderRadius:'4px'}} onClick={() => onSubmitLineQuantityUpdate(line.id)}>更新</button>
                         )}
                       </span>
                       <span className="line-price">{yen(line.line_subtotal)}</span>
                       <span className="line-status">
                         <span className={`status-badge ${line.kds_status.toLowerCase()}`}>{kdsStatusLabel(line.kds_status)}</span>
-                        <button style={{marginLeft:'8px', padding:'4px 8px', background:'transparent', color:'#ff5a5f', border:'1px solid #ff5a5f', borderRadius:'4px'}} onClick={() => onCancelLine(line.id)}>取消</button>
+                        <button style={{marginLeft:'8px', padding:'4px 8px', background:'transparent', color:'#dc2626', border:'1px solid #dc2626', borderRadius:'4px'}} onClick={() => onCancelLine(line.id)}>取消</button>
                       </span>
                     </div>
                   ))}
@@ -1474,7 +1509,7 @@ export function StaffScreen({
             </div>
             <div style={{display:'flex', gap:'16px'}}>
               <button style={{flex:1, padding:'12px', background:'transparent', color:'white', border:'1px solid #444', borderRadius:'8px'}} onClick={() => setShowCreateTicketModal(false)}>キャンセル</button>
-              <button style={{flex:1, padding:'12px', background:'#4dabf7', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold'}} disabled={mutationBusy === 'create-ticket'} onClick={handleCreateTicket}>発行する</button>
+              <button style={{flex:1, padding:'12px', background:'var(--yui-green, #15803d)', color:'white', border:'none', borderRadius:'8px', fontWeight:'bold'}} disabled={mutationBusy === 'create-ticket'} onClick={handleCreateTicket}>発行する</button>
             </div>
           </div>
         </div>
@@ -1523,6 +1558,24 @@ export function StaffScreen({
           </div>
         </div>
       )}
+
+      <BusinessDateRolloverModal
+        isOpen={showRolloverModal}
+        onClose={() => setShowRolloverModal(false)}
+        openBusinessDate={openBusinessDate}
+        todayBusinessDate={todayBusinessDate}
+        onProceedWithPreviousDate={() => {
+          setShowRolloverModal(false)
+          proceedCreateTicketModal()
+        }}
+        onRolloverAndProceed={async () => {
+          if (onRolloverBusinessDay) {
+            await onRolloverBusinessDay()
+          }
+          setShowRolloverModal(false)
+          proceedCreateTicketModal()
+        }}
+      />
     </div>
   )
 }

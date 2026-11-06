@@ -367,7 +367,7 @@ export function StaffPaymentView({
         {/* ---- 固定フッター：会計金額エリア ---- */}
         <div style={{ padding: '0 20px 16px', flexShrink: 0, borderTop: '2px dashed #aaa', background: '#fdfdfd' }}>
           {!g && discountRate > 0 && (
-            <div className="receipt-deposit-group" style={{ color: '#ff5a5f', padding: '0', background: 'transparent', margin: '0' }}>
+            <div className="receipt-deposit-group" style={{ color: '#dc2626', padding: '0', background: 'transparent', margin: '0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '1.2rem' }}>
                 <span>割引 ({discountRate}%)</span>
                 <span>-{yen(discountFromRate)}</span>
@@ -375,7 +375,7 @@ export function StaffPaymentView({
             </div>
           )}
           {!g && discountAmount > 0 && (
-            <div className="receipt-deposit-group" style={{ color: '#ff5a5f', padding: '0', background: 'transparent', margin: '0' }}>
+            <div className="receipt-deposit-group" style={{ color: '#dc2626', padding: '0', background: 'transparent', margin: '0' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: '1.2rem' }}>
                 <span>値引</span>
                 <span>-{yen(discountAmount)}</span>
@@ -385,7 +385,7 @@ export function StaffPaymentView({
           {!g && (discountRate > 0 || discountAmount > 0) && <div className="receipt-divider"></div>}
           <div className="receipt-grand-total">
             <span>ご請求額</span>
-            <span className="total-amount" style={{ color: (g ? 0 : remainingTotal) === 0 ? '#333' : '#ff5a5f' }}>
+            <span className="total-amount" style={{ color: (g ? 0 : remainingTotal) === 0 ? '#333' : 'var(--yui-orange, #ea580c)' }}>
               {yen(g ? g.amount : finalBilledAmount)}
             </span>
           </div>
@@ -1019,14 +1019,14 @@ export function StaffPaymentView({
                   style={{
                     width: '100%',
                     padding: '24px',
-                    background: '#ff5a5f',
+                    background: 'var(--yui-green, #15803d)',
                     color: 'white',
                     borderRadius: '12px',
                     fontSize: '1.5rem',
                     fontWeight: 'bold',
                     border: 'none',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(255,90,95,0.3)',
+                    boxShadow: '0 4px 12px rgba(21, 128, 61, 0.3)',
                     marginBottom: '16px',
                   }}
                 >
@@ -1500,12 +1500,12 @@ export function StaffPaymentView({
                 </div>
                 <div style={{ textAlign: 'center', marginBottom: '32px' }}>
                   <span style={{ fontSize: '1.3rem', color: '#666' }}>1人あたり: </span>
-                  <span style={{ fontSize: '3rem', fontWeight: 'bold', color: '#ff5a5f' }}>{yen(Math.floor(remainingTotal / splitCount))}</span>
+                  <span style={{ fontSize: '3rem', fontWeight: 'bold', color: 'var(--yui-orange, #ea580c)' }}>{yen(Math.floor(remainingTotal / splitCount))}</span>
                 </div>
                 <button
                   style={{
                     width: '100%',
-                    background: '#1b813e',
+                    background: 'var(--yui-green, #15803d)',
                     color: 'white',
                     padding: '20px',
                     borderRadius: '12px',
@@ -1640,7 +1640,7 @@ export function StaffPaymentView({
                 <div style={{ padding: '24px', borderTop: '1px solid #dee2e6', background: 'white', flexShrink: 0, borderRadius: '0 0 16px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <span style={{ fontSize: '1.3rem', color: '#666' }}>選択合計:</span>
-                    <span style={{ fontSize: '2.8rem', fontWeight: 'bold', color: '#ff5a5f' }}>{yen(currentItemizedTotal)}</span>
+                    <span style={{ fontSize: '2.8rem', fontWeight: 'bold', color: 'var(--yui-orange, #ea580c)' }}>{yen(currentItemizedTotal)}</span>
                   </div>
                   <div style={{ display: 'flex', gap: '16px' }}>
                     <button
@@ -1652,7 +1652,7 @@ export function StaffPaymentView({
                     <button
                       style={{
                         flex: 2,
-                        background: '#1b813e',
+                        background: 'var(--yui-green, #15803d)',
                         color: 'white',
                         padding: '20px',
                         borderRadius: '12px',

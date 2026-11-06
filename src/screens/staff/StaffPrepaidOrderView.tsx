@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react'
 import { ToppingModal } from '../../components/ToppingModal'
+import { BusinessDateRolloverModal } from '../../components/BusinessDateRolloverModal'
 import {
   StaffPrototypeTopCategory,
   StaffPrototypeSubCategory,
@@ -39,6 +40,7 @@ type StaffPrepaidOrderViewProps = {
   reducedTaxRate?: number
   openBusinessDate?: string | null
   todayBusinessDate?: string
+  onRolloverBusinessDay?: () => Promise<void>
   yen: (val: number) => string
   setHandyTopCategoryId: (val: string | null) => void
   setHandySubCategoryId: (val: string | null) => void
@@ -55,6 +57,7 @@ export function StaffPrepaidOrderView({
   terminalName,
   openBusinessDate,
   todayBusinessDate,
+  onRolloverBusinessDay,
   staffMessage,
   handyTopCategories,
   visibleHandySubCategories,
@@ -140,24 +143,24 @@ export function StaffPrepaidOrderView({
     }
   }
 
-  const handleCheckoutClick = async () => {
-    if (cart.length === 0) return
-    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
-      const confirmed = window.confirm(
-        `【営業日切替時刻を超過しています】\n\n` +
-        `現在の営業日: ${openBusinessDate}\n` +
-        `システム日付: ${todayBusinessDate}\n\n` +
-        `前日の営業日（${openBusinessDate}）のまま注文・会計を進行しますか？\n` +
-        `※営業終了後は必ず「売上管理 > 営業状況」から閉店処理を行ってください。`
-      )
-      if (!confirmed) return
-    }
+  const [showRolloverModal, setShowRolloverModal] = useState(false)
+
+  const proceedCheckout = async () => {
     try {
       await onProceedToPayment(cart)
       setCart([])
     } catch (e) {
       console.error('Checkout failed', e)
     }
+  }
+
+  const handleCheckoutClick = async () => {
+    if (cart.length === 0) return
+    if (todayBusinessDate && openBusinessDate && todayBusinessDate > openBusinessDate) {
+      setShowRolloverModal(true)
+      return
+    }
+    await proceedCheckout()
   }
 
   return (
@@ -449,7 +452,7 @@ export function StaffPrepaidOrderView({
                     )}
                   </span>
                   {item.isSoldOut && (
-                    <span style={{ fontSize: '0.75rem', color: '#ff5a5f', fontWeight: 'bold' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--yui-status-danger, #dc2626)', fontWeight: 'bold' }}>
                       売切
                     </span>
                   )}
@@ -638,6 +641,24 @@ export function StaffPrepaidOrderView({
         🛒
         {cartItemCount > 0 && <span className="mobile-cart-count">{cartItemCount}</span>}
       </button>
+
+      <BusinessDateRolloverModal
+        isOpen={showRolloverModal}
+        onClose={() => setShowRolloverModal(false)}
+        openBusinessDate={openBusinessDate}
+        todayBusinessDate={todayBusinessDate}
+        onProceedWithPreviousDate={() => {
+          setShowRolloverModal(false)
+          void proceedCheckout()
+        }}
+        onRolloverAndProceed={async () => {
+          if (onRolloverBusinessDay) {
+            await onRolloverBusinessDay()
+          }
+          setShowRolloverModal(false)
+          void proceedCheckout()
+        }}
+      />
     </div>
   )
 }

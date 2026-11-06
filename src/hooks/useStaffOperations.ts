@@ -11,6 +11,7 @@ import {
   addStaffPrototypeOrders,
   createStaffPrototypeTicket,
   updateStaffPrototypeTicketMenuBook,
+  updateStaffTicketCustomerCount,
   addStaffPrototypePaymentEntry,
   closeStaffPrototypeTicket,
   staffAuditLog,
@@ -567,6 +568,31 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     }
   }
 
+  const updateTicketCustomerCount = async (ticketId: string, newCustomerCount: number | null): Promise<boolean> => {
+    setMutationBusy('update-ticket-customer-count')
+    setStaffMessage(null)
+    setError(null)
+    try {
+      if (staffReadApiEnabled) {
+        const storeSlug = effectiveStoreSlug
+        if (!storeSlug) throw new Error('staff_store_slug_missing')
+        await updateStaffTicketCustomerCount(storeSlug, ticketId, newCustomerCount)
+      }
+      setLiveTickets((current) =>
+        current.map((t) => (t.id === ticketId ? { ...t, customer_count: newCustomerCount } : t))
+      )
+      setStaffMessage(`客数を「${newCustomerCount ?? 1}名」に変更しました。`)
+      return true
+    } catch (err) {
+      const message = messageFromStaffApiError(err)
+      setError(message)
+      setStaffMessage(message)
+      return false
+    } finally {
+      setMutationBusy(null)
+    }
+  }
+
   return {
     changeLineQuantity,
     submitLineQuantityUpdate,
@@ -577,6 +603,7 @@ export function useStaffOperations(deps: StaffOperationsDeps) {
     createStaffTicket,
     createPrepaidOrder,
     updateTicketMenuBook,
+    updateTicketCustomerCount,
     savePaymentEntry,
     settleTicket,
     logPaymentAbort,
