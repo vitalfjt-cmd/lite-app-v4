@@ -18,6 +18,22 @@ type Props = {
   hideHeaders?: boolean
 }
 
+function formatTokyoTime(isoString: string | null | undefined): string {
+  if (!isoString) return '-'
+  try {
+    const d = new Date(isoString)
+    if (isNaN(d.getTime())) return isoString
+    return new Intl.DateTimeFormat('ja-JP', {
+      timeZone: 'Asia/Tokyo',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).format(d)
+  } catch {
+    return isoString
+  }
+}
+
 export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setError, initialSubTab, hideHeaders }: Props) {
   const [report, setReport] = useState<any>(null)
   const [loading, setLoading] = useState(false)
@@ -108,6 +124,14 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
       }
       setLoading(false)
     }
+  }
+
+  const handleClearLoadedTicket = () => {
+    setVoidReceiptNo('')
+    setLoadedTicket(null)
+    setReceiptPaymentChanges([])
+    setEditCustomerCount('')
+    setEditBusinessDate('')
   }
 
   const handleLoadReceiptByNo = async (targetReceiptNo: string) => {
@@ -259,10 +283,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
         isBusinessDateChanged ? editBusinessDate : undefined
       )
       setAdminMessage('売上データの変更が完了しました')
-      setVoidReceiptNo('')
-      setLoadedTicket(null)
-      setEditCustomerCount('')
-      setEditBusinessDate('')
+      handleClearLoadedTicket()
       await fetchReport()
       if (accountingListDate) void fetchAccountingList(accountingListDate)
     } catch (err: any) {
@@ -278,8 +299,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
     try {
       await voidStaffTicket(storeSlug, voidReceiptNo, null, null)
       setAdminMessage('VOID処理が完了しました')
-      setVoidReceiptNo('')
-      setLoadedTicket(null)
+      handleClearLoadedTicket()
       await fetchReport()
       if (accountingListDate) void fetchAccountingList(accountingListDate)
     } catch (err: any) {
@@ -427,6 +447,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                   onChange={(e) => {
                     const newDate = e.target.value
                     setAccountingListDate(newDate)
+                    handleClearLoadedTicket()
                     if (newDate) void fetchAccountingList(newDate)
                   }}
                   style={{ padding: '6px 10px', border: '1px solid #ced4da', borderRadius: '6px', fontSize: '0.9rem' }}
@@ -435,7 +456,10 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                   type="button"
                   className="secondary-button"
                   disabled={disabled || loadingAccountingList || !accountingListDate}
-                  onClick={() => void fetchAccountingList(accountingListDate)}
+                  onClick={() => {
+                    handleClearLoadedTicket()
+                    void fetchAccountingList(accountingListDate)
+                  }}
                   style={{ padding: '6px 12px', fontSize: '0.85rem' }}
                 >
                   {loadingAccountingList ? '取得中...' : '再取得'}
@@ -482,7 +506,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                   ) : (
                     filteredAccountingList.map((tx, idx) => {
                       const isSelected = loadedTicket && (loadedTicket.receipt_no === tx.receipt_no || voidReceiptNo === tx.receipt_no)
-                      const timeStr = tx.paid_at ? (tx.paid_at.split('T')[1]?.substring(0, 5) || tx.paid_at) : '-'
+                      const timeStr = formatTokyoTime(tx.paid_at)
                       return (
                         <tr 
                           key={idx} 
@@ -491,9 +515,15 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                             cursor: 'pointer',
                             transition: 'background 0.15s'
                           }}
-                          onClick={() => void handleLoadReceiptByNo(tx.receipt_no)}
+                          onClick={() => {
+                            if (isSelected) {
+                              handleClearLoadedTicket()
+                            } else {
+                              void handleLoadReceiptByNo(tx.receipt_no)
+                            }
+                          }}
                         >
-                          <td style={{ padding: '8px 12px' }}>{timeStr}</td>
+                          <td style={{ padding: '8px 12px' }} title={tx.paid_at}>{timeStr}</td>
                           <td style={{ padding: '8px 12px', fontWeight: 'bold' }}>{tx.table_label || '—'}</td>
                           <td style={{ padding: '8px 12px', fontFamily: 'monospace' }}>#{tx.ticket_no || '—'}</td>
                           <td style={{ padding: '8px 12px' }}>{tx.customer_count ? `${tx.customer_count}名` : '1名'}</td>
@@ -515,9 +545,14 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                               className={isSelected ? 'primary-button' : 'secondary-button'}
                               onClick={(e) => {
                                 e.stopPropagation()
-                                void handleLoadReceiptByNo(tx.receipt_no)
+                                if (isSelected) {
+                                  handleClearLoadedTicket()
+                                } else {
+                                  void handleLoadReceiptByNo(tx.receipt_no)
+                                }
                               }}
                               style={{ padding: '3px 10px', fontSize: '0.8rem' }}
+                              title={isSelected ? 'クリックで選択を解除' : 'この伝票を修正'}
                             >
                               {isSelected ? '選択中' : '修正'}
                             </button>
@@ -531,33 +566,56 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap' }}>
             <span style={{ fontSize: '0.9rem', color: '#495057', fontWeight: 'bold' }}>または レシート番号で直接検索:</span>
-            <input 
-              type="text" 
-              placeholder="例: 0001-12345" 
-              value={voidReceiptNo} 
-              onChange={e => {
-                setVoidReceiptNo(e.target.value)
-                setLoadedTicket(null)
-              }}
-              style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '0.95rem', width: '200px' }}
-            />
-            <button 
-              className="secondary-button" 
-              disabled={disabled || loading || !voidReceiptNo} 
-              onClick={handleSearchReceipt}
-              style={{ padding: '8px 16px', fontSize: '0.9rem' }}
-            >
-              検索
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input 
+                type="text" 
+                placeholder="例: 0001-12345" 
+                value={voidReceiptNo} 
+                onChange={e => {
+                  setVoidReceiptNo(e.target.value)
+                  setLoadedTicket(null)
+                }}
+                style={{ padding: '8px 12px', border: '1px solid #ced4da', borderRadius: '8px', fontSize: '0.95rem', width: '200px' }}
+              />
+              <button 
+                className="secondary-button" 
+                disabled={disabled || loading || !voidReceiptNo.trim()} 
+                onClick={handleSearchReceipt}
+                style={{ padding: '8px 16px', fontSize: '0.9rem' }}
+              >
+                検索
+              </button>
+              {(voidReceiptNo || loadedTicket) && (
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={handleClearLoadedTicket}
+                  style={{ padding: '8px 14px', fontSize: '0.9rem', color: '#495057' }}
+                  title="選択中・入力中の伝票をクリアします"
+                >
+                  クリア
+                </button>
+              )}
+            </div>
           </div>
 
           {loadedTicket && (
             <div style={{ marginTop: '24px', padding: '20px', background: '#f8f9fa', borderRadius: '12px', border: '1px solid #e9ecef' }}>
-              <h4 style={{ marginTop: 0, marginBottom: '16px', fontSize: '1.1rem', color: '#495057' }}>
-                レシート情報: {loadedTicket.receipt_no || voidReceiptNo}
-              </h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
+                <h4 style={{ margin: 0, fontSize: '1.1rem', color: '#495057' }}>
+                  レシート情報: {loadedTicket.receipt_no || voidReceiptNo}
+                </h4>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={handleClearLoadedTicket}
+                  style={{ padding: '6px 14px', fontSize: '0.85rem' }}
+                >
+                  ✕ 選択解除（編集をやめる）
+                </button>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                 <div>
                   <span style={{ fontSize: '0.85rem', color: '#868e96', display: 'block' }}>伝票番号</span>
@@ -812,7 +870,7 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                     )
                   })()}
 
-                  <div style={{ display: 'flex', gap: '16px' }}>
+                  <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <button 
                       className="primary-button" 
                       style={{ background: 'var(--yui-green, #15803d)' }} 
@@ -828,6 +886,15 @@ export function AdminSalesTab({ storeSlug, disabled, yen, setAdminMessage, setEr
                       onClick={handleVoidExecuteOnly}
                     >
                       VOID取消を実行
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      disabled={disabled || loading}
+                      onClick={handleClearLoadedTicket}
+                      style={{ padding: '10px 18px', fontSize: '0.95rem' }}
+                    >
+                      キャンセル
                     </button>
                   </div>
                 </>
